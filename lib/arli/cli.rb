@@ -29,7 +29,7 @@ module Arli
 
       def option_help(commands: false, command: nil)
         on('-h', '--help', 'prints this help') do
-          puts 'Description:'.bold
+          puts 'Description:'.bold if command
           output ' ' * 4 + command[:description].bold.green if command
           output ''
           output_help
@@ -67,7 +67,7 @@ module Arli
 
         ::Arli::CLI.commands.each_pair do |command, config|
           subtext << <<-EOS
-#{sprintf('%12s', command.to_s).bold.green} : #{sprintf('%-70s', config[:description]).bold.yellow}
+#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%-70s', config[:description]).yellow}
           EOS
         end
         subtext << <<-EOS
