@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'arli'
+
+Arli::CLI.new.tap do |cli|
+  cli.parse
+end
+
+
