@@ -1,24 +1,59 @@
+[![Build Status](https://travis-ci.org/kigster/arli.svg?branch=master)](https://travis-ci.org/kigster/arli)
+
 # Arli
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/arli`. To experiment with that code, run `bin/console` for an interactive prompt.
+Arli is a simple and easy to use installer of dependencies that can be 
+declared in a JSON file of the following format:
 
-TODO: Delete this and the text above, and describe your gem
+
+```json
+{
+  "dependencies": [
+    {
+      "name": "DS1307RTC",
+      "git": "https://github.com/PaulStoffregen/DS1307RTC.git"
+    },
+    {
+      "name": "Adafruit_LEDBackpack",
+      "git": "https://github.com/adafruit/Adafruit-LED-Backpack-Library.git"
+    },
+  }
+}
+```
+
+Basically a simple pairing of a library/project name (which also happens to be the local 
+directory it's cloned into) and a remote URL.
+
+The gem was created to fill the need of managing many external libraries for an Arduino projects 
+in a consistent way. Arli's API was loosely inspired by Bundler.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Install the gem globally like this: 
 
-```ruby
-gem 'arli'
+```bash
+$ gem install arli      # if using rbenv, or rvm
+$ sudo gem install arli # if your Ruby is system-wide
 ```
 
-And then execute:
+After thatf, run `arli --help` for more information:
 
-    $ bundle
+```
+Usage:
+    arli [options] [command [options]]
 
-Or install it yourself as:
+    -L, --lib-home HOME              Specify a local directory where libraries are installed
+    -h, --help                       prints this help
 
-    $ gem install arli
+  Available Commands:
+     install : installs libraries defined in the JSON file
+      update : updates libraries defined in the JSON file
+     library : Install, update, or remove a single library
+
+See arli <command> --help for more information on a specific command.
+```
+
+
 
 ## Usage
 
