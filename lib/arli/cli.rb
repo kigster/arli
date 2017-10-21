@@ -4,7 +4,7 @@ require 'hashie/extensions/symbolize_keys'
 require 'colored2'
 require 'arli'
 require 'arli/parser'
-require 'arli/commands/base'
+require 'arli/commands/update'
 require 'arli/commands/install'
 
 module Arli
@@ -38,28 +38,37 @@ module Arli
         options.merge!(parser.options)
       end
 
-      @options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
+      self.options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
 
       run_command! unless options[:help]
 
     rescue InvalidCommandError => e
-      puts e.message
+      output e.message
+    end
+
+    def self.output(*args)
+      puts args.join("\n") unless args.empty?
+    end
+
+    def output(*args)
+      self.class.output(*args)
     end
 
     private
 
     def run_command!
       if command
-        command_class       = ::Arli::Commands.const_get(command.to_s.capitalize)
+        command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
 
         options[:arli_json] ||= ::Arli::DEFAULT_JSON_FILE
         options[:lib_home]  ||= ::Arli::DEFAULT_LIBRARY_PATH
 
+        output "run_command #{command.to_s.bold.green}, options: #{options.inspect.bold.blue}" if Arli::DEBUG
         command_class.new(options).run
       end
     rescue NameError => e
-      puts e.inspect
-      puts "Unfortunately command #{command.to_s.red} is not yet implemented.\n\n"
+      output e.inspect
+      output "Unfortunately command #{command.to_s.red} is not yet implemented.\n\n"
     end
 
     def parse_command_options!
@@ -108,6 +117,7 @@ module Arli
                 parser.banner = usage_line 'install'
                 parser.option_lib_home
                 parser.option_dependency_file
+                parser.option_update_if_exists
                 parser.option_help(command: command)
               end
             } },

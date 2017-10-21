@@ -47,10 +47,9 @@ Run `arli --help` for more information:
 Usage:
     arli [options] [command [options]]
 
-    -L, --lib-home HOME              Specify a local directory where libraries are installed
-    -h, --help                       prints this help
+    -h, --help             prints this help
 
-  Available Commands:
+Available Commands:
     install      : installs libraries defined in the JSON file
     update       : updates libraries defined in the JSON file
     library      : Install, update, or remove a single library
@@ -60,7 +59,11 @@ See arli <command> --help for more information on a specific command.
 
 #### Install Command
 
-`install` is currently the only implemented command, and it should be used as follows:
+Use this command to install libraries for the first time. 
+
+NOTE: you are allowed to pass `-u` flag to automatically fallback
+to updating any existing folders. So `arli install -u` will either install 
+or update all dependencies.
 
 ```
 Description:
@@ -70,9 +73,35 @@ Usage:
     arli install [options]
 
 Command Options
-    -L, --lib-home HOME              Specify a local directory where libraries are installed
-    -a, --arli-json FILE             JSON file with dependencies (defaults to arli.json)
-    -h, --help                       prints this help
+    -l, --lib-home HOME    Local folder where libraries are installed
+                           Default: ~/Documents/Arduino/Libraries
+
+    -j, --json FILE        JSON file with d
+    ependencies (defaults to arli.json)
+`
+    -u, --update-existing  Update a library that already exists
+    -h, --help             prints this help
+
+```
+
+#### Update Command
+
+To upate previously checked out libraries, use the `update` command:
+
+```
+Description:
+    updates libraries defined in the JSON file
+
+Usage:
+    arli update [options]
+
+Command Options
+    -l, --lib-home HOME    Local folder where libraries are installed
+                           Default: ~/Documents/Arduino/Libraries
+
+    -j, --json FILE        JSON file with dependencies (defaults to arli.json)
+
+    -h, --help             prints this help
 ```
 
 

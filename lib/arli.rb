@@ -9,7 +9,9 @@ module Arli
   DEFAULT_LIBRARY_PATH_ENV = 'ARDUINO_CUSTOM_LIBRARY_PATH'.freeze
   DEFAULT_LIBRARY_PATH     = ENV[DEFAULT_LIBRARY_PATH_ENV] || (ENV['HOME'] + '/Documents/Arduino/Libraries')
 
-  @logger = Logger.new(STDOUT)
+  DEBUG = ENV['DEBUG'] ? true : false
+
+  @logger       = Logger.new(STDOUT)
   @logger.level = Logger::INFO
 
   class << self

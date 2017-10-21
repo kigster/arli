@@ -4,11 +4,10 @@ module Arli
       attr_accessor :output_lines, :command, :options
 
       def initialize(command = nil)
-        super
+        super(nil, 22)
         self.output_lines = Array.new
         self.command      = command
         self.options = Hashie::Mash.new
-
       end
 
       def sep(text = nil)
@@ -16,7 +15,24 @@ module Arli
       end
 
       def option_dependency_file
-        on('-a FILE', '--arli-json FILE', "JSON file with dependencies (defaults to #{DEFAULT_JSON_FILE.bold.magenta})") { |v| options[:arli_json] = v }
+        on('-j', '--json FILE',
+           "JSON file with dependencies (defaults to #{DEFAULT_JSON_FILE.bold.magenta})\n\n") do |v|
+          options[:arli_json] = v
+        end
+      end
+
+      def option_lib_home
+        on('-l', '--lib-home HOME', 'Local folder where libraries are installed',
+          "Default: #{Arli::DEFAULT_LIBRARY_PATH.gsub(%r(#{ENV['HOME']}), '~').blue}\n\n") do |v|
+          options[:lib_home] = v
+        end
+      end
+
+      def option_update_if_exists
+        on('-u', '--update-existing',
+           'Update a library that already exists') do |v|
+          options[:update_if_exists] = true
+        end
       end
 
       def option_help(commands: false, command: nil)
@@ -30,12 +46,8 @@ module Arli
         end
       end
 
-      def option_lib_home
-        on('-L', '--lib-home HOME', 'Specify a local directory where libraries are installed') { |v| options[:lib_home] = v }
-      end
-
       def option_library
-        on('-l', '--lib LIBRARY', 'Library Name') { |v| options[:library_name] = v }
+        on('-n', '--lib-name LIBRARY', 'Library Name') { |v| options[:library_name] = v }
         on('-f', '--from FROM', 'A git or https URL') { |v| options[:library_from] = v }
         on('-v', '--version VERSION', 'Library Version, i.e. git tag') { |v| options[:library_version] = v }
         on('-i', '--install', 'Install a library') { |v| options[:library_action] = :install }
@@ -56,12 +68,10 @@ module Arli
       end
 
       def command_help
-        subtext = "  Available Commands:\n"
+        subtext = "Available Commands:\n".bold
 
         ::Arli::CLI.commands.each_pair do |command, config|
-          subtext << <<-EOS
-#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%-70s', config[:description]).yellow}
-          EOS
+          subtext << %Q/#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%s', config[:description]).yellow}\n/
         end
         subtext << <<-EOS
         
@@ -77,7 +87,7 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
       end
 
       def print
-        puts output.join("\n")
+        puts output.join("\n") unless output.empty?
       end
     end
   end
