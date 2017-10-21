@@ -2,41 +2,14 @@ require 'json'
 require 'fileutils'
 require 'open3'
 require 'arli'
+require 'arli/commands/base'
 
 module Arli
   module Commands
-
-    class Install
-      attr_accessor :lib_path, :json_file
-
-      def initialize(options)
-
-        self.lib_path  = options[:lib_home]
-        self.json_file = options[:arli_json]
-
-        setup
-      end
+    class Install < Base
 
       def run
-        libs = JSON.load(File.read(json_file))
-        puts "Installing into #{lib_path.bold.green}"
-
-        Dir.chdir(lib_path) do
-          libs['dependencies'].each do |dependency|
-            name = dependency['name']
-            url  = dependency['git']
-            printf 'processing library: ' + name.yellow.bold + "\n"
-            unless Dir.exist?(name)
-              cmd = "git clone -v #{url} #{name} 2>&1"
-            else
-              cmd = "cd #{name} && git pull --rebase 2>&1"
-            end
-            puts 'command: ' + cmd.bold.blue
-            o, e, s = Open3.capture3(cmd)
-            puts o if o
-            puts e.red if e
-          end
-        end
+        install_dependencies
       end
 
       private

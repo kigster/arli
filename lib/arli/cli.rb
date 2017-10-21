@@ -4,6 +4,7 @@ require 'hashie/extensions/symbolize_keys'
 require 'colored2'
 require 'arli'
 require 'arli/parser'
+require 'arli/commands/base'
 require 'arli/commands/install'
 
 module Arli
@@ -57,6 +58,7 @@ module Arli
         command_class.new(options).run
       end
     rescue NameError => e
+      puts e.inspect
       puts "Unfortunately command #{command.to_s.red} is not yet implemented.\n\n"
     end
 
