@@ -6,7 +6,7 @@ Arli is a simple and easy to use installer of dependencies that can be
 declared in a JSON file of the following format:
 
 
-```json
+```javascript
 {
   "dependencies": [
     {
@@ -43,7 +43,7 @@ $ sudo gem install arli
 
 Run `arli --help` for more information:
 
-```
+```bash
 Usage:
     arli [options] [command [options]]
 
@@ -65,7 +65,7 @@ NOTE: you are allowed to pass `-u` flag to automatically fallback
 to updating any existing folders. So `arli install -u` will either install 
 or update all dependencies.
 
-```
+```bash
 Description:
     installs libraries defined in the JSON file
 
@@ -75,10 +75,7 @@ Usage:
 Command Options
     -l, --lib-home HOME    Local folder where libraries are installed
                            Default: ~/Documents/Arduino/Libraries
-
-    -j, --json FILE        JSON file with d
-    ependencies (defaults to arli.json)
-`
+    -j, --json FILE        JSON file with dependencies (defaults to arli.json)
     -u, --update-existing  Update a library that already exists
     -h, --help             prints this help
 
@@ -98,12 +95,9 @@ Usage:
 Command Options
     -l, --lib-home HOME    Local folder where libraries are installed
                            Default: ~/Documents/Arduino/Libraries
-
     -j, --json FILE        JSON file with dependencies (defaults to arli.json)
-
     -h, --help             prints this help
 ```
-
 
 ## Development
 
