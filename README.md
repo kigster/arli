@@ -39,7 +39,10 @@ $ gem install arli
 $ sudo gem install arli 
 ```
 
-After thatf, run `arli --help` for more information:
+## Usage
+
+
+Run `arli --help` for more information:
 
 ```
 Usage:
@@ -56,12 +59,6 @@ Usage:
 See arli <command> --help for more information on a specific command.
 ```
 
-
-
-## Usage
-
-TODO: Write usage instructions here
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -70,7 +67,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/arli.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kigster/arli.
 
 ## License
 

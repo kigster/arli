@@ -5,9 +5,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'arli/version'
 
 Arli::DESCRIPTION = <<-eof
-  Super simple and installer of any number of Github repos.
-  It was created to provide Arduino projects with an easy to use 
-  dependency manager.
+  This is a command-line installer of any number of dependent Github
+  projects, or libraries. Arli was created to offer Arduino-based projects 
+  an easy to use and consistent library manager.
 eof
 
 Gem::Specification.new do |spec|
