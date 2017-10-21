@@ -41,7 +41,6 @@ $ sudo gem install arli
 
 ## Usage
 
-
 Run `arli --help` for more information:
 
 ```
@@ -58,6 +57,24 @@ Usage:
 
 See arli <command> --help for more information on a specific command.
 ```
+
+#### Install Command
+
+`install` is currently the only implemented command, and it should be used as follows:
+
+```
+Description:
+    installs libraries defined in the JSON file
+
+Usage:
+    arli install [options]
+
+Command Options
+    -L, --lib-home HOME              Specify a local directory where libraries are installed
+    -a, --arli-json FILE             JSON file with dependencies (defaults to arli.json)
+    -h, --help                       prints this help
+```
+
 
 ## Development
 
