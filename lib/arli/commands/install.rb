@@ -9,11 +9,11 @@ module Arli
     class Install
       attr_accessor :lib_path, :json_file
 
-      def initialize(lib_home: ::Arli::DEFAULT_LIBRARY_PATH,
-                     arli_json: ::Arli::DEFAULT_JSON_FILE)
+      def initialize(options)
 
-        self.lib_path  = lib_home
-        self.json_file = arli_json
+        self.lib_path  = options[:lib_home]
+        self.json_file = options[:arli_json]
+
         setup
       end
 

@@ -39,7 +39,8 @@ module Arli
 
       @options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
 
-      run_command!
+      run_command! unless options[:help]
+
     rescue InvalidCommandError => e
       puts e.message
     end
@@ -48,11 +49,12 @@ module Arli
 
     def run_command!
       if command
-        command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
-        arli_json     = options[:arli_json] || ::Arli::DEFAULT_JSON_FILE
-        lib_home      = options[:lib_home] || ::Arli::DEFAULT_LIBRARY_PATH
-        puts "starting command #{command.to_s.bold.yellow} with args: #{arli_json}, #{lib_home}"
-        command_class.new(arli_json: arli_json, lib_home: lib_home).run
+        command_class       = ::Arli::Commands.const_get(command.to_s.capitalize)
+
+        options[:arli_json] ||= ::Arli::DEFAULT_JSON_FILE
+        options[:lib_home]  ||= ::Arli::DEFAULT_LIBRARY_PATH
+
+        command_class.new(options).run
       end
     rescue NameError => e
       puts "Unfortunately command #{command.to_s.red} is not yet implemented.\n\n"

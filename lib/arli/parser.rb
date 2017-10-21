@@ -26,6 +26,7 @@ module Arli
           output ''
           output_help
           output_command_help if commands
+          options[:help] = true
         end
       end
 
