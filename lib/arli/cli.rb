@@ -1,91 +1,14 @@
 require 'optparse'
 require 'hashie/mash'
+require 'hashie/extensions/symbolize_keys'
 require 'colored2'
+require 'arli'
+require 'arli/parser'
+require 'arli/commands/install'
 
 module Arli
-
   class CLI
-    DEFAULT_JSON_FILE = 'arli.json'.freeze
-
-    class InvalidCommandError < ArgumentError
-    end
-
-    class Parser < OptionParser
-      attr_accessor :output_lines, :command
-
-      def initialize(command = nil)
-        super
-        self.output_lines = Array.new
-        self.command      = command
-      end
-
-      def sep(text = nil)
-        separator text || ''
-      end
-
-      def option_dependency_file
-        on('-a FILE', '--arli-json FILE', "JSON file with dependencies (defaults to #{DEFAULT_JSON_FILE.bold.magenta})") { |v| options[:arli_json] = v }
-      end
-
-      def option_help(commands: false, command: nil)
-        on('-h', '--help', 'prints this help') do
-          puts 'Description:'.bold if command
-          output ' ' * 4 + command[:description].bold.green if command
-          output ''
-          output_help
-          output_command_help if commands
-        end
-      end
-
-      def option_lib_home
-        on('-L', '--lib-home HOME', 'Specify a local directory where libraries are installed') { |v| options[:lib_home] = v }
-      end
-
-      def option_library
-        on('-l', '--lib LIBRARY', 'Library Name') { |v| options[:library_name] = v }
-        on('-f', '--from FROM', 'A git or https URL') { |v| options[:library_from] = v }
-        on('-v', '--version VERSION', 'Library Version, i.e. git tag') { |v| options[:library_version] = v }
-        on('-i', '--install', 'Install a library') { |v| options[:library_action] = :install }
-        on('-r', '--remove', 'Remove a library') { |v| options[:library_action] = :remove }
-        on('-u', '--update', 'Update a local library') { |v| options[:library_action] = :update }
-      end
-
-      def option_help_with_subtext
-        option_help
-      end
-
-      def output_help
-        output self.to_s
-      end
-
-      def output_command_help
-        output command_help
-      end
-
-      def command_help
-        subtext = "  Available Commands:\n"
-
-        ::Arli::CLI.commands.each_pair do |command, config|
-          subtext << <<-EOS
-#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%-70s', config[:description]).yellow}
-          EOS
-        end
-        subtext << <<-EOS
-            
-See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for more information on a specific command.
-
-        EOS
-        subtext
-      end
-
-      def output(value = nil)
-        self.output_lines << value if value
-        self.output_lines
-      end
-
-      def print
-        puts output.join("\n")
-      end
+    class InvalidCommandError < ArgumentError;
     end
 
     COMMAND = 'arli'
@@ -111,11 +34,27 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
       if parser
         parser.parse!(argv)
         parser.print
+        options.merge!(parser.options)
       end
 
+      @options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
+
+      run_command!
     end
 
     private
+
+    def run_command!
+      if command
+        command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
+        if command_class
+          arli_json = options[:arli_json] || ::Arli::DEFAULT_JSON_FILE
+          lib_home  = options[:lib_home] || ::Arli::DEFAULT_LIBRARY_PATH
+          puts "starting command #{command.to_s.bold.yellow} with args: #{arli_json}, #{lib_home}"
+          command_class.new(arli_json: arli_json, lib_home: lib_home).run
+        end
+      end
+    end
 
     def parse_command_options!
       self.class.parser_for(command)
@@ -140,7 +79,6 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
         @global ||= PARSER.new do |parser|
           parser.banner = usage_line
           parser.sep
-          parser.option_lib_home
           parser.option_help(commands: true)
         end
       end
@@ -164,6 +102,7 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'install'
+                parser.option_lib_home
                 parser.option_dependency_file
                 parser.option_help(command: command)
               end
@@ -174,6 +113,7 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'update'
+                parser.option_lib_home
                 parser.option_dependency_file
                 parser.option_help(command: command)
               end
@@ -184,6 +124,7 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'library'
+                parser.option_lib_home
                 parser.option_library
                 parser.option_help(command: command)
               end

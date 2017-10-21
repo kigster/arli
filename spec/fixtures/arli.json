@@ -1,0 +1,40 @@
+{
+  "dependencies": [
+    {
+      "name": "DS1307RTC",
+      "git": "https://github.com/PaulStoffregen/DS1307RTC.git"
+    },
+    {
+      "name": "Adafruit_LEDBackpack",
+      "git": "https://github.com/adafruit/Adafruit-LED-Backpack-Library.git"
+    },
+    {
+      "name": "Adafruit_GFX",
+      "git": "https://github.com/adafruit/Adafruit-GFX-Library.git"
+    },
+    {
+      "name": "Adafruit_NeoPixel",
+      "git": "https://github.com/adafruit/Adafruit_NeoPixel.git"
+    },
+    {
+      "name": "Adafruit_Sensor",
+      "git": "https://github.com/adafruit/Adafruit_Sensor.git"
+    },
+    {
+      "name": "DHT",
+      "git": "https://github.com/adafruit/DHT-sensor-library.git"
+    },
+    {
+      "name": "OneButton",
+      "git": "https://github.com/kigster/OneButton.git"
+    },
+    {
+      "name": "SimpleTimer",
+      "git": "https://github.com/jfturcot/SimpleTimer.git"
+    },
+    {
+      "name": "Time",
+      "git": "https://github.com/PaulStoffregen/Time.git"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ RSpec.describe Arli::CLI do
   its(:command) { should be_nil  }
 
   context 'help command' do
-    let(:argv) { %w[install] }
+    let(:argv) { %w[install -L tmp  -a spec/fixtures/arli.json ] }
     its(:command) { should eq :install}
   end
 
