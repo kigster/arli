@@ -17,7 +17,7 @@ declared in a JSON file of the following format:
       "name": "Adafruit_LEDBackpack",
       "git": "https://github.com/adafruit/Adafruit-LED-Backpack-Library.git"
     },
-  }
+  ]
 }
 ```
 
@@ -32,8 +32,11 @@ in a consistent way. Arli's API was loosely inspired by Bundler.
 Install the gem globally like this: 
 
 ```bash
-$ gem install arli      # if using rbenv, or rvm
-$ sudo gem install arli # if your Ruby is system-wide
+# if using rbenv, or rvm
+$ gem install arli 
+
+# OR, if your Ruby is a system ruby installed in eg. /usr/local, 
+$ sudo gem install arli 
 ```
 
 After thatf, run `arli --help` for more information:
@@ -46,9 +49,9 @@ Usage:
     -h, --help                       prints this help
 
   Available Commands:
-     install : installs libraries defined in the JSON file
-      update : updates libraries defined in the JSON file
-     library : Install, update, or remove a single library
+    install      : installs libraries defined in the JSON file
+    update       : updates libraries defined in the JSON file
+    library      : Install, update, or remove a single library
 
 See arli <command> --help for more information on a specific command.
 ```
