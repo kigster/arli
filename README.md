@@ -6,7 +6,7 @@ Arli is a simple and easy to use installer of dependencies that can be
 declared in a JSON file of the following format:
 
 
-```js
+```json
 {
   "dependencies": [
     {
