@@ -62,7 +62,7 @@ module Arli
         command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
 
         options[:arli_json] ||= ::Arli::DEFAULT_ARLI_FILE
-        options[:lib_home]  ||= ::Arli::DEFAULT_LIBRARY_PATH
+        options[:lib_home]  ||= ::Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH
 
         output "run_command #{command.to_s.bold.green}, options: #{options.inspect.bold.blue}" if Arli::DEBUG
         @command_instance = command_class.new(options)
@@ -89,7 +89,6 @@ module Arli
     end
 
     class << self
-
       def global
         @global ||= PARSER.new do |parser|
           parser.banner = usage_line
@@ -103,17 +102,22 @@ module Arli
       end
 
       def global_usage(command)
-        "Usage:\n    ".bold + COMMAND.bold.blue + ' ' + '[options] '.yellow + '[' + (command || 'command').green + ' [options]'.yellow + ']' + "\n"
+        "Usage:\n    ".bold + COMMAND.bold.blue +
+          ' [options] '.yellow + '[' + (command || 'command').green +
+          ' [options]'.yellow + ']' + "\n"
       end
 
       def command_usage(command)
-        "Usage:\n    ".bold + COMMAND.bold.blue + ' ' + command.bold.green + ' [options]'.yellow + "\n\n" + 'Command Options'.bold
+        "Usage:\n    ".bold + COMMAND.bold.blue + ' ' +
+          command.bold.green +
+          ' [options]'.yellow + "\n\n" +
+          'Command Options'.bold
       end
 
       def commands
         @commands ||= {
           install: {
-            description: 'installs libraries defined in Arli package file',
+            description: 'installs libraries defined in ArliFile.yml',
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'install'
@@ -125,7 +129,7 @@ module Arli
             } },
 
           update:  {
-            description: 'updates libraries defined in the JSON file',
+            description: 'updates libraries defined in the ArliFile.yml',
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'update'

@@ -3,33 +3,33 @@
 # Arli
 
 Arli is a simple and easy to use installer of dependencies that can be 
-declared in a JSON file of the following format:
+declared in a YAML file of the following format:
 
 
-```js
-{
-  "dependencies": [
-    {
-      "name": "DS1307RTC",
-      "git": "https://github.com/PaulStoffregen/DS1307RTC.git"
-    },
-    {
-      "name": "Adafruit_LEDBackpack",
-      "git": "https://github.com/adafruit/Adafruit-LED-Backpack-Library.git"
-    },
-  ]
-}
+```yaml
+version: 1.0.0
+dependencies:
+  - name: ESP8266WiFi
+    version: '1.0'
+    url: https://github.com/esp8266/Arduino
+    subfolder: libraries/ESP8266WiFi
+  - name: NTPClient
+    version: '3.1.0'
+  - name: SimpleTimer
+    urL: https://github.com/jfturcot/SimpleTimer
 ```
 
-Basically a simple pairing of a library/project name (which also happens to be the local 
-directory it's cloned into) and a remote URL.
+Basically a simple pairing of a library/project name 
+(which also happens to be the local directory it's cloned into) 
+and a remote URL.
 
-The gem was created to fill the need of managing many external libraries for an Arduino projects 
-in a consistent way. Arli's API was loosely inspired by Bundler.
+The gem was created to fill the need of managing many external
+libraries for an Arduino projects in a consistent way. Arli's 
+API was loosely inspired by Bundler.
 
 ## Installation
 
-Install the gem globally like this: 
+Install the gem globally like this:
 
 ```bash
 # if using rbenv, or rvm
@@ -47,12 +47,12 @@ Run `arli --help` for more information:
 Usage:
     arli [options] [command [options]]
 
-    -h, --help.    prints this help
+    -h, --help     prints this help
 
 Available Commands:
-    install      : installs libraries defined in the JSON file
+    install      : installs libraries defined in Arli package file
     update       : updates libraries defined in the JSON file
-    library      : Install, update, or remove a single library
+    search       : Flexible Search of the Arduino Library Database
 
 See arli <command> --help for more information on a specific command.
 ```
@@ -96,6 +96,27 @@ Command Options
     -l, --lib-home HOME    Local folder where libraries are installed
                            Default: ~/Documents/Arduino/Libraries
     -j, --json FILE        JSON file with dependencies (defaults to arli.json)
+    -h, --help             prints this help
+```
+
+#### Search Command
+
+To search Arduino library database, you can use the search command:
+
+```
+Description:
+    Flexible Search of the Arduino Library Database
+
+Usage:
+    arli search [options]
+
+Command Options
+    -s, --search TERMS     ruby-style hash arguments to search for
+                           eg: -s "name: 'AudioZero', version: /^1.0/"
+    -d, --database SOURCE  a JSON file name, or a URL that contains the index
+                           By default, the Arduino-maintained list is searched
+    -m, --max LIMIT        if provided, limits the result set to this number
+                           Default value is 100
     -h, --help             prints this help
 ```
 
