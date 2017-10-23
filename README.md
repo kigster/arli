@@ -5,7 +5,6 @@
 Arli is a simple and easy to use installer of dependencies that can be 
 declared in a YAML file of the following format:
 
-
 ```yaml
 version: 1.0.0
 dependencies:
@@ -45,13 +44,13 @@ Run `arli --help` for more information:
 
 ```bash
 Usage:
-    arli [options] [command [options]]
+    arli [options] [ command [options] ]
 
     -h, --help     prints this help
 
 Available Commands:
-    install      : installs libraries defined in Arli package file
-    update       : updates libraries defined in the JSON file
+    install      : installs libraries defined in ArliFile.yml
+    update       : updates libraries defined in the ArliFile.yml
     search       : Flexible Search of the Arduino Library Database
 
 See arli <command> --help for more information on a specific command.
@@ -67,7 +66,7 @@ or update all dependencies.
 
 ```bash
 Description:
-    installs libraries defined in the JSON file
+    installs libraries defined in ArliFile.yml
 
 Usage:
     arli install [options]
@@ -75,17 +74,20 @@ Usage:
 Command Options
     -l, --lib-home HOME    Local folder where libraries are installed
                            Default: ~/Documents/Arduino/Libraries
-    -j, --json FILE        JSON file with dependencies (defaults to arli.json)
-    -u, --update-existing  Update a library that already exists
-    -h, --help             prints this help
 
+    -a, --arli-file FILE   ArliFile.yml is the file listing the dependencies
+                           Default filename is ArliFile.yml
+
+    -e, --abort-on-exiting Abort if a library folder already exists
+                           instead of updating it.
+    -h, --help             prints this help
 ```
 
 #### Update Command
 
 To upate previously checked out libraries, use the `update` command:
 
-```
+```bash
 Description:
     updates libraries defined in the JSON file
 
@@ -103,7 +105,7 @@ Command Options
 
 To search Arduino library database, you can use the search command:
 
-```
+```bash
 Description:
     Flexible Search of the Arduino Library Database
 

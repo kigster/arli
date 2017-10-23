@@ -49,7 +49,7 @@ module Arli
       end
 
       def option_abort_if_exists
-        on('-e', '--error-on-exiting',
+        on('-e', '--abort-on-exiting',
            'Abort if a library folder already exists',
            'instead of updating it.') do |v|
           options[:abort_if_exists] = true
