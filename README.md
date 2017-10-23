@@ -47,7 +47,7 @@ Run `arli --help` for more information:
 Usage:
     arli [options] [command [options]]
 
-    -h, --help             prints this help
+    -h, --help.    prints this help
 
 Available Commands:
     install      : installs libraries defined in the JSON file

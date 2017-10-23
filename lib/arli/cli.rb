@@ -6,6 +6,7 @@ require 'arli'
 require 'arli/parser'
 require 'arli/commands/update'
 require 'arli/commands/install'
+require 'arli/commands/search'
 
 module Arli
   class CLI
@@ -60,11 +61,12 @@ module Arli
       if command
         command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
 
-        options[:arli_json] ||= ::Arli::DEFAULT_JSON_FILE
+        options[:arli_json] ||= ::Arli::DEFAULT_ARLI_FILE
         options[:lib_home]  ||= ::Arli::DEFAULT_LIBRARY_PATH
 
         output "run_command #{command.to_s.bold.green}, options: #{options.inspect.bold.blue}" if Arli::DEBUG
-        command_class.new(options).run
+        @command_instance = command_class.new(options)
+        @command_instance.header.run
       end
     rescue NameError => e
       output e.inspect
@@ -111,13 +113,13 @@ module Arli
       def commands
         @commands ||= {
           install: {
-            description: 'installs libraries defined in the JSON file',
+            description: 'installs libraries defined in Arli package file',
             parser:      -> (command) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'install'
                 parser.option_lib_home
                 parser.option_dependency_file
-                parser.option_update_if_exists
+                parser.option_abort_if_exists
                 parser.option_help(command: command)
               end
             } },
@@ -133,16 +135,26 @@ module Arli
               end
             } },
 
-          library: {
-            description: 'Install, update, or remove a single library',
+          search:  {
+            description: 'Flexible Search of the Arduino Library Database',
             parser:      -> (command) {
               PARSER.new do |parser|
-                parser.banner = usage_line 'library'
-                parser.option_lib_home
-                parser.option_library
+                parser.banner = usage_line 'search'
+                parser.option_search
                 parser.option_help(command: command)
               end
             } }
+
+          # library: {
+          #   description: 'Install, update, or remove a single library',
+          #   parser:      -> (command) {
+          #     PARSER.new do |parser|
+          #       parser.banner = usage_line 'library'
+          #       parser.option_lib_home
+          #       parser.option_library
+          #       parser.option_help(command: command)
+          #     end
+          #   } }
         }
       end
 

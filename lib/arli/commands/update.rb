@@ -7,9 +7,11 @@ require_relative 'base'
 module Arli
   module Commands
     class Update < Base
+      def initialize(options)
+        self.arli_file = options[:arli_file] ? ArliFile.new(options[:arli_file]) : ArliFile.new
+      end
 
       def run
-        header
         all_dependencies(command, 'name')
       end
 

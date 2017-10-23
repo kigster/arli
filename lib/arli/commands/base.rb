@@ -7,26 +7,31 @@ require 'arli/version'
 module Arli
   module Commands
     class Base
-      attr_accessor :lib_path, :json_file, :update_if_exists, :command
+      attr_accessor :lib_path, :arli_file, :abort_if_exists, :command
 
       def initialize(options)
-        self.lib_path         = options[:lib_home]
-        self.json_file        = options[:arli_json]
-        self.update_if_exists = options[:update_if_exists]
-        self.command          = self.class.name.gsub(/.*::/, '').downcase.to_sym
+        self.lib_path        = options[:lib_home]
+        self.abort_if_exists = options[:abort_if_exists]
+        self.command         = self.class.name.gsub(/.*::/, '').downcase.to_sym
         setup
       end
-
 
       # Commands implement #run method that uses helpers below:
       protected
 
       def header
-        info   "Arli            : Version #{::Arli::VERSION.bold.yellow}\n" +
-               "Running command : #{command.to_s.bold.blue}\n" +
-               "Library Path    : #{lib_path.bold.green}\n" +
-               "JSON File       : #{json_file.bold.magenta}\n" +
-               '———————————————————————————————————————————————————————'
+        out = "Arli            : Version #{::Arli::VERSION.bold.yellow}\n" +
+          "Running command : #{command.to_s.bold.blue}\n" +
+          "Library Path    : #{lib_path.bold.green}\n"
+        if arli_file
+          out << "ArliFile       : #{arli_file.bold.magenta}\n"
+        end
+
+        out << '———————————————————————————————————————————————————————'
+
+        info out
+
+        self
       end
 
       def all_dependencies(cmd, *args)
@@ -71,19 +76,10 @@ module Arli
       end
 
       def for_each_dependency(&_block)
-        dependencies['dependencies'].each do |dependency|
+        arli_file.each do |dependency|
           Dir.chdir(lib_path) do
             yield(dependency)
           end
-        end
-      end
-
-      def dependencies
-        @deps ||= begin
-          JSON.load(File.read(json_file))
-        rescue Errno::ENOENT => e
-          error("File #{json_file.bold.yellow} could not be found!", e)
-          { 'dependencies' => [] }
         end
       end
 

@@ -11,4 +11,6 @@ RSpec.describe Arli do
   it 'should have :debug method' do
     Arli.debug('hello')
   end
+
+
 end

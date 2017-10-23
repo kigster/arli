@@ -1,3 +1,4 @@
+require 'arduino/library'
 module Arli
   class CLI
     class Parser < OptionParser
@@ -7,7 +8,7 @@ module Arli
         super(nil, 22)
         self.output_lines = Array.new
         self.command      = command
-        self.options = Hashie::Mash.new
+        self.options      = Hashie::Mash.new
       end
 
       def sep(text = nil)
@@ -15,23 +16,43 @@ module Arli
       end
 
       def option_dependency_file
-        on('-j', '--json FILE',
-           "JSON file with dependencies (defaults to #{DEFAULT_JSON_FILE.bold.magenta})\n\n") do |v|
-          options[:arli_json] = v
+        on('-a', '--arli-file FILE',
+           'ArliFile.yml'.bold.green + ' is the file listing the dependencies',
+           "Default filename is #{DEFAULT_ARLI_FILE.bold.magenta})\n\n") do |v|
+          options[:arli_file] = v
         end
       end
 
       def option_lib_home
         on('-l', '--lib-home HOME', 'Local folder where libraries are installed',
-          "Default: #{Arli::DEFAULT_LIBRARY_PATH.gsub(%r(#{ENV['HOME']}), '~').blue}\n\n") do |v|
+           "Default: #{default_library_path}\n\n") do |v|
           options[:lib_home] = v
         end
       end
 
-      def option_update_if_exists
-        on('-u', '--update-existing',
-           'Update a library that already exists') do |v|
-          options[:update_if_exists] = true
+
+      def option_search
+        on('-s', '--search TERMS', 'ruby-style hash arguments to search for',
+           %Q(eg: -s "name: 'AudioZero', version: /^1.0/")) do |v|
+          options[:search] = v
+        end
+        on('-d', '--database SOURCE',
+           'a JSON file name, or a URL that contains the index',
+           'By default, the Arduino-maintained list is searched') do |v|
+          options[:database] = v
+        end
+        on('-m', '--max LIMIT',
+           'if provided, limits the result set to this number',
+           'Default value is 100') do |v|
+          options[:limit] = v
+        end
+      end
+
+      def option_abort_if_exists
+        on('-e', '--error-on-exiting',
+           'Abort if a library folder already exists',
+           'instead of updating it.') do |v|
+          options[:abort_if_exists] = true
         end
       end
 
@@ -89,6 +110,11 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
       def print
         puts output.join("\n") unless output.empty?
       end
+
+      def default_library_path
+        Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH.gsub(%r(#{ENV['HOME']}), '~').blue
+      end
+
     end
   end
 end

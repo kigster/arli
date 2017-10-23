@@ -9,22 +9,21 @@ module Arli
     class Install < Update
 
       def run
-        header
         all_dependencies(command, 'name', 'git')
       end
 
       def install_dependency(name, url)
         cmd = if Dir.exist?(name)
-                if update_if_exists
-                  update_dependency(name)
-                else
+                if abort_if_exists
                   raise <<-EOF
-               Existing folder found for library #{name.red}. 
-               Please use -u switch with 'install' command, 
-               or invoke the 'update' command directly."
-                        EOF
+                               Existing folder found for library #{name.red}. 
+                               Please use -u switch with 'install' command, 
+                               or invoke the 'update' command directly."
+                                EOF
                           .gsub(/^\s+/, '')
 
+                else
+                  update_dependency(name)
                 end
               else
                 "git clone -v #{url} #{name} 2>&1"
