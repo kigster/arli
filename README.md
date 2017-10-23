@@ -60,9 +60,9 @@ See arli <command> --help for more information on a specific command.
 
 Use this command to install libraries for the first time. 
 
-NOTE: you are allowed to pass `-u` flag to automatically fallback
-to updating any existing folders. So `arli install -u` will either install 
-or update all dependencies.
+NOTE: unless you pass `-e` flag, install command falls back to `update` if
+the target folder already exists.  With `-e` flag, installer aborts if the 
+target library already exists.
 
 ```bash
 Description:
