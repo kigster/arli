@@ -3,7 +3,7 @@
 # Arli
 
 Arli is a simple and easy to use installer of dependencies that can be 
-declared in a YAML file of the following format:
+declared in a YAML file named `ArliFile.yml`, which might look something like this:
 
 ```yaml
 version: 1.0.0
@@ -18,17 +18,13 @@ dependencies:
     urL: https://github.com/jfturcot/SimpleTimer
 ```
 
-Basically a simple pairing of a library/project name 
-(which also happens to be the local directory it's cloned into) 
-and a remote URL.
+Libraries with `url` field provided, will use that URL. If no url field is provided, the Arduino Library index is searched for the name and version, and if found uses that. (NOTE: current version still requires URL field, but the index lookup will be implemented shortly).
 
-The gem was created to fill the need of managing many external
-libraries for an Arduino projects in a consistent way. Arli's 
-API was loosely inspired by Bundler.
+The gem was created to fill the need of slightly more complex Arduino projects that DO NOT use Arduino IDE, and instead use other technologies, such as `ArduinoCmake`  in managing many Arduino libraries  in a consistent way. Arli's API was loosely inspired by Bundler.
 
 ## Installation
 
-Install the gem globally like this:
+Install the `arli` ruby gem as follows:
 
 ```bash
 # if using rbenv, or rvm
