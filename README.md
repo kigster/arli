@@ -85,15 +85,18 @@ To upate previously checked out libraries, use the `update` command:
 
 ```bash
 Description:
-    updates libraries defined in the JSON file
+    updates libraries defined in the ArliFile
 
 Usage:
     arli update [options]
 
 Command Options
-    -l, --lib-home HOME    Local folder where libraries are installed
+    -l, --lib-home HOME    Local folder where libraries are installed.
                            Default: ~/Documents/Arduino/Libraries
-    -j, --json FILE        JSON file with dependencies (defaults to arli.json)
+
+    -a, --arli-file FILE   ArliFile.yml is the file listing the dependencies.
+                           Default filename is ArliFile.yml
+
     -h, --help             prints this help
 ```
 
@@ -116,6 +119,18 @@ Command Options
     -m, --max LIMIT        if provided, limits the result set to this number
                            Default value is 100
     -h, --help             prints this help
+```
+
+For example:
+
+```bash
+$ arli search -s 'name: "AudioZero", version: "1.0.1"'
+```
+
+You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
+
+```bash
+$ arli search -s 'name: /adafruit/i' -m 10
 ```
 
 ## Development
