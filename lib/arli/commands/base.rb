@@ -16,23 +16,22 @@ module Arli
         setup
       end
 
-      # Commands implement #run method that uses helpers below:
-      protected
-
       def header
-        out = "Arli            : Version #{::Arli::VERSION.bold.yellow}\n" +
-          "Running command : #{command.to_s.bold.blue}\n" +
-          "Library Path    : #{lib_path.bold.green}\n"
-        if arli_file
-          out << "ArliFile       : #{arli_file.bold.magenta}\n"
-        end
-
-        out << '———————————————————————————————————————————————————————'
+        out  = "——————————————————————————————————————————————————————————\n"
+        out  <<  "Arli           : Version #{::Arli::VERSION.bold.yellow}\n"
+        out  << "Command        : #{command.to_s.bold.blue}\n" if command
+        out  << "Library Path   : #{lib_path.bold.green}\n" if lib_path
+        out  << "ArliFile       : #{arli_file.file.bold.magenta}\n" if
+          arli_file && arli_file.file
+        out << '——————————————————————————————————————————————————————————'
 
         info out
 
         self
       end
+
+      # Commands implement #run method that uses helpers below:
+      protected
 
       def all_dependencies(cmd, *args)
         for_each_dependency do |dep|
@@ -76,6 +75,8 @@ module Arli
       end
 
       def for_each_dependency(&_block)
+        raise 'Library Path is nil!' unless lib_path
+        FileUtils.mkpath(lib_path) unless Dir.exist?(lib_path)
         arli_file.each do |dependency|
           Dir.chdir(lib_path) do
             yield(dependency)

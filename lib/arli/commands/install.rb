@@ -9,7 +9,7 @@ module Arli
     class Install < Update
 
       def run
-        all_dependencies(command, 'name', 'git')
+        all_dependencies(command, 'name', 'url')
       end
 
       def install_dependency(name, url)

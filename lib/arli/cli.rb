@@ -61,7 +61,7 @@ module Arli
       if command
         command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
 
-        options[:arli_json] ||= ::Arli::DEFAULT_ARLI_FILE
+        options[:arli_file] ||= ::Arli::DEFAULT_ARLI_FILE
         options[:lib_home]  ||= ::Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH
 
         output "run_command #{command.to_s.bold.green}, options: #{options.inspect.bold.blue}" if Arli::DEBUG
@@ -70,7 +70,6 @@ module Arli
       end
     rescue NameError => e
       output e.inspect
-      output "Unfortunately command #{command.to_s.red} is not yet implemented.\n\n"
     end
 
     def parse_command_options!

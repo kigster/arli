@@ -8,6 +8,7 @@ module Arli
   module Commands
     class Update < Base
       def initialize(options)
+        super(options)
         self.arli_file = options[:arli_file] ? ArliFile.new(options[:arli_file]) : ArliFile.new
       end
 
