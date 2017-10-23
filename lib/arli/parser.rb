@@ -44,7 +44,7 @@ module Arli
         on('-m', '--max LIMIT',
            'if provided, limits the result set to this number',
            'Default value is 100') do |v|
-          options[:limit] = v
+             options[:limit] = v.to_i 
         end
       end
 
