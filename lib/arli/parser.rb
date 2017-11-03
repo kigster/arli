@@ -1,4 +1,6 @@
 require 'arduino/library'
+require 'arli/config'
+
 module Arli
   class CLI
     class Parser < OptionParser
@@ -18,7 +20,7 @@ module Arli
       def option_dependency_file
         on('-a', '--arli-file FILE',
            'ArliFile.yml'.bold.green + ' is the file listing the dependencies',
-           "Default filename is #{DEFAULT_ARLI_FILE.bold.magenta})\n\n") do |v|
+           "Default filename is #{Arli.config.arlifile.name.bold.magenta})\n\n") do |v|
           options[:arli_file] = v
         end
       end
@@ -30,12 +32,7 @@ module Arli
         end
       end
 
-
       def option_search
-        on('-s', '--search TERMS', 'ruby-style hash arguments to search for',
-           %Q(eg: -s "name: 'AudioZero', version: /^1.0/")) do |v|
-          options[:search] = v
-        end
         on('-d', '--database SOURCE',
            'a JSON file name, or a URL that contains the index',
            'By default, the Arduino-maintained list is searched') do |v|
@@ -44,7 +41,7 @@ module Arli
         on('-m', '--max LIMIT',
            'if provided, limits the result set to this number',
            'Default value is 100') do |v|
-             options[:limit] = v.to_i 
+             options[:limit] = v.to_i if v
         end
       end
 
@@ -56,24 +53,28 @@ module Arli
         end
       end
 
-      def option_help(commands: false, command: nil)
-        on('-h', '--help', 'prints this help') do
-          puts 'Description:'.bold if command
-          output ' ' * 4 + command[:description].bold.green if command
-          output ''
-          output_help
-          output_command_help if commands
-          options[:help] = true
+      def option_log
+        on('-L', '--log LOG',
+           'Write debugging info into the log file.') do |v|
+          options[:logfile] = v
         end
       end
 
-      def option_library
-        on('-n', '--lib-name LIBRARY', 'Library Name') { |v| options[:library_name] = v }
-        on('-f', '--from FROM', 'A git or https URL') { |v| options[:library_from] = v }
-        on('-v', '--version VERSION', 'Library Version, i.e. git tag') { |v| options[:library_version] = v }
-        on('-i', '--install', 'Install a library') { |v| options[:library_action] = :install }
-        on('-r', '--remove', 'Remove a library') { |v| options[:library_action] = :remove }
-        on('-u', '--update', 'Update a local library') { |v| options[:library_action] = :update }
+      def option_help(commands: false, command_name: nil)
+        on('-h', '--help', 'prints this help') do
+          output 'Description:'.bold if command_name
+          output ' ' * 4 + command_name[:description].bold.green if command_name
+          output ''
+          output_help
+          output_command_help if commands
+
+          if command_name && command_name[:example]
+            output 'Example:'.bold
+            output ' ' * 4 + command_name[:example]
+          end
+
+          options[:help] = true
+        end
       end
 
       def option_help_with_subtext
@@ -112,9 +113,8 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
       end
 
       def default_library_path
-        Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH.gsub(%r(#{ENV['HOME']}), '~').blue
+        ::Arli.config.library.path.gsub(%r(#{ENV['HOME']}), '~').blue
       end
-
     end
   end
 end

@@ -10,13 +10,11 @@ require 'arli/commands/search'
 
 module Arli
   class CLI
-    class InvalidCommandError < ArgumentError;
-    end
 
-    COMMAND = 'arli'
+    COMMAND = 'arli'.freeze
     PARSER  = ::Arli::CLI::Parser
 
-    attr_accessor :argv, :command, :parser
+    attr_accessor :argv, :parser, :command_name, :command
     attr_accessor :options
 
     def initialize(argv = ARGV.dup)
@@ -40,58 +38,89 @@ module Arli
       end
 
       self.options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
-
-      run_command! unless options[:help]
-
-    rescue InvalidCommandError => e
-      output e.message
-    end
-
-    def self.output(*args)
-      puts args.join("\n") unless args.empty?
-    end
-
-    def output(*args)
-      self.class.output(*args)
+      unless options[:help]
+        self.command = create_command if command_name
+        execute
+      end
+    rescue OptionParser::InvalidOption => e
+      report_exception(e, 'Command line usage error!')
+    rescue Arli::Errors::InvalidCommandError
+      error 'This command does not exist'
+    rescue Exception => e
+      error 'General error — '
+      error e.message
+      raise e if Arli.debug?
     end
 
     private
 
-    def run_command!
+    def report_exception(e, header = nil)
+      error header.bold if header
+      printf ' ↳ '
+      error e.message
+    end
+
+    def execute
       if command
-        command_class = ::Arli::Commands.const_get(command.to_s.capitalize)
-
-        options[:arli_file] ||= ::Arli::DEFAULT_ARLI_FILE
-        options[:lib_home]  ||= ::Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH
-
-        output "run_command #{command.to_s.bold.green}, options: #{options.inspect.bold.blue}" if Arli::DEBUG
-        @command_instance = command_class.new(options)
-        @command_instance.header.run
+        command.header if command.respond_to?(:header)
+        command.run
+      else
+        gp = self.class.global
+        gp.parse!(%w(--help))
+        gp.print
+        nil
       end
     rescue NameError => e
-      output e.inspect
+      error e.inspect
+    end
+
+    def create_command
+      command_class = ::Arli::Commands.const_get(command_name.to_s.capitalize)
+
+      options[:lib_home] ||= ::Arduino::Library::DefaultDatabase.library_path
+      options[:argv]     = argv
+
+      info "created command #{command_name.to_s.bold.green},\noptions: #{options.inspect.bold.blue}" if Arli.debug?
+
+      command_class.new(options)
+    end
+
+    private
+
+    def info(*args)
+      self.class.output(*args)
+    end
+
+    def error(*args)
+      self.class.output(*(args.compact.map { |a| a.to_s.red }))
     end
 
     def parse_command_options!
-      self.class.parser_for(command)
+      self.class.parser_for(command_name)
     end
 
     def command_detected?
-      self.command = argv.shift if argv.first && argv.first !~ /^-.*$/
-      if self.command
-        self.command = command.to_sym
-        unless self.class.commands.key?(command)
-          raise InvalidCommandError, "Error: #{command ? command.to_s.bold.red : 'nil'} is not a valid arli command!"
+      self.command_name = argv.shift if argv.first && argv.first !~ /^-.*$/
+      if self.command_name
+        self.command_name = command_name.to_sym
+        unless self.class.commands.key?(command_name)
+          raise Arli::Errors::InvalidCommandError, "Error: #{command_name ? command_name.to_s.bold.red : 'nil'} is not a valid arli command_name!"
         end
       end
-      self.command
+      self.command_name
     end
 
     class << self
+
+      def output(*args)
+        puts args.join("\n") unless args.empty?
+      end
+
       def global
         @global ||= PARSER.new do |parser|
           parser.banner = usage_line
           parser.sep
+          parser.option_log
           parser.option_help(commands: true)
         end
       end
@@ -102,7 +131,7 @@ module Arli
 
       def global_usage(command)
         "Usage:\n    ".bold + COMMAND.bold.blue +
-          ' [options] '.yellow + '[' + (command || 'command').green +
+          ' [options] '.yellow + '[' + (command || 'command_name').green +
           ' [options]'.yellow + ']' + "\n"
       end
 
@@ -117,47 +146,38 @@ module Arli
         @commands ||= {
           install: {
             description: 'installs libraries defined in ArliFile.yml',
-            parser:      -> (command) {
+            parser:      -> (command_name) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'install'
                 parser.option_lib_home
                 parser.option_dependency_file
                 parser.option_abort_if_exists
-                parser.option_help(command: command)
+                parser.option_help(command_name: command_name)
               end
             } },
 
           update:  {
             description: 'updates libraries defined in the ArliFile.yml',
-            parser:      -> (command) {
+            parser:      -> (command_name) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'update'
                 parser.option_lib_home
                 parser.option_dependency_file
-                parser.option_help(command: command)
+                parser.option_help(command_name: command_name)
               end
             } },
 
           search:  {
             description: 'Flexible Search of the Arduino Library Database',
-            parser:      -> (command) {
+            example:     'arli search '.bold.green + %Q['name: /AudioZero/, version: "1.0.1"'].bold.green,
+            parser:      -> (command_name) {
               PARSER.new do |parser|
-                parser.banner = usage_line 'search'
+                parser.banner = usage_line 'search ' + '<query>'.bold.magenta
                 parser.option_search
-                parser.option_help(command: command)
+                parser.option_help(command_name: command_name)
               end
-            } }
-
-          # library: {
-          #   description: 'Install, update, or remove a single library',
-          #   parser:      -> (command) {
-          #     PARSER.new do |parser|
-          #       parser.banner = usage_line 'library'
-          #       parser.option_lib_home
-          #       parser.option_library
-          #       parser.option_help(command: command)
-          #     end
-          #   } }
+            }
+          }
         }
       end
 
@@ -166,7 +186,8 @@ module Arli
           cmd_hash = commands[cmd]
           commands[cmd][:parser][cmd_hash]
         else
-          raise(InvalidCommandError, "'#{cmd}' is not a valid command.\nSupported commands are:\n\t#{commands.keys.join("\n\t")}")
+          raise(Arli::Errors::InvalidCommandError,
+                "'#{cmd}' is not a valid command_name.\nSupported commands are:\n\t#{commands.keys.join("\n\t")}")
         end
       end
     end

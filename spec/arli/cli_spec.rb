@@ -6,7 +6,7 @@ RSpec.describe Arli::CLI do
   before do
     allow_any_instance_of(::Arli::Commands::Base).to receive(:execute)
     allow_any_instance_of(::Arli::Commands::Base).to receive(:info)
-    allow(described_class).to receive(:output)
+    allow(described_class).to receive(:info)
   end
 
   context 'no command or arguments' do
@@ -15,7 +15,7 @@ RSpec.describe Arli::CLI do
     before { cli.parse }
 
     its(:options) { should be_empty }
-    its(:command) { should be_nil }
+    its(:command_name) { should be_nil }
   end
 
   context 'install command' do
@@ -26,7 +26,8 @@ RSpec.describe Arli::CLI do
       cli.parse
     end
 
-    its(:command) { should eq :install }
+    its(:command_name) { should eq :install }
     its(:options) { should include(:lib_home) }
+    #its(:execute) { should be nil }
   end
 end

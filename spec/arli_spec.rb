@@ -8,9 +8,6 @@ RSpec.describe Arli do
   subject { Arli }
 
   its(:logger) { should be_kind_of(Logger) }
-  it 'should have :debug method' do
-    Arli.debug('hello')
-  end
 
-
+  it { is_expected.to respond_to(:debug?) }
 end

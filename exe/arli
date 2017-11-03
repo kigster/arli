@@ -6,4 +6,3 @@ Arli::CLI.new.tap do |cli|
   cli.parse
 end
 
-

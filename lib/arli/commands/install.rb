@@ -8,30 +8,25 @@ module Arli
   module Commands
     class Install < Update
 
-      def run
-        all_dependencies(command, 'name', 'url')
-      end
-
-      def install_dependency(name, url)
-        cmd = if Dir.exist?(name)
-                if abort_if_exists
-                  raise <<-EOF
-                               Existing folder found for library #{name.red}. 
+      def process_dependency(lib)
+        cmd  = if Dir.exist?(lib.name)
+                 if abort_if_exists
+                   raise <<-EOF
+                               Existing folder found for library #{lib.name.red}. 
                                Please use -u switch with 'install' command, 
                                or invoke the 'update' command directly."
-                                EOF
-                          .gsub(/^\s+/, '')
+                         EOF
+                           .gsub(/^\s+/, '')
 
-                else
-                  update_dependency(name)
-                end
-              else
-                "git clone -v #{url} #{name} 2>&1"
-              end
+                 else
+                   super(lib)
+                 end
+               else
+                 "git clone -v #{lib.url} #{lib.name} 2>&1"
+               end
         yield(cmd) if block_given?
         cmd
       end
     end
-
   end
 end
