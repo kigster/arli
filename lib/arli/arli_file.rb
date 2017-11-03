@@ -39,7 +39,7 @@ module Arli
           Arduino::Library::Model.from_hash(lib)
         end
       rescue Exception => e
-        error "Error parsing YAML file #{file}:\n#{e.message.bold}"
+        error "Error parsing YAML file #{file}:\n#{e.message}"
         raise e
       end
     end
@@ -62,12 +62,12 @@ module Arli
             end
           else
             raise ArgumentError,
-                  "Method #{method_name.to_s.bold.blue} is not implemented on #{self.class.name.bold.red}"
+                  "Method #{method_name.to_s.blue} is not implemented on #{self.class.name.red}"
           end
         end
       end
     rescue Exception => e
-      error "Error while running command #{cmd}:\n\n#{e.message.bold.red}"
+      error "Error while running command #{cmd}:\n\n#{e.message.red}"
       error e.backtrace.join("\n")
     end
 

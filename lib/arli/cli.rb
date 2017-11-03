@@ -38,24 +38,27 @@ module Arli
       end
 
       self.options = Hashie::Extensions::SymbolizeKeys.symbolize_keys!(options.to_h)
+
       unless options[:help]
         self.command = create_command if command_name
         execute
       end
+
     rescue OptionParser::InvalidOption => e
       report_exception(e, 'Command line usage error!')
+
     rescue Arli::Errors::InvalidCommandError
-      error 'This command does not exist'
+      report_exception(e, 'This command does not exist')
+
     rescue Exception => e
-      error 'General error — '
-      error e.message
-      raise e if Arli.debug?
+      report_exception(e, 'Error')
+      raise e if options[:trace]
     end
 
     private
 
     def report_exception(e, header = nil)
-      error header.bold if header
+      error header if header
       printf ' ↳ '
       error e.message
     end
@@ -77,10 +80,10 @@ module Arli
     def create_command
       command_class = ::Arli::Commands.const_get(command_name.to_s.capitalize)
 
-      options[:lib_home] ||= ::Arduino::Library::DefaultDatabase.library_path
+      options[:lib_home] ||= ::Arli.config.library.path
       options[:argv]     = argv
 
-      info "created command #{command_name.to_s.bold.green},\noptions: #{options.inspect.bold.blue}" if Arli.debug?
+      info "created command #{command_name.to_s.green},\noptions: #{options.inspect.blue}" if Arli.debug?
 
       command_class.new(options)
     end
@@ -104,7 +107,7 @@ module Arli
       if self.command_name
         self.command_name = command_name.to_sym
         unless self.class.commands.key?(command_name)
-          raise Arli::Errors::InvalidCommandError, "Error: #{command_name ? command_name.to_s.bold.red : 'nil'} is not a valid arli command_name!"
+          raise Arli::Errors::InvalidCommandError, "Error: #{command_name ? command_name.to_s.red : 'nil'} is not a valid arli command_name!"
         end
       end
       self.command_name
@@ -120,7 +123,6 @@ module Arli
         @global ||= PARSER.new do |parser|
           parser.banner = usage_line
           parser.sep
-          parser.option_log
           parser.option_help(commands: true)
         end
       end
@@ -130,22 +132,22 @@ module Arli
       end
 
       def global_usage(command)
-        "Usage:\n    ".bold + COMMAND.bold.blue +
+        "Usage:\n    " + COMMAND.blue +
           ' [options] '.yellow + '[' + (command || 'command_name').green +
           ' [options]'.yellow + ']' + "\n"
       end
 
       def command_usage(command)
-        "Usage:\n    ".bold + COMMAND.bold.blue + ' ' +
-          command.bold.green +
+        "Usage:\n    " + COMMAND.blue + ' ' +
+          command.green +
           ' [options]'.yellow + "\n\n" +
-          'Command Options'.bold
+          'Command Options'
       end
 
       def commands
         @commands ||= {
           install: {
-            description: 'installs libraries defined in ArliFile.yml',
+            description: 'installs libraries defined in Arlifile',
             parser:      -> (command_name) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'install'
@@ -157,7 +159,7 @@ module Arli
             } },
 
           update:  {
-            description: 'updates libraries defined in the ArliFile.yml',
+            description: 'updates libraries defined in the Arlifile',
             parser:      -> (command_name) {
               PARSER.new do |parser|
                 parser.banner = usage_line 'update'
@@ -169,10 +171,10 @@ module Arli
 
           search:  {
             description: 'Flexible Search of the Arduino Library Database',
-            example:     'arli search '.bold.green + %Q['name: /AudioZero/, version: "1.0.1"'].bold.green,
+            example:     'arli search '.green + %Q['name: /AudioZero/, version: "1.0.1"'].green,
             parser:      -> (command_name) {
               PARSER.new do |parser|
-                parser.banner = usage_line 'search ' + '<query>'.bold.magenta
+                parser.banner = usage_line 'search ' + '<query>'.magenta
                 parser.option_search
                 parser.option_help(command_name: command_name)
               end

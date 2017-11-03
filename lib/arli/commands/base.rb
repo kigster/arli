@@ -30,19 +30,19 @@ module Arli
       # @param <String> *args — list of arguments or a single string
       def execute(*args)
         cmd = args.join(' ')
-        info cmd.bold.green
+        info cmd.green
         o, e, s = Open3.capture3(cmd)
         puts o if o
         puts e.red if e
         s
       rescue Exception => e
-        error "Error running [#{cmd.bold.yellow}]\n" +
-                "Current folder is [#{Dir.pwd.bold.yellow}]", e
+        error "Error running [#{cmd.yellow}]\n" +
+                "Current folder is [#{Dir.pwd.yellow}]", e
         raise e
       end
 
       def error(msg, exception = nil)
-        printf 'Runtime Error: '.bold.red + "\n#{msg}\n" if msg
+        printf 'Runtime Error: '.red + "\n#{msg}\n" if msg
         if exception
           puts
           printf 'Exception: '.red + "\n#{exception.inspect.red}\n\n"
@@ -51,7 +51,7 @@ module Arli
       end
 
       def info(msg, header = nil)
-        printf('%-20s', header.bold.blue) if header
+        printf('%-20s', header.blue) if header
         printf((header ? ' : ' : '') + msg + "\n") if msg
       end
 

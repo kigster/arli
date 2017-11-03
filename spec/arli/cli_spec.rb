@@ -4,7 +4,7 @@ RSpec.describe Arli::CLI do
   subject(:cli) { described_class.new(argv) }
 
   before do
-    allow_any_instance_of(::Arli::Commands::Base).to receive(:execute)
+    allow_any_instance_of(::Arli::CLI).to receive(:execute)
     allow_any_instance_of(::Arli::Commands::Base).to receive(:info)
     allow(described_class).to receive(:info)
   end

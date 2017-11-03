@@ -8,9 +8,10 @@ module Arli
 
       def initialize(command = nil)
         super(nil, 22)
-        self.output_lines = Array.new
-        self.command      = command
-        self.options      = Hashie::Mash.new
+        self.output_lines   = ::Array.new
+        self.command        = command
+        self.options        = ::Hashie::Mash.new
+        options[:arli_file] = ::Arli.config.arlifile.name
       end
 
       def sep(text = nil)
@@ -19,15 +20,15 @@ module Arli
 
       def option_dependency_file
         on('-a', '--arli-file FILE',
-           'ArliFile.yml'.bold.green + ' is the file listing the dependencies',
-           "Default filename is #{Arli.config.arlifile.name.bold.magenta})\n\n") do |v|
+           'Arlifile'.green + ' is the file listing the dependencies',
+           "Defaults to #{Arli.config.arlifile.name.magenta}\n\n") do |v|
           options[:arli_file] = v
         end
       end
 
       def option_lib_home
         on('-l', '--lib-home HOME', 'Local folder where libraries are installed',
-           "Default: #{default_library_path}\n\n") do |v|
+           "Defaults to #{default_library_path}\n\n") do |v|
           options[:lib_home] = v
         end
       end
@@ -35,13 +36,13 @@ module Arli
       def option_search
         on('-d', '--database SOURCE',
            'a JSON file name, or a URL that contains the index',
-           'By default, the Arduino-maintained list is searched') do |v|
+           'Defaults to the Arduino-maintained list') do |v|
           options[:database] = v
         end
         on('-m', '--max LIMIT',
            'if provided, limits the result set to this number',
-           'Default value is 100') do |v|
-             options[:limit] = v.to_i if v
+           'Defaults to 100') do |v|
+          options[:limit] = v.to_i if v
         end
       end
 
@@ -53,23 +54,28 @@ module Arli
         end
       end
 
-      def option_log
+      def option_help(commands: false, command_name: nil)
         on('-L', '--log LOG',
            'Write debugging info into the log file.') do |v|
           options[:logfile] = v
         end
-      end
-
-      def option_help(commands: false, command_name: nil)
+        on('-T', '--trace',
+           'Print exception stack traces.') do |v|
+          options[:trace] = v
+        end
+        on('-v', '--verbose',
+           'Print more information.') do |v|
+          options[:verbose] = true
+        end
         on('-h', '--help', 'prints this help') do
-          output 'Description:'.bold if command_name
-          output ' ' * 4 + command_name[:description].bold.green if command_name
+          output 'Description:' if command_name
+          output ' ' * 4 + command_name[:description].green if command_name
           output ''
           output_help
           output_command_help if commands
 
           if command_name && command_name[:example]
-            output 'Example:'.bold
+            output 'Example:'
             output ' ' * 4 + command_name[:example]
           end
 
@@ -90,14 +96,14 @@ module Arli
       end
 
       def command_help
-        subtext = "Available Commands:\n".bold
+        subtext = "Available Commands:\n"
 
         ::Arli::CLI.commands.each_pair do |command, config|
           subtext << %Q/#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%s', config[:description]).yellow}\n/
         end
         subtext << <<-EOS
         
-See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for more information on a specific command.
+See #{COMMAND.blue + ' <command> '.green + '--help'.yellow} for more information on a specific command.
 
         EOS
         subtext
