@@ -28,6 +28,5 @@ RSpec.describe Arli::CLI do
 
     its(:command_name) { should eq :install }
     its(:options) { should include(:lib_home) }
-    #its(:execute) { should be nil }
   end
 end

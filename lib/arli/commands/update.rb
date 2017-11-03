@@ -15,8 +15,10 @@ module Arli
       end
 
       def run
-        arli_file.each do |dependency|
-          process_dependency(dependency)
+        arli_file.each_dependency do |lib|
+          process_dependency(lib) do |cmd|
+            execute(cmd)
+          end
         end
       end
 

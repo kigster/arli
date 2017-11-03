@@ -32,43 +32,9 @@ module Arli
       parse!
     end
 
-    def parse!
-      begin
-        self.file_hash = ::YAML.load(::File.read(self.file))
-        self.dependencies = file_hash['dependencies'].map do |lib|
-          Arduino::Library::Model.from_hash(lib)
-        end
-      rescue Exception => e
-        error "Error parsing YAML file #{file}:\n#{e.message}"
-        raise e
-      end
-    end
 
     def libraries
       self.dependencies
-    end
-
-    def all_dependencies(cmd)
-      method_name = :run_dependency
-
-      for_each_dependency do |dep|
-        begin
-          argv = args.map { |key| dep[key] }
-          if self.respond_to?(method_name)
-            info("dependency #{dep.inspect}: calling #{method_name} with args #{argv.inspect}")
-
-            self.send(method_name, *argv) do |system_command|
-              puts "execute(#{system_command})"
-            end
-          else
-            raise ArgumentError,
-                  "Method #{method_name.to_s.blue} is not implemented on #{self.class.name.red}"
-          end
-        end
-      end
-    rescue Exception => e
-      error "Error while running command #{cmd}:\n\n#{e.message.red}"
-      error e.backtrace.join("\n")
     end
 
     def within_lib_path
@@ -78,7 +44,7 @@ module Arli
       end
     end
 
-    def for_each_dependency(&_block)
+    def each_dependency(&_block)
       within_lib_path do
         dependencies.each do |dependency|
           yield(dependency)
@@ -93,5 +59,20 @@ module Arli
     def info(*args)
       STDOUT.puts *args.join("\n") if Arli.debug?
     end
+
+    private
+
+    def parse!
+      begin
+        self.file_hash = ::YAML.load(::File.read(self.file))
+        self.dependencies = file_hash['dependencies'].map do |lib|
+          Arduino::Library::Model.from_hash(lib)
+        end
+      rescue Exception => e
+        error "Error parsing YAML file #{file}:\n#{e.message}"
+        raise e
+      end
+    end
+
   end
 end
