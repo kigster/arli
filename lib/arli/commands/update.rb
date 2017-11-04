@@ -16,16 +16,14 @@ module Arli
 
       def run
         arli_file.each_dependency do |lib|
-          process_dependency(lib) do |cmd|
-            execute(cmd)
-          end
+          execute(
+            command_for_dependency(::Arduino::Library::Resolver.resolve(lib))
+          )
         end
       end
 
-      def process_dependency(lib)
-        cmd = "cd #{lib.name} && git pull --rebase 2>&1"
-        yield(cmd) if block_given?
-        cmd
+      def command_for_dependency(lib)
+        "cd #{lib.name} && git pull --rebase 2>&1"
       end
     end
   end
