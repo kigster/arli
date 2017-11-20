@@ -60,7 +60,7 @@ module Arli
     def report_exception(e, header = nil)
       error header if header
       printf ' ↳ '
-      error e.message
+      error e.message if e && e.respond_to?(:message)
     end
 
     def execute
@@ -75,12 +75,13 @@ module Arli
       end
     rescue NameError => e
       error e.inspect
+      error e.backtrace.join("\n") if options[:trace]
     end
 
     def create_command
       command_class = ::Arli::Commands.const_get(command_name.to_s.capitalize)
 
-      options[:lib_home] ||= ::Arli.config.library.path
+      options[:lib_home] ||= ::Arli.config.library_path
       options[:argv]     = argv
 
       info "created command #{command_name.to_s.green},\noptions: #{options.inspect.blue}" if Arli.debug?
@@ -133,8 +134,8 @@ module Arli
 
       def global_usage(command)
         "Usage:\n    " + COMMAND.blue +
-          ' [options] '.yellow + '[' + (command || 'command_name').green +
-          ' [options]'.yellow + ']' + "\n"
+          ' [options] '.yellow + '[ ' + (command || 'command').green +
+          ' [options] '.yellow + ' ]' + "\n"
       end
 
       def command_usage(command)

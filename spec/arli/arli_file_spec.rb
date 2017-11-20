@@ -2,9 +2,9 @@ require 'spec_helper'
 require 'yaml'
 
 RSpec.describe Arli::ArliFile do
-  let(:file) { 'ArliFile.yml' }
-  let(:path) { 'spec/fixtures/' }
-  let(:file_path) { path + file }
+  let(:file) { Arli::Config::DEFAULT_FILENAME }
+  let(:path) { 'spec/fixtures/file1' }
+  let(:file_path) { path + '/' + file }
   let(:contents) { File.read(file_path) }
   let(:arli_file_hash) { YAML.load(contents) }
 
@@ -16,7 +16,7 @@ RSpec.describe Arli::ArliFile do
   end
 
   context 'ArliFile' do
-    subject(:arli_file) { described_class.new(file_path) }
+    subject(:arli_file) { described_class.new(arlifile_path: path) }
     context 'custom filename' do
       its(:first) { should be_kind_of(Arduino::Library::Model)}
 
@@ -30,10 +30,10 @@ RSpec.describe Arli::ArliFile do
 
     context 'default filename' do
       it 'should initialize' do
-        Dir.chdir('spec/fixtures') do
+        Dir.chdir('spec/fixtures/file2') do
           af = described_class.new
 
-          expect(af.libraries.first.name).to eq 'Mooo'
+          expect(af.libraries.first.name).to eq 'DS1307RTC'
         end
       end
     end

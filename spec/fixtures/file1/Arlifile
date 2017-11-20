@@ -1,9 +1,9 @@
+# vi:syntax=yaml
 version: 1.0.0
 dependencies:
   - name: ESP8266WiFi
     version: '1.0'
     url: https://github.com/esp8266/Arduino
-    subfolder: libraries/ESP8266WiFi
   - name: NTPClient
     version: '3.1.0'
   - name: SimpleTimer

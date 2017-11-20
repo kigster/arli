@@ -19,7 +19,7 @@ RSpec.describe Arli::CLI do
   end
 
   context 'install command' do
-    let(:argv) { %w[install -l tmp -a spec/fixtures/ArliFile-another.yml ] }
+    let(:argv) { %w[install -l tmp -p spec/fixtures/file2 ] }
 
     before do
       FileUtils.rm_rf('tmp')
@@ -28,5 +28,7 @@ RSpec.describe Arli::CLI do
 
     its(:command_name) { should eq :install }
     its(:options) { should include(:lib_home) }
+
+
   end
 end

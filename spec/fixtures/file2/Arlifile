@@ -1,3 +1,4 @@
+# vi:syntax=yaml
 dependencies:
 - name: DS1307RTC
   url: https://urlhub.com/PaulStoffregen/DS1307RTC.url

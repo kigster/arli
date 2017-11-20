@@ -28,13 +28,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'arduino-library'
+  spec.add_dependency 'arduino-library', '~> 0.4.1'
   spec.add_dependency 'colored2'
   spec.add_dependency 'hashie'
   spec.add_dependency 'dry-types'
   spec.add_dependency 'dry-struct'
-  spec.add_dependency 'dry-configurable'
   spec.add_dependency 'awesome_print'
+  spec.add_dependency 'archive-zip'
 
 
   spec.add_development_dependency 'simplecov'

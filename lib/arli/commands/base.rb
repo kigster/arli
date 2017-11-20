@@ -3,13 +3,14 @@ require 'fileutils'
 require 'open3'
 require 'arli'
 require 'arli/version'
+require 'arli/errors'
 
 require_relative 'helpers'
 
 module Arli
   module Commands
     class Base
-      attr_accessor :lib_path, :arli_file, :abort_if_exists, :command
+      attr_accessor :lib_path, :arlifile, :abort_if_exists, :command
 
       include Helpers
 
@@ -25,20 +26,6 @@ module Arli
 
       def setup
         FileUtils.mkdir_p(lib_path)
-      end
-
-      # @param <String> *args — list of arguments or a single string
-      def execute(*args)
-        cmd = args.join(' ')
-        info cmd.green
-        o, e, s = Open3.capture3(cmd)
-        puts o if o
-        puts e.red if e
-        s
-      rescue Exception => e
-        error "Error running [#{cmd.yellow}]\n" +
-                "Current folder is [#{Dir.pwd.yellow}]", e
-        raise e
       end
 
       def error(msg, exception = nil)

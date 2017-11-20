@@ -1,7 +1,7 @@
 require 'arli'
-require 'arduino/library'
 require 'yaml'
 require 'forwardable'
+require 'arduino/library'
 
 module Arli
   class ArliFile
@@ -14,20 +14,14 @@ module Arli
 
     attr_accessor :dependencies, :file_hash, :file, :lib_path, :resolved
 
-    def initialize(custom_file_path = nil,
-                   lib_path = Arli.config.library.path)
+    def initialize(lib_path: Arli.library_path,
+                   arlifile_path: nil)
 
       self.lib_path = lib_path
-      self.file     = if custom_file_path
-                        if ::Dir.exist?(custom_file_path)
-                          Arli::File::Finder.default_arli_file(custom_file_path)
-                        elsif  ::File.exist?(custom_file_path)
-                          custom_file_path
-                        end
-                      end
-      self.file     ||= Arli::File::Finder.default_arli_file
+      self.file     = arlifile_path ? "#{arlifile_path}/#{Arli::Config::DEFAULT_FILENAME}" :
+                        Arli::Config::DEFAULT_FILENAME
+      raise(Arli::Errors::ArliFileNotFound, 'Arlifile could not be found') unless file || !File.exist?(file)
       self.dependencies = []
-      raise(Arli::Errors::ArliFileNotFound, 'Arlifile could not be found') unless file
 
       parse!
     end
@@ -64,9 +58,9 @@ module Arli
 
     def parse!
       begin
-        self.file_hash = ::YAML.load(::File.read(self.file))
+        self.file_hash    = ::YAML.load(::File.read(self.file))
         self.dependencies = file_hash['dependencies'].map do |lib|
-          Arduino::Library::Model.from_hash(lib)
+          ::Arduino::Library::Model.from_hash(lib)
         end
       rescue Exception => e
         error "Error parsing YAML file #{file}:\n#{e.message}"

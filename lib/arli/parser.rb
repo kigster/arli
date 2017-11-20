@@ -1,17 +1,21 @@
 require 'arduino/library'
 require 'arli/config'
+require 'arli/version'
 
 module Arli
   class CLI
     class Parser < OptionParser
-      attr_accessor :output_lines, :command, :options
+      attr_accessor :output_lines, :command, :options, :arlifile
 
       def initialize(command = nil)
         super(nil, 22)
-        self.output_lines   = ::Array.new
-        self.command        = command
-        self.options        = ::Hashie::Mash.new
-        options[:arli_file] = ::Arli.config.arlifile.name
+        self.output_lines        = ::Array.new
+        self.command             = command
+        self.options             = ::Hashie::Mash.new
+        self.arlifile            = options[:arli_dir] ?
+                                     options[:arli_dir] + '/' + Arli::Config::DEFAULT_FILENAME :
+                                     Arli::Config::DEFAULT_FILENAME
+        self.options[:arlifile] = arlifile
       end
 
       def sep(text = nil)
@@ -19,27 +23,27 @@ module Arli
       end
 
       def option_dependency_file
-        on('-a', '--arli-file FILE',
-           'Arlifile'.green + ' is the file listing the dependencies',
-           "Defaults to #{Arli.config.arlifile.name.magenta}\n\n") do |v|
-          options[:arli_file] = v
+        on('-p', '--arli-path PATH',
+           'Folder where ' + 'Arlifile'.green + ' is located,',
+           "Defaults to the current directory.\n\n") do |v|
+          options[:arli_dir] = v
         end
       end
 
       def option_lib_home
-        on('-l', '--lib-home HOME', 'Local folder where libraries are installed',
+        on('-l', '--libs PATH', 'Local folder where libraries are installed',
            "Defaults to #{default_library_path}\n\n") do |v|
           options[:lib_home] = v
         end
       end
 
       def option_search
-        on('-d', '--database SOURCE',
+        on('-d', '--database FILE/URL',
            'a JSON file name, or a URL that contains the index',
            'Defaults to the Arduino-maintained list') do |v|
           options[:database] = v
         end
-        on('-m', '--max LIMIT',
+        on('-m', '--max NUMBER',
            'if provided, limits the result set to this number',
            'Defaults to 100') do |v|
           options[:limit] = v.to_i if v
@@ -47,25 +51,30 @@ module Arli
       end
 
       def option_abort_if_exists
-        on('-e', '--abort-on-exiting',
+        on('-e', '--error-if-exists',
            'Abort if a library folder already exists',
-           'instead of updating it.') do |v|
+           'Default behavior is to update it.') do |v|
           options[:abort_if_exists] = true
         end
       end
 
       def option_help(commands: false, command_name: nil)
-        on('-L', '--log LOG',
-           'Write debugging info into the log file.') do |v|
-          options[:logfile] = v
-        end
-        on('-T', '--trace',
+        # on('-L', '--log FILE_PATH',
+        #    'Write debugging info into the log file.') do |v|
+        #   options[:logfile] = v
+        # end
+        on('-t', '--trace',
            'Print exception stack traces.') do |v|
           options[:trace] = v
         end
         on('-v', '--verbose',
            'Print more information.') do |v|
           options[:verbose] = true
+        end
+        on('-V', '--version',
+           'Print current version and exit') do |v|
+          output 'Version: ' + Arli::VERSION
+          options[:help] = true
         end
         on('-h', '--help', 'prints this help') do
           output 'Description:' if command_name
@@ -119,7 +128,7 @@ See #{COMMAND.blue + ' <command> '.green + '--help'.yellow} for more information
       end
 
       def default_library_path
-        ::Arli.config.library.path.gsub(%r(#{ENV['HOME']}), '~').blue
+        ::Arli.config.library_path.gsub(%r(#{ENV['HOME']}), '~').blue
       end
     end
   end

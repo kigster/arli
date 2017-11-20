@@ -1,24 +1,19 @@
 require 'spec_helper'
 
 RSpec.describe Arli::Config do
-  let(:config) { described_class.config }
+  let(:config) { described_class }
 
   before do
     Arli.configure do |config|
-      config.library.path = '/tmp'
-      config.arlifile.name = 'MooFile'
+      config.library_path = '/tmp'
     end
   end
 
   context 'library' do
-    subject { config.library }
-    its(:path) { should eq '/tmp' }
-    its(:index_url) { should eq ::Arduino::Library::DefaultDatabase.library_index_url }
-  end
-
-  context 'arlifile' do
-    subject { config.arlifile}
-    its(:name) { should eq 'MooFile' }
-    its(:candidates) { should include 'ArliFile.yaml' }
+    subject { config }
+    its(:library_path) { should eq '/tmp' }
+    its(:debug) { should be_falsey }
+    its(:library_index_url) { should eq ::Arduino::Library::DefaultDatabase.library_index_url }
+    its(:library_index_path) { should eq ::Arduino::Library::DefaultDatabase.library_index_path }
   end
 end
