@@ -21,20 +21,13 @@ dependencies:
     url: https://github.com/jfturcot/SimpleTimer
 ```
 
-The libraries may be specified with a name and url only, OR they can be specified by name (and optionally version) — as long as this is one of the standard libraries documented in the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
+The libraries may be specified with a name and url only (in which case the URL will be used to install it), OR a library can be specified by name (and optionally version). In this case, it will be searched among the standard library index provided by the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
 
-
-Basically a simple pairing of a library/project name 
-(which also happens to be the local directory it's cloned into) 
-and a remote URL.
-
-The gem was created to fill the need of managing many external
-libraries for an Arduino projects in a consistent way. Arli's 
-API was loosely inspired by Bundler.
+The gem was created to fill the need of slightly more complex Arduino projects that DO NOT use Arduino IDE, and instead use other technologies, such as `ArduinoCmake`  in managing many Arduino libraries  in a consistent way. Arli's API was loosely inspired by Bundler.
 
 ## Installation
 
-Install the gem globally like this:
+Install the `arli` ruby gem as follows:
 
 ```bash
 # if using rbenv, or rvm; otherwise you may need to prefix 
@@ -47,7 +40,6 @@ $ gem install arli
 Run `arli --help` for more information:
 
 ```bash
-
 Usage:
     arli [options] [ command [options]  ]
 
@@ -122,7 +114,19 @@ Command Options
 
 Example:
     arli search 'name: /AudioZero/, version: "1.0.1"'
-I```
+```
+
+For example:
+
+```bash
+$ arli search -s 'name: "AudioZero", version: "1.0.1"'
+```
+
+You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
+
+```bash
+$ arli search -s 'name: /adafruit/i' -m 10
+```
 
 ## Development
 
