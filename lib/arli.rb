@@ -38,4 +38,5 @@ Arli.configure do |config|
 end
 
 require 'arli/arli_file'
+require 'arli/installer'
 require 'arli/cli'

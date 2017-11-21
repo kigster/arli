@@ -57,14 +57,9 @@ module Arli
     private
 
     def parse!
-      begin
-        self.file_hash    = ::YAML.load(::File.read(self.file))
-        self.dependencies = file_hash['dependencies'].map do |lib|
-          ::Arduino::Library::Model.from_hash(lib)
-        end
-      rescue Exception => e
-        error "Error parsing YAML file #{file}:\n#{e.message}"
-        raise e
+      self.file_hash    = ::YAML.load(::File.read(self.file))
+      self.dependencies = file_hash['dependencies'].map do |lib|
+        ::Arduino::Library::Model.from_hash(lib)
       end
     end
 

@@ -4,7 +4,6 @@ require 'hashie/extensions/symbolize_keys'
 require 'colored2'
 require 'arli'
 require 'arli/parser'
-require 'arli/commands/update'
 require 'arli/commands/install'
 require 'arli/commands/search'
 
@@ -51,21 +50,21 @@ module Arli
       report_exception(e, 'This command does not exist')
 
     rescue Exception => e
-      report_exception(e, 'Error')
+      report_exception(e)
       raise e if options[:trace]
     end
 
     private
 
     def report_exception(e, header = nil)
-      error header if header
-      printf ' ↳ '
+      error header.bold.yellow if header
+      printf ' ☠   '
       error e.message if e && e.respond_to?(:message)
     end
 
     def execute
       if command
-        command.header if command.respond_to?(:header)
+        header
         command.run
       else
         gp = self.class.global
@@ -89,7 +88,15 @@ module Arli
       command_class.new(options)
     end
 
-    private
+    def header
+       out = ''
+       out << "Arli (#{::Arli::VERSION.yellow})"
+       out << " running #{command.name.to_s.blue}" if command
+       out << "\n"
+       out << "Library Folder: #{options[:lib_home].green}\n" if options[:lib_home]
+       out << '——————————————————————————————————————————————————————————'
+       info out
+     end
 
     def info(*args)
       self.class.output(*args)
@@ -155,17 +162,6 @@ module Arli
                 parser.option_lib_home
                 parser.option_dependency_file
                 parser.option_abort_if_exists
-                parser.option_help(command_name: command_name)
-              end
-            } },
-
-          update:  {
-            description: 'updates libraries defined in the Arlifile',
-            parser:      -> (command_name) {
-              PARSER.new do |parser|
-                parser.banner = usage_line 'update'
-                parser.option_lib_home
-                parser.option_dependency_file
                 parser.option_help(command_name: command_name)
               end
             } },

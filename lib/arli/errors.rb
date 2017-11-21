@@ -12,5 +12,8 @@ module Arli
 
     class LibraryAlreadyExists < ArliError; end
 
+    class InstallerError < ArliError; end
+
+    class ZipFileError < InstallerError; end
   end
 end

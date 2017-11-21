@@ -1,17 +1,25 @@
 require 'json'
-require 'fileutils'
-require 'open3'
 require 'arli'
-require 'arli/commands/update'
-require 'arli/errors'
+require 'net/http'
+require_relative 'base'
+require_relative '../installers/zip_file'
 
 module Arli
   module Commands
-    class Install < Update
+    class Install < Base
 
-      def git_command(lib)
-        "git clone -v #{lib.url} #{lib.name} 2>&1"
+      def initialize(options)
+        super(options)
+        self.arlifile = Arli::ArliFile.new(lib_path:      lib_path,
+                                           arlifile_path: options[:arli_dir])
       end
+
+      def run
+        arlifile.each_dependency do |lib|
+          Arli::Installer.new(lib: lib, command: self).install
+        end
+      end
+
     end
   end
 end

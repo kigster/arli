@@ -51,18 +51,26 @@ module Arli
       end
 
       def option_abort_if_exists
-        on('-e', '--error-if-exists',
-           'Abort if a library folder already exists',
-           'Default behavior is to update it.') do |v|
-          options[:abort_if_exists] = true
+        on('-e', '--if-exists ACTION',
+           'If a library folder already exists, by default',
+           'it will be overwritten or updated if possible.',
+           'Alternatively you can either ' + 'abort'.bold.blue + ' or ' + 'backup'.bold.blue
+        ) do |v|
+          if v =~ /abort/i
+            options[:abort_if_exists] = true
+          elsif v =~ /backup/
+            options[:create_backup] = true
+            elsif v =~ /replace/
+          end
         end
+        sep ' '
       end
 
       def option_help(commands: false, command_name: nil)
-        # on('-L', '--log FILE_PATH',
-        #    'Write debugging info into the log file.') do |v|
-        #   options[:logfile] = v
-        # end
+        on('-D', '--debug',
+           'Print debugging info.') do |v|
+          options[:debug] = true
+        end
         on('-t', '--trace',
            'Print exception stack traces.') do |v|
           options[:trace] = v
