@@ -93,7 +93,7 @@ module Arli
        out << "Arli (#{::Arli::VERSION.yellow})"
        out << " running #{command.name.to_s.blue}" if command
        out << "\n"
-       out << "Library Folder: #{options[:lib_home].green}\n" if options[:lib_home]
+       out << "Library Folder: #{options[:lib_home].gsub(/#{ENV['HOME']}/, '~').green}\n" if options[:lib_home]
        out << '——————————————————————————————————————————————————————————'
        info out
      end

@@ -5,21 +5,24 @@
 
 # Arli
 
-Arli is a simple and easy to use installer of dependencies that can be 
-declared in a YAML file of the following format:
+Arli is a simple and easy to use Arduino Dependency Manager, that uses a
+a YAML formatted file declaring dependencies, as follows:
 
 ```yaml
+# vi:syntax=yaml
 version: 1.0.0
 dependencies:
   - name: ESP8266WiFi
     version: '1.0'
     url: https://github.com/esp8266/Arduino
-    subfolder: libraries/ESP8266WiFi
-  - name: NTPClient
-    version: '3.1.0'
+  - name: Time
+  - name: "Adafruit GFX Library"
   - name: SimpleTimer
-    urL: https://github.com/jfturcot/SimpleTimer
+    url: https://github.com/jfturcot/SimpleTimer
 ```
+
+The libraries may be specified with a name and url only, OR they can be specified by name (and optionally version) — as long as this is one of the standard libraries documented in the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
+
 
 Basically a simple pairing of a library/project name 
 (which also happens to be the local directory it's cloned into) 
@@ -34,11 +37,9 @@ API was loosely inspired by Bundler.
 Install the gem globally like this:
 
 ```bash
-# if using rbenv, or rvm
+# if using rbenv, or rvm; otherwise you may need to prefix 
+# with 'sudo'
 $ gem install arli 
-
-# OR, if your Ruby is a system ruby installed in eg. /usr/local, 
-$ sudo gem install arli 
 ```
 
 ## Usage
@@ -46,14 +47,18 @@ $ sudo gem install arli
 Run `arli --help` for more information:
 
 ```bash
-Usage:
-    arli [options] [ command [options] ]
 
-    -h, --help     prints this help
+Usage:
+    arli [options] [ command [options]  ]
+
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -V, --version          Print current version and exit
+    -h, --help             prints this help
 
 Available Commands:
-    install      : installs libraries defined in ArliFile.yml
-    update       : updates libraries defined in the ArliFile.yml
+    install      : installs libraries defined in Arlifile
     search       : Flexible Search of the Arduino Library Database
 
 See arli <command> --help for more information on a specific command.
@@ -69,40 +74,29 @@ target library already exists.
 
 ```bash
 Description:
-    installs libraries defined in ArliFile.yml
+    installs libraries defined in Arlifile
 
 Usage:
     arli install [options]
 
 Command Options
-    -l, --lib-home HOME    Local folder where libraries are installed
-                           Default: ~/Documents/Arduino/Libraries
+    -l, --libs PATH        Local folder where libraries are installed
+                           Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
 
-    -a, --arli-file FILE   ArliFile.yml is the file listing the dependencies
-                           Default filename is ArliFile.yml
+    -p, --arli-path PATH   Folder where Arlifile is located,
+                           Defaults to the current directory.
 
-    -e, --abort-on-exiting Abort if a library folder already exists
-                           instead of updating it.
+    -e, --if-exists ACTION If a library folder already exists, by default
+                           it will be overwritten or updated if possible.
+                           Alternatively you can either abort or backup
+
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -V, --version          Print current version and exit
     -h, --help             prints this help
 ```
 
-#### Update Command
-
-To upate previously checked out libraries, use the `update` command:
-
-```bash
-Description:
-    updates libraries defined in the JSON file
-
-Usage:
-    arli update [options]
-
-Command Options
-    -l, --lib-home HOME    Local folder where libraries are installed
-                           Default: ~/Documents/Arduino/Libraries
-    -j, --json FILE        JSON file with dependencies (defaults to arli.json)
-    -h, --help             prints this help
-```
 
 #### Search Command
 
@@ -113,17 +107,22 @@ Description:
     Flexible Search of the Arduino Library Database
 
 Usage:
-    arli search [options]
+    arli search <query> [options]
 
 Command Options
-    -s, --search TERMS     ruby-style hash arguments to search for
-                           eg: -s "name: 'AudioZero', version: /^1.0/"
-    -d, --database SOURCE  a JSON file name, or a URL that contains the index
-                           By default, the Arduino-maintained list is searched
-    -m, --max LIMIT        if provided, limits the result set to this number
-                           Default value is 100
+    -d FILE/URL,           a JSON file name, or a URL that contains the index
+        --database         Defaults to the Arduino-maintained list
+    -m, --max NUMBER       if provided, limits the result set to this number
+                           Defaults to 100
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -V, --version          Print current version and exit
     -h, --help             prints this help
-```
+
+Example:
+    arli search 'name: /AudioZero/, version: "1.0.1"'
+I```
 
 ## Development
 
