@@ -1,14 +1,21 @@
 require 'arduino/library'
+require 'arli/config'
+require 'arli/version'
+
 module Arli
   class CLI
     class Parser < OptionParser
-      attr_accessor :output_lines, :command, :options
+      attr_accessor :output_lines, :command, :options, :arlifile
 
       def initialize(command = nil)
         super(nil, 22)
-        self.output_lines = Array.new
-        self.command      = command
-        self.options      = Hashie::Mash.new
+        self.output_lines        = ::Array.new
+        self.command             = command
+        self.options             = ::Hashie::Mash.new
+        self.arlifile            = options[:arli_dir] ?
+                                     options[:arli_dir] + '/' + Arli::Config::DEFAULT_FILENAME :
+                                     Arli::Config::DEFAULT_FILENAME
+        self.options[:arlifile] = arlifile
       end
 
       def sep(text = nil)
@@ -16,64 +23,81 @@ module Arli
       end
 
       def option_dependency_file
-        on('-a', '--arli-file FILE',
-           'ArliFile.yml'.bold.green + ' is the file listing the dependencies',
-           "Default filename is #{DEFAULT_ARLI_FILE.bold.magenta})\n\n") do |v|
-          options[:arli_file] = v
+        on('-p', '--arli-path PATH',
+           'Folder where ' + 'Arlifile'.green + ' is located,',
+           "Defaults to the current directory.\n\n") do |v|
+          options[:arli_dir] = v
         end
       end
 
       def option_lib_home
-        on('-l', '--lib-home HOME', 'Local folder where libraries are installed',
-           "Default: #{default_library_path}\n\n") do |v|
+        on('-l', '--libs PATH', 'Local folder where libraries are installed',
+           "Defaults to #{default_library_path}\n\n") do |v|
           options[:lib_home] = v
         end
       end
 
-
       def option_search
-        on('-s', '--search TERMS', 'ruby-style hash arguments to search for',
-           %Q(eg: -s "name: 'AudioZero', version: /^1.0/")) do |v|
-          options[:search] = v
-        end
-        on('-d', '--database SOURCE',
+        on('-d', '--database FILE/URL',
            'a JSON file name, or a URL that contains the index',
-           'By default, the Arduino-maintained list is searched') do |v|
+           'Defaults to the Arduino-maintained list') do |v|
           options[:database] = v
         end
-        on('-m', '--max LIMIT',
+        on('-m', '--max NUMBER',
            'if provided, limits the result set to this number',
-           'Default value is 100') do |v|
-             options[:limit] = v.to_i 
+           'Defaults to 100') do |v|
+          options[:limit] = v.to_i if v
         end
       end
 
       def option_abort_if_exists
-        on('-e', '--abort-on-exiting',
-           'Abort if a library folder already exists',
-           'instead of updating it.') do |v|
-          options[:abort_if_exists] = true
+        on('-e', '--if-exists ACTION',
+           'If a library folder already exists, by default',
+           'it will be overwritten or updated if possible.',
+           'Alternatively you can either ' + 'abort'.bold.blue + ' or ' + 'backup'.bold.blue
+        ) do |v|
+          if v =~ /abort/i
+            options[:abort_if_exists] = true
+          elsif v =~ /backup/
+            options[:create_backup] = true
+            elsif v =~ /replace/
+          end
         end
+        sep ' '
       end
 
-      def option_help(commands: false, command: nil)
+      def option_help(commands: false, command_name: nil)
+        on('-D', '--debug',
+           'Print debugging info.') do |v|
+          options[:debug] = true
+        end
+        on('-t', '--trace',
+           'Print exception stack traces.') do |v|
+          options[:trace] = v
+        end
+        on('-v', '--verbose',
+           'Print more information.') do |v|
+          options[:verbose] = true
+        end
+        on('-V', '--version',
+           'Print current version and exit') do |v|
+          output 'Version: ' + Arli::VERSION
+          options[:help] = true
+        end
         on('-h', '--help', 'prints this help') do
-          puts 'Description:'.bold if command
-          output ' ' * 4 + command[:description].bold.green if command
+          output 'Description:' if command_name
+          output ' ' * 4 + command_name[:description].green if command_name
           output ''
           output_help
           output_command_help if commands
+
+          if command_name && command_name[:example]
+            output 'Example:'
+            output ' ' * 4 + command_name[:example]
+          end
+
           options[:help] = true
         end
-      end
-
-      def option_library
-        on('-n', '--lib-name LIBRARY', 'Library Name') { |v| options[:library_name] = v }
-        on('-f', '--from FROM', 'A git or https URL') { |v| options[:library_from] = v }
-        on('-v', '--version VERSION', 'Library Version, i.e. git tag') { |v| options[:library_version] = v }
-        on('-i', '--install', 'Install a library') { |v| options[:library_action] = :install }
-        on('-r', '--remove', 'Remove a library') { |v| options[:library_action] = :remove }
-        on('-u', '--update', 'Update a local library') { |v| options[:library_action] = :update }
       end
 
       def option_help_with_subtext
@@ -89,14 +113,14 @@ module Arli
       end
 
       def command_help
-        subtext = "Available Commands:\n".bold
+        subtext = "Available Commands:\n"
 
         ::Arli::CLI.commands.each_pair do |command, config|
           subtext << %Q/#{sprintf('    %-12s', command.to_s).green} : #{sprintf('%s', config[:description]).yellow}\n/
         end
         subtext << <<-EOS
         
-See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for more information on a specific command.
+See #{COMMAND.blue + ' <command> '.green + '--help'.yellow} for more information on a specific command.
 
         EOS
         subtext
@@ -112,9 +136,8 @@ See #{COMMAND.bold.blue + ' <command> '.bold.green + '--help'.bold.yellow} for m
       end
 
       def default_library_path
-        Arduino::Library::DEFAULT_ARDUINO_LIBRARY_PATH.gsub(%r(#{ENV['HOME']}), '~').blue
+        ::Arli.config.library_path.gsub(%r(#{ENV['HOME']}), '~').blue
       end
-
     end
   end
 end

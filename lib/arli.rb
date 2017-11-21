@@ -1,41 +1,42 @@
-require 'arli/version'
-require 'arli/arli_file'
-require 'arli/configuration'
-require 'arli/cli'
+require 'forwardable'
 require 'logger'
+require 'arduino/library'
+
+require 'arli/version'
+require 'arli/errors'
+require 'arli/logger'
+require 'arli/config'
 
 module Arli
-  LIBRARY_INDEX_JSON_GZ = 'http://downloads.arduino.cc/libraries/library_index.json.gz'.freeze
-
-  DEFAULT_ARLI_FILE_ENV = 'ARDUINO_ARLI_LIBRARY_FILE'.freeze
-  DEFAULT_ARLI_FILE     = ENV[DEFAULT_ARLI_FILE_ENV] || ArliFile::DEFAULT_FILE_NAME
-
-  DEBUG = ENV['DEBUG'] ? true : false
-
-  @logger       = Logger.new(STDOUT)
-  @logger.level = Logger::INFO
 
   class << self
-    attr_accessor :logger
-    attr_writer :configuration
+    attr_accessor :config
+  end
 
-    %i(debug info error warn fatal).each do |level|
-      define_method level do |*args|
-        self.logger.send(level, *args) if self.logger
-      end
+  self.config = ::Arli::Config
+
+  class << self
+    extend Forwardable
+    def_delegators :@config, *::Arli::Config::PARAMS
+
+    def configure(&_block)
+      yield(self.config)
     end
-  end
 
-  def self.configuration
-    @configuration ||= Configuration.new
-  end
-
-  def self.reset
-    @configuration = Configuration.new
-  end
-
-  def self.configure
-    yield(configuration)
+    def debug?
+      self.debug
+    end
   end
 end
 
+Arli.configure do |config|
+  config.library_path       = ::Arduino::Library::DefaultDatabase.library_path
+  config.library_index_path = ::Arduino::Library::DefaultDatabase.library_index_path
+  config.library_index_url  = ::Arduino::Library::DefaultDatabase.library_index_url
+  config.logger             = ::Logger.new(STDOUT, level: :info)
+  config.debug              = ENV['ARLI_DEBUG'] || false
+end
+
+require 'arli/arli_file'
+require 'arli/installer'
+require 'arli/cli'

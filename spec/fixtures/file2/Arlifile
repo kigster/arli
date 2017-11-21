@@ -1,0 +1,20 @@
+# vi:syntax=yaml
+dependencies:
+- name: DS1307RTC
+  url: https://github.com/PaulStoffregen/DS1307RTC.git
+- name: Adafruit_LEDBackpack
+  url: https://github.com/adafruit/Adafruit-LED-Backpack-Library.git
+- name: Adafruit_GFX
+  url: https://github.com/adafruit/Adafruit-GFX-Library.git
+- name: Adafruit_NeoPixel
+  url: https://github.com/adafruit/Adafruit_NeoPixel.git
+- name: Adafruit_Sensor
+  url: https://github.com/adafruit/Adafruit_Sensor.git
+- name: DHT
+  url: https://github.com/adafruit/DHT-sensor-library.git
+- name: OneButton
+  url: https://github.com/kigster/OneButton.git
+- name: SimpleTimer
+  url: https://github.com/jfturcot/SimpleTimer.git
+- name: Time
+  url: https://github.com/PaulStoffregen/Time.git

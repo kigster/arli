@@ -4,9 +4,9 @@ RSpec.describe Arli::CLI do
   subject(:cli) { described_class.new(argv) }
 
   before do
-    allow_any_instance_of(::Arli::Commands::Base).to receive(:execute)
+    allow_any_instance_of(::Arli::CLI).to receive(:execute)
     allow_any_instance_of(::Arli::Commands::Base).to receive(:info)
-    allow(described_class).to receive(:output)
+    allow(described_class).to receive(:info)
   end
 
   context 'no command or arguments' do
@@ -15,18 +15,20 @@ RSpec.describe Arli::CLI do
     before { cli.parse }
 
     its(:options) { should be_empty }
-    its(:command) { should be_nil }
+    its(:command_name) { should be_nil }
   end
 
   context 'install command' do
-    let(:argv) { %w[install -l tmp -a spec/fixtures/ArliFile-another.yml ] }
+    let(:argv) { %w[install -l tmp -p spec/fixtures/file2 ] }
 
     before do
       FileUtils.rm_rf('tmp')
       cli.parse
     end
 
-    its(:command) { should eq :install }
+    its(:command_name) { should eq :install }
     its(:options) { should include(:lib_home) }
+
+
   end
 end

@@ -14,3 +14,4 @@
 **/.DS_Store
 .ruby-version
 .rspec_status
+!/lib/arli/commands/install.rb
