@@ -4,10 +4,13 @@ require 'open3'
 require 'arli'
 require 'arli/version'
 require 'arli/errors'
+require 'arli/output'
 
 module Arli
   module Commands
     class Base
+      include Arli::Output
+
       attr_accessor :lib_path,
                     :arlifile,
                     :abort_if_exists,
@@ -33,20 +36,6 @@ module Arli
 
       def setup
         FileUtils.mkdir_p(lib_path)
-      end
-
-      def error(msg, exception = nil)
-        printf 'Runtime Error: '.red + "\n#{msg}\n" if msg
-        if exception
-          puts
-          printf 'Exception: '.red + "\n#{exception.inspect.red}\n\n"
-        end
-        puts
-      end
-
-      def info(msg, header = nil)
-        printf('%-20s', header.blue) if header
-        printf((header ? ' : ' : '') + msg + "\n") if msg
       end
 
     end

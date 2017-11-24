@@ -1,3 +1,5 @@
+require 'colored2'
+
 module Arli
   module Logger
     def self.included(base)

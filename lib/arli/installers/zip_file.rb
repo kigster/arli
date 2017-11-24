@@ -1,46 +1,32 @@
 require 'archive/zip'
+require_relative 'base'
 
 module Arli
   module Installers
-    class ZipFile
-      attr_accessor :lib, :lib_dir
+    class ZipFile < ::Arli::Installers::Base
 
-      def initialize(lib:)
-        self.lib     = lib
-        self.lib_dir = lib.name.gsub(/ /, '_')
+      def initialize(lib:, **opts)
+        super(lib: lib, **opts)
         raise 'Invalid URL for this installer: ' + lib.url unless lib.url =~ /\.zip$/i
       end
 
       def install
-        download!
+        s 'unpacking zip...'
 
+        download!
         remove_library!
         remove_library_versions!
 
         unzip(zip_archive, '.')
 
         dir = dirs_matching(lib_dir).first
-
         FileUtils.move(dir, lib_dir) if dir
-
         FileUtils.rm_f(zip_archive) if File.exist?(zip_archive)
-      end
 
-      def remove_library!
-        FileUtils.rm_rf(lib_dir)
-      end
-
-      def remove_library_versions!
-        dirs = dirs_matching(lib_dir)
-        dirs.delete(lib_dir) # we don't want to delete the actual library
-        dirs.each { |d| FileUtils.rm_f(d) }
+        super
       end
 
       private
-
-      def dirs_matching(name)
-        Dir.glob("#{name}*").select { |d| File.directory?(d)  }
-      end
 
       def zip_archive
         @zip_archive ||= File.basename(lib.url)
