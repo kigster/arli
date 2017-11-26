@@ -15,4 +15,13 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before do
+    Arli.configure do |config|
+      config.help    = false
+      config.verbose = false
+      config.trace   = false
+      config.debug   = false
+    end
+  end
 end

@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hashie'
   spec.add_dependency 'dry-types'
   spec.add_dependency 'dry-struct'
+  spec.add_dependency 'dry-configurable'
   spec.add_dependency 'awesome_print'
   spec.add_dependency 'archive-zip'
 
@@ -42,4 +43,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-its'
+  spec.add_development_dependency 'aruba'
 end

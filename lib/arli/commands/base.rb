@@ -11,33 +11,37 @@ module Arli
     class Base
       include Arli::Output
 
-      attr_accessor :lib_path,
-                    :arlifile,
-                    :abort_if_exists,
-                    :create_backup,
-                    :command,
-                    :debug,
-                    :trace
+      attr_accessor :config, :name
 
-      def initialize(options)
-        self.lib_path        = options[:lib_home]
-        self.abort_if_exists = options[:abort_if_exists]
-        self.create_backup   = options[:create_backup]
-        self.debug           = options[:debug]
-        self.trace           = options[:trace]
-
-        self.command = self.class.name.gsub(/.*::/, '').downcase.to_sym
+      def initialize(config: Arli.config)
+        self.config = config
+        FileUtils.mkdir_p(library_path) unless Dir.exist?(library_path)
         setup
       end
 
+      def run(*args)
+        raise ArgumentError, 'This method must be implemented in subclasses'
+      end
+
+      def runtime
+        config.runtime
+      end
+
       def name
-        self.class.name.gsub(/.*::/, '').downcase
+        @name ||= self.class.name.gsub(/.*::/, '').downcase.to_sym
+      end
+
+      def library_path
+        config.libraries.path
       end
 
       def setup
-        FileUtils.mkdir_p(lib_path)
+
       end
 
+      def params
+
+      end
     end
   end
 end

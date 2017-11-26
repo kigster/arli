@@ -1,7 +1,7 @@
 require_relative 'base'
 module Arli
-  module Installers
-    class GitRepo < ::Arli::Installers::Base
+  module Actions
+    class GitRepo < Base
 
       def install
         c = exists? ? git_update_command : git_clone_command

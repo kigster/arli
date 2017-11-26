@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'arli'
+require 'arli/cli/runner'
 
-Arli::CLI.new.tap do |cli|
-  cli.parse
-end
+Arli::CLI::Runner.new(ARGV.dup).execute!
 

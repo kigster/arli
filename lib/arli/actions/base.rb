@@ -1,15 +1,15 @@
 require_relative '../output'
 
 module Arli
-  module Installers
+  module Actions
     class Base
       include Arli::Output
 
-      attr_accessor :lib, :lib_dir, :lib_path
+      attr_accessor :lib, :lib_dir, :library_path
 
-      def initialize(lib:, lib_path:)
+      def initialize(lib:, library_path:)
         self.lib = lib
-        self.lib_path = lib_path
+        self.library_path = library_path
         self.lib_dir = lib.name.gsub(/ /, '_')
       end
 
@@ -19,12 +19,12 @@ module Arli
 
       protected
 
-      def target_lib_path
-        "#{lib_path}/#{lib_dir}"
+      def target_library_path(canonical_lib_dir = lib_dir)
+        "#{library_path}/#{canonical_lib_dir}"
       end
 
       def exists?
-        Dir.exist?(target_lib_path)
+        Dir.exist?(target_library_path)
       end
 
       def remove_library!

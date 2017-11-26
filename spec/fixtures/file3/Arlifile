@@ -1,7 +1,6 @@
 # vi:syntax=yaml
 version: 1.0.0
 dependencies:
-  - name: Adafruit_Sensor
-    url: https://github.com/adafruit/Adafruit_Sensor.git
-  - name: Time
+  - name: "Adafruit Unified Sensor"
+  - name: "Time"
   - name: "Adafruit GFX Library"

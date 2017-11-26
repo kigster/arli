@@ -2,8 +2,8 @@ require 'archive/zip'
 require_relative 'base'
 
 module Arli
-  module Installers
-    class ZipFile < ::Arli::Installers::Base
+  module Actions
+    class ZipFile < Base
 
       def initialize(lib:, **opts)
         super(lib: lib, **opts)
@@ -11,7 +11,7 @@ module Arli
       end
 
       def install
-        s 'unpacking zip...'
+        ___ 'unpacking zip...'
 
         download!
         remove_library!

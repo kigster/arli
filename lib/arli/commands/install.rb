@@ -2,24 +2,31 @@ require 'json'
 require 'arli'
 require 'net/http'
 require_relative 'base'
-require_relative '../installers/zip_file'
+require_relative '../actions/installer'
 
 module Arli
   module Commands
     class Install < Base
 
-      def initialize(options)
-        super(options)
-        self.arlifile = Arli::ArliFile.new(lib_path:      lib_path,
-                                           arlifile_path: options[:arli_dir])
+      attr_accessor :arlifile
+
+      def initialize(*args)
+        super(*args)
+      end
+
+      def setup
+        self.arlifile = Arli::ArliFile.new(config: config)
+      end
+
+      def params
+        arlifile.file
       end
 
       def run
         arlifile.each_dependency do |lib|
-          Arli::Installer.new(lib: lib, command: self).install
+          Arli::Actions::Installer.new(lib, self).install
         end
       end
-
     end
   end
 end

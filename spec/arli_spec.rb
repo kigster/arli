@@ -5,10 +5,17 @@ RSpec.describe Arli do
     expect(Arli::VERSION).not_to be nil
   end
 
-  subject { Arli }
+  subject { Arli.config }
 
-  its(:logger) { should be_kind_of(Logger) }
-  its(:debug?) { should be_falsey }
+  before do
+    Arli.configure do |c|
+      c.debug = false
+      c.verbose = false
+      c.trace = false
+    end
+  end
 
-  it { is_expected.to respond_to(:debug?) }
+  its(:debug) { should be_falsey }
+  its(:verbose) { should be_falsey }
+  its(:trace) { should be_falsey }
 end

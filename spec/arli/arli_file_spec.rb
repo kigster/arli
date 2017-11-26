@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'yaml'
 
 RSpec.describe Arli::ArliFile do
-  let(:file) { Arli::Config::DEFAULT_FILENAME }
+  let(:file) { Arli.config.arlifile.name }
   let(:path) { 'spec/fixtures/file1' }
   let(:file_path) { path + '/' + file }
   let(:contents) { File.read(file_path) }
@@ -16,10 +16,12 @@ RSpec.describe Arli::ArliFile do
   end
 
   context 'ArliFile' do
-    subject(:arli_file) { described_class.new(arlifile_path: path) }
-    context 'custom filename' do
-      its(:first) { should be_kind_of(Arduino::Library::Model)}
+    before { Arli.configure { |config| config.arlifile.path = path } }
 
+    subject(:arli_file) { described_class.new(config: Arli.config) }
+
+    context 'custom filename' do
+      its(:first) { should be_kind_of(Arli::Library) }
       context 'first dependency' do
         subject(:library) { arli_file.first }
         its(:name) { should eq 'ESP8266WiFi' }
@@ -29,12 +31,10 @@ RSpec.describe Arli::ArliFile do
     end
 
     context 'default filename' do
+      let(:path) { 'spec/fixtures/file2' }
       it 'should initialize' do
-        Dir.chdir('spec/fixtures/file2') do
-          af = described_class.new
-
-          expect(af.libraries.first.name).to eq 'DS1307RTC'
-        end
+        expect(arli_file.first.name).to eq 'DS1307RTC'
+        expect(arli_file.map(&:name)).to include('DS1307RTC')
       end
     end
   end

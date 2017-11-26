@@ -1,42 +1,39 @@
-require 'forwardable'
-require 'logger'
 require 'arduino/library'
 
 require 'arli/version'
 require 'arli/errors'
-require 'arli/logger'
-require 'arli/config'
+require 'arli/configuration'
+require 'arli/library'
+require 'arli/commands'
 
 module Arli
+  @config = ::Arli::Configuration.config
 
   class << self
     attr_accessor :config
-  end
-
-  self.config = ::Arli::Config
-
-  class << self
-    extend Forwardable
-    def_delegators :@config, *::Arli::Config::PARAMS
 
     def configure(&_block)
       yield(self.config)
     end
 
     def debug?
-      self.debug
+      self.config.debug
+    end
+
+    def library_path
+      self.config.libraries.path
+    end
+
+    def default_library_path
+      dehomify_path(self.config.libraries.path)
+    end
+
+    def dehomify_path(absolute_path)
+      absolute_path.gsub(%r(#{ENV['HOME']}), '~')
     end
   end
 end
 
-Arli.configure do |config|
-  config.library_path       = ::Arduino::Library::DefaultDatabase.library_path
-  config.library_index_path = ::Arduino::Library::DefaultDatabase.library_index_path
-  config.library_index_url  = ::Arduino::Library::DefaultDatabase.library_index_url
-  config.logger             = ::Logger.new(STDOUT, level: :info)
-  config.debug              = ENV['ARLI_DEBUG'] || false
-end
-
 require 'arli/arli_file'
-require 'arli/installer'
+require 'arli/actions'
 require 'arli/cli'
