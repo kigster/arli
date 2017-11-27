@@ -21,7 +21,7 @@ module Arli
 
         def make_parser(command = nil, &block)
           ::Arli::CLI::Parser.new(command: command,
-                                  config: Arli.config, &block)
+                                  config:  Arli.config, &block)
         end
 
         def global_parser
@@ -35,23 +35,41 @@ module Arli
         def command_parsers
           @command_parsers ||= {
               install: {
-                  description: 'installs libraries defined in Arlifile',
+                  description: 'installs libraries defined in Arlifile or by -n flag',
+                  examples:    [
+                                   { desc: 'Install all libs defined in the ./Arlifile file',
+                                     cmd:  'arli install' },
+                                   { desc: 'Install a single library matched by the --name flag',
+                                     cmd:  'arli install -n "Adafruit GFX Library"' }
+                               ],
+
                   parser:      -> (command_name) {
                     make_parser(command_name) do |parser|
                       parser.banner = usage_line 'install'
-                      parser.option_lib_home
-                      parser.option_dependency_file
-                      parser.option_abort_if_exists
+                      parser.option_install
                       parser.option_help(command_name: command_name)
                     end
                   } },
 
               search:  {
                   description: 'Flexible Search of the Arduino Library Database',
-                  example:     'arli search '.green + %Q['name: /AudioZero/, version: "1.0.1"'].green,
+                  examples:    [
+                                   { desc: 'Search using the regular expression containing the name:',
+                                     cmd:  'arli search AudioZero' },
+
+                                   { desc: 'Same exact search as above, but using advanced ruby hash arguments syntax:',
+                                     cmd:  %Q{arli search 'name: /AudioZero/'} },
+
+                                   { desc: 'Search using case insensitive name search:',
+                                     cmd:  %Q{arli search 'name: /adafruit/i'} },
+
+                                  { desc: 'Finally, search for the exact name match:',
+                                     cmd:  %Q{arli search '^Time$'} },
+                               ],
+
                   parser:      -> (command_name) {
                     make_parser(command_name) do |parser|
-                      parser.banner = usage_line 'search ' + '[ name-match | expression ]'.magenta
+                      parser.banner = usage_line 'search ' + '[ name | search-expression ]'.magenta
                       parser.option_search
                       parser.option_help(command_name: command_name)
                     end
@@ -59,6 +77,7 @@ module Arli
               }
           }
         end
+
 
         def commands
           command_parsers.keys

@@ -17,17 +17,20 @@ module Arli
                   :file,
                   :library_path
 
-    def initialize(config: Arli.config)
+    def initialize(config: Arli.config, libraries: [])
       self.library_path = config.libraries.path
-      self.file         = "#{config.arlifile.path}/#{config.arlifile.name}"
-
-      unless file && File.exist?(file)
-        raise(Arli::Errors::ArliFileNotFound,
-              "Arlifile could not be found at\n#{file.bold.yellow}")
-      end
-
       FileUtils.mkpath(library_path) unless Dir.exist?(library_path)
-      self.dependencies = parse_file
+
+      if libraries && !libraries.empty?
+        self.dependencies = libraries.map{ |lib| make_lib(lib) }
+      else
+        self.file         = "#{config.arlifile.path}/#{config.arlifile.name}"
+        unless file && File.exist?(file)
+          raise(Arli::Errors::ArliFileNotFound,
+                "Arlifile could not be found at\n#{file.bold.yellow}")
+        end
+        self.dependencies = parse_file
+      end
     end
 
     def within_library_path
@@ -44,9 +47,11 @@ module Arli
 
     def parse_file
       self.file_hash = ::YAML.load(::File.read(self.file))
-      file_hash['dependencies'].map do |lib|
-        ::Arli::Library.new(::Arduino::Library::Model.from(lib))
-      end
+      file_hash['dependencies'].map { |lib| make_lib(lib) }
+    end
+
+    def make_lib(lib)
+      ::Arli::Library.new(::Arduino::Library::Model.from(lib))
     end
   end
 end

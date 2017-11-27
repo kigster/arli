@@ -5,20 +5,18 @@ module Arli
 
       def act
         c = library.exists? ? git_update_command : git_clone_command
-        ___ 'running ' + c.blue + ' '
         execute(c)
-        ok
       rescue Exception => e
         fuck
         raise e
       end
 
       def git_update_command
-        "cd #{path} && git pull --rebase 2>&1"
+        "cd #{library.path} && git pull --rebase 2>&1"
       end
 
       def git_clone_command
-        "git clone -v #{library.url} #{path} 2>&1"
+        "git clone -v #{library.url} #{library.dir} 2>&1"
       end
 
       protected
@@ -36,8 +34,6 @@ module Arli
                 "Current folder is [#{Dir.pwd.yellow}]", e
         raise e
       end
-
-
     end
   end
 end

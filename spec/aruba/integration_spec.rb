@@ -18,12 +18,12 @@ RSpec.describe 'arli executable', :type => :aruba do
     context 'search help' do
       let(:args) { 'search -h' }
       it 'should print search helps' do
-        expect(output).to match(/name-match/)
+        expect(output).to match /search-expression/
       end
     end
   end
 
-  context 'search install file3' do
+  context 'search install file3/Arlifile' do
     let(:root_dir) { Dir.pwd  }
     let(:lib_dir) { root_dir + '/tmp/libraries' }
     let(:args) { "install -a #{root_dir}/spec/fixtures/file3 -l #{lib_dir}" }
@@ -39,6 +39,26 @@ RSpec.describe 'arli executable', :type => :aruba do
       expect(output).to match(/Adafruit/)
       expect(Dir.exist?(lib_dir)).to be(true)
       expect(Dir.exist?("#{lib_dir}/Time")).to be(true)
+      expect(Dir.exist?("#{lib_dir}/Adafruit_GFX")).to be(true)
+      expect(Dir.exist?("#{lib_dir}/Adafruit_Sensor")).to be(true)
+    end
+  end
+
+  context 'search install single library' do
+    let(:lib_name) { 'Adafruit GFX Library'}
+    let(:root_dir) { Dir.pwd  }
+    let(:lib_dir) { root_dir + '/tmp/libraries' }
+    let(:args) { "install -n '#{lib_name}' -l #{lib_dir}" }
+
+    before do
+      FileUtils.rm_rf(lib_dir)
+      expect(Dir.exist?(lib_dir)).to be(false)
+      run_simple command
+    end
+
+    it 'should install libraries' do
+      expect(output).to match(/installed to/)
+      expect(Dir.exist?(lib_dir)).to be(true)
       expect(Dir.exist?("#{lib_dir}/Adafruit_GFX")).to be(true)
     end
   end

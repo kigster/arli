@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dry-configurable'
   spec.add_dependency 'awesome_print'
   spec.add_dependency 'archive-zip'
+  spec.add_dependency 'tty-cursor'
 
 
   spec.add_development_dependency 'yard'

@@ -1,10 +1,11 @@
 require 'colored2'
+require 'tty-cursor'
 
 module Arli
   module Output
 
     class << self
-      attr_accessor :enabled
+      attr_accessor :enabled, :cursor
       def enable!
         self.enabled = true
       end
@@ -17,6 +18,11 @@ module Arli
     end
 
     self.enable!
+    self.cursor = TTY::Cursor
+
+    def cursor
+      Arli::Output.cursor
+    end
 
     def info(msg, header = nil)
       __pf('%-20s', header.blue) if header
@@ -52,7 +58,6 @@ module Arli
     def ___(msg = nil, newline = false)
       return unless Arli::Output.enabled?
       __pf msg if msg
-      __p '.'.green if msg.nil?
       __pt if newline
     end
 
@@ -69,17 +74,21 @@ module Arli
     end
 
     def ok
-      ___ '.'.bold.green
+      ___ '.'.green
+    end
+
+    def check
+      ___ '✔'.green
     end
 
     def fuck
-      ___ '✖'.bold.red
+      ___ '✖'.red
     end
 
     def header(command: nil)
       out = "\n#{hr}\n"
       out << "Arli (#{::Arli::VERSION.yellow})"
-      out << " running #{command.name.to_s.magenta.bold}" if command
+      out << " running command #{command.name.to_s.magenta.bold}" if command
       out << " for #{command.params.to_s.blue}\n" if command
       out << "Library Path: #{Arli.default_library_path.green}\n"
       out << "#{hr}\n"
@@ -87,7 +96,7 @@ module Arli
     end
 
     def hr
-      '——————————————————————————————————————————————————————————'.red
+      ('-' * (ENV['COLUMNS'] || 80)).red.dark
     end
 
   end

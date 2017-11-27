@@ -15,11 +15,13 @@ module Arli
       end
 
       def setup
-        self.arlifile = Arli::ArliFile.new(config: config)
+        self.arlifile = Arli::ArliFile.new(
+            config:    config,
+            libraries: Arli.config.install.library_names)
       end
 
       def params
-        arlifile.file
+        "libraries: \n • " + arlifile.dependencies.map(&:name).join("\n • ")
       end
 
       def run

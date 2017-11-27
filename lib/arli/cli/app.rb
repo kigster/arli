@@ -25,10 +25,12 @@ module Arli
       def start
         if argv.empty?
           factory.default_help
+          factory.global_parser.print_version_copyright
           return
         end
 
         parse_global_flags
+
         return if Arli.config.help
 
         finder = CommandFinder.new(argv, config: config)
@@ -58,7 +60,7 @@ module Arli
 
       def execute!
         if command
-          header(command: command) if config.verbose
+          header(command: command) unless config.quiet
           command.run
         else
           factory.default_help

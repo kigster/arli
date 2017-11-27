@@ -43,7 +43,7 @@ module Arli
     end
 
     setting :install do
-      setting :library
+      setting :library_names, []
       setting :if_exists do
         setting :overwrite, true
         setting :backup, false
@@ -55,7 +55,7 @@ module Arli
     setting :trace, false
     setting :verbose, false
     setting :help, false
-    setting :command_help, false
+    setting :quiet, false
   end
 end
 

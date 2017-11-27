@@ -4,20 +4,14 @@ require_relative 'action'
 module Arli
   module Actions
     class ZipFile < Action
-
       def act
-        ___
+        # TODO: verify that this works if backup option is provided
         library.rm_rf!
         download!
         if File.exist?(zip_archive)
-          ok; ___
           FileUtils.rm_rf(zip_folder) if zip_folder
           unzip(zip_archive, '.')
-          if Dir.exist?(zip_folder)
-            ok; ___
-            FileUtils.move(zip_folder, dir)
-            ok
-          end
+          FileUtils.move(zip_folder, dir) if Dir.exist?(zip_folder)
         end
       rescue Exception => e
         fuck

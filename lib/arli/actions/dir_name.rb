@@ -19,23 +19,30 @@ module Arli
         # but we found header Adafruit_Sensor we should
         # rename the folder
 
-        return if headers.include?(dir)
-        return if sources.include?(dir)
+        if headers.include?(dir) || sources.include?(dir)
+          print_target_dir(dir)
+        else
+          # if we end up setting this, we'll also move the folder.
+          canonical_dir =
+              if_only_one(headers) ||
+                  if_only_one(sources) ||
+                  if_header_a_substring(headers)
 
-        ___
-
-        # if we end up setting this, we'll also move the folder.
-        canonical_dir =
-            if_only_one(headers) ||
-            if_only_one(sources) ||
-            if_header_a_substring(headers)
-
-        if canonical_dir
-          library.canonical_dir = canonical_dir
-          FileUtils.rm_rf(canonical_dir) if Dir.exist?(canonical_dir)
-          ___ " (#{canonical_dir.bold.green}) "
-          FileUtils.mv(dir, library.canonical_dir)
+          if canonical_dir
+            library.canonical_dir = canonical_dir
+            mv(dir, library.canonical_dir)
+            print_target_dir(canonical_dir)
+          else
+            library.canonical_dir = dir
+            print_target_dir(dir)
+          end
         end
+
+
+      end
+
+      def print_target_dir(d)
+        ___ " installed to #{d.green} #{'✔'.green}" unless Arli.config.quiet
       end
 
       def if_header_a_substring(files)

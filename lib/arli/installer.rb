@@ -27,6 +27,7 @@ module Arli
         fuck
       else
         ___ "(#{library.version.green}) " if library.version
+        ___ cursor.column(45) unless config.quiet
         actions(library).each do |action|
           run_action(action)
         end
@@ -41,7 +42,6 @@ module Arli
 
     def actions(library)
       actions = []
-      actions << :backup if exists?
       # First, how do we get the library?
       actions << ((library.url =~ /\.zip$/i) ? :zip_file : :git_repo)
       actions << :dir_name

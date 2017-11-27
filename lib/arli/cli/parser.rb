@@ -20,6 +20,13 @@ module Arli
         separator text || ''
       end
 
+      def option_install
+        option_library_name
+        option_lib_home
+        option_dependency_file
+        option_if_exists
+      end
+
       def option_dependency_file
         on('-a', '--arli-path PATH',
            'Folder where ' + 'Arlifile'.green + ' is located,',
@@ -28,9 +35,17 @@ module Arli
         end
       end
 
+      def option_library_name
+        on('-n', '--name NAME',
+           'If provided a library name is searched and, if found',
+           'installed. In this mode Arlifile not used.' + "\n\n") do |v|
+          config.install.library_names << { name: v }
+        end
+      end
+
       def option_lib_home
         on('-l', '--libraries PATH',
-           'Local folder where libraries are installed',
+           'Local folder where custom Arduino libraries are installed',
            "Defaults to #{Arli.default_library_path}\n\n") do |v|
           config.libraries.path = v
         end
@@ -38,19 +53,19 @@ module Arli
 
       def option_search
         on('-d', '--database FILE/URL',
-           'a JSON file name, or a URL that contains the index',
-           'Defaults to the Arduino-maintained list') do |v|
+           'a JSON(.gz) file path or a URL of the library database.',
+           'Defaults to the Arduino-maintained database.') do |v|
           config.database.path = v
         end
 
         on('-m', '--max NUMBER',
            'if provided, limits the result set to this number',
-           'Defaults to 100') do |v|
+           'Set to 0 to disable. Default is 100.') do |v|
           config.search.results.limit = v.to_i if v
         end
       end
 
-      def option_abort_if_exists
+      def option_if_exists
         on('-e', '--if-exists ACTION',
            'If a library folder already exists, by default',
            'it will be overwritten or updated if possible.',
@@ -83,10 +98,22 @@ module Arli
           output_help
           output_command_help if commands
 
-          if command_hash && command_hash[:example]
-            output 'Example:'
-            output '     ' + command_hash[:example]
+          if command_hash && command_hash[:examples]
+            output_examples(command_hash[:examples])
+          else
+            print_version_copyright
           end
+        end
+      end
+
+      def output_examples(examples)
+        output 'Examples:'
+        indent = '     '
+        examples.each do |example|
+          output
+          output indent + '# ' + example[:desc]
+          output indent + example[:cmd].green
+          output ''
         end
       end
 
@@ -111,7 +138,6 @@ module Arli
         subtext << <<-EOS
 
 See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yellow} for more information on a specific command.
-
         EOS
         subtext
       end
@@ -142,11 +168,20 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
            'Print more information.') do |v|
           config.verbose = true
         end
+        on('-q', '--quiet',
+           'Print less information.') do |v|
+          config.quiet = true
+        end
         on('-V', '--version',
            'Print current version and exit') do |v|
-          puts 'Version: ' + Arli::VERSION
-          exit
+          print_version_copyright
+          Arli.config.help = true
         end
+      end
+
+      def print_version_copyright
+        output << Arli::Configuration::ARLI_COMMAND.bold.yellow + ' (' + Arli::VERSION.bold.green + ')' +
+            " © 2017 Konstantin Gredeskoul, MIT License."
       end
     end
   end

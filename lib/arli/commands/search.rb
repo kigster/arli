@@ -57,7 +57,7 @@ module Arli
 
       def run
         self.results = search(database, **search_opts)
-        results.map do |lib|
+        results.sort.map do |lib|
           puts pretty_library(lib)
         end
         puts "\nTotal matches: #{results.size.to_s.bold.magenta}"
