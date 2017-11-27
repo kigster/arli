@@ -62,6 +62,66 @@ You can specify libraries in the `Arlifile` by providing either just the `name:`
 Sometimes a library will not be in the database, in which case just provide the name and `url` field for it. The URL can either be a git URL, or a downloadable ZIP file.
 
 
+##### Automatic Folder Name Correction
+
+Arli has an build-in action that's invoked during installation of the libraries: once the library is upacked into a folder (either using git or unzip), it's contents is searched for source files. The name of the directory is then compared to the files found, and in some cases Arli will rename the library folder to match the source files.
+
+For example, 'Adafruit GFX Library' is the proper name of the corresponding library, and it's ZIP archive will unpack into `Adafruit_GFX_Library-1.4.3` folder.  Arli will first remove the version number, and move it to `Adafruit_GFX_Library`, but then it will detect that the file inside is `Adafruit_GFX.h`, and so the top-level folder gets renamed to `Adafruit_GFX` as well. This is an audacious attempt to make sense of the chaos that is the Arduino Library world.
+
+##### An Example
+
+Here is the `arli install` command inside CMake-based project to build a [Wall Clock using Arduino](https://github.com/kigster/wallclock-arduino). This project has the following `Arlifile`:
+
+```yaml
+# vi:syntax=yaml
+---
+dependencies:
+- name: "Adafruit GFX Library"
+- name: "DS1307RTC"
+- name: "Adafruit LED Backpack Library"
+- name: "Adafruit Unified Sensor"
+- name: "DHT sensor library"
+- name: "OneButton"
+- name: SimpleTimer
+  url: https://github.com/jfturcot/SimpleTimer.git
+- name: Time
+```
+
+You can see that most libraries are specified by name, except one (SimpleTimer) is specified together with the URL, which will be used to `git clone` the library.
+
+So let's specify where our libraries live, and run `arli install` inside that project:
+
+```bash
+❯ export ARDUINO_CUSTOM_LIBRARY_PATH=~/Documents/Arduino/libraries/
+❯ cd skethes/wallclock-arduino
+❯ arli install
+Adafruit GFX Library (1.2.2) ....... (Adafruit_GFX)
+DS1307RTC (1.4.0) ......
+Adafruit LED Backpack Library (1.1.6) ....... (Adafruit_LEDBackpack)
+Adafruit Unified Sensor (1.0.2) ....... (Adafruit_Sensor)
+DHT sensor library (1.3.0) ....... (DHT)
+OneButton (1.2.0) .......
+SimpleTimer running git clone -v https://github.com/jfturcot/SimpleTimer.git ~/Documents/Arduino/libraries/SimpleTimer 2>&1 .
+s (1.5.0) ......
+```
+
+Now, we can inspect the library folder and observe that all of the specified libraries have been installed, and into correct folders:
+
+```bash
+❯ ls -1 ~/Documents/Arduino/libraries
+Adafruit_GFX
+DS1307RTC
+Adafruit_LEDBackpack
+Adafruit_Sensor 
+DHT
+OneButton
+SimpleTimer
+Time
+```
+
+Below is the complete help for the install command:
+
+
 ```bash
 Description:
     installs libraries defined in Arlifile
