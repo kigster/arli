@@ -2,7 +2,7 @@ require 'json'
 require 'arli'
 require 'net/http'
 require_relative 'base'
-require_relative '../actions/installer'
+require_relative '../installer'
 
 module Arli
   module Commands
@@ -23,9 +23,7 @@ module Arli
       end
 
       def run
-        arlifile.each_dependency do |lib|
-          Arli::Actions::Installer.new(lib, self).install
-        end
+        arlifile.each_dependency { |lib| lib.install }
       end
     end
   end

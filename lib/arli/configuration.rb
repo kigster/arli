@@ -52,7 +52,7 @@ module Arli
     end
 
     setting :debug, ENV['ARLI_DEBUG'] || false
-    setting :trace, true
+    setting :trace, false
     setting :verbose, false
     setting :help, false
     setting :command_help, false

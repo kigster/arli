@@ -1,44 +1,51 @@
 require 'archive/zip'
-require_relative 'base'
+require_relative 'action'
 
 module Arli
   module Actions
-    class ZipFile < Base
+    class ZipFile < Action
 
-      def initialize(lib:, **opts)
-        super(lib: lib, **opts)
-        raise 'Invalid URL for this installer: ' + lib.url unless lib.url =~ /\.zip$/i
-      end
-
-      def install
-        ___ 'unpacking zip...'
-
+      def act
+        ___
+        library.rm_rf!
         download!
-        remove_library!
-        remove_library_versions!
-
-        unzip(zip_archive, '.')
-
-        dir = dirs_matching(lib_dir).first
-        FileUtils.move(dir, lib_dir) if dir
-        FileUtils.rm_f(zip_archive) if File.exist?(zip_archive)
-
-        super
+        if File.exist?(zip_archive)
+          ok; ___
+          FileUtils.rm_rf(zip_folder) if zip_folder
+          unzip(zip_archive, '.')
+          if Dir.exist?(zip_folder)
+            ok; ___
+            FileUtils.move(zip_folder, dir)
+            ok
+          end
+        end
+      rescue Exception => e
+        fuck
+        puts
+        raise(e)
+      ensure
+        delete_zip!
       end
 
       private
 
-      def zip_archive
-        @zip_archive ||= File.basename(lib.url)
+      def delete_zip!
+        FileUtils.rm_f(zip_archive) if File.exist?(zip_archive)
       end
 
       def download!
-        File.write(zip_archive, Net::HTTP.get(URI.parse(lib.url)))
+        File.write(zip_archive, Net::HTTP.get(URI.parse(library.url)))
       end
 
-      # def unzip(file, destination)
-      #   Archive::Zip.extract(file, destination, on_error: :skip)
-      # end
+      def zip_archive
+        @zip_archive ||= File.basename(library.url)
+      end
+
+      # list the contents of the archive and grab the top level folder
+      def zip_folder
+        @zip_folder ||= `unzip -Z1 #{zip_archive} | awk 'BEGIN{FS="/"}{print $1}' | uniq | tail -1`.chomp
+      end
+
       def unzip(file, destination)
         `unzip -o #{file} -d #{destination}`
       end

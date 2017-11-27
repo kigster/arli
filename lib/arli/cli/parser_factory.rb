@@ -7,7 +7,7 @@ module Arli
       class << self
 
         def default_help
-          gp = factory.global_parser
+          gp = global_parser
           gp.parse!(%w(--help))
           gp.print
         end

@@ -14,6 +14,7 @@ module Arli
 
       attr_accessor :search_string,
                     :search_opts,
+                    :results,
                     :limit,
                     :database
 
@@ -22,18 +23,20 @@ module Arli
       end
 
       def setup
-        search = runtime.argv.first
+        search             = runtime.argv.first
+
         self.search_string = if search =~ /:/
                                search
-                             else
+                             elsif search
                                "name: /#{search}/"
                              end
 
         self.limit = config.search.results.limit
 
-        raise Arli::Errors::InvalidSyntaxError,
-              'Please provide search string after the "search" command' \
-          unless search_string
+        unless search_string
+          raise Arli::Errors::InvalidSyntaxError,
+                'Please provide search string after the "search" command'
+        end
 
         begin
           self.search_opts = eval("{ #{search_string} }")
@@ -47,14 +50,24 @@ module Arli
         end
 
         self.database = db_default
+
         search_opts.merge!(limit: limit) if limit && limit > 0
+        search_opts.delete(:limit) if limit == 0
       end
 
       def run
-        puts search(database, **search_opts).map { |l| "#{l.name} (#{l.version})" }.join("\n")
+        self.results = search(database, **search_opts)
+        results.map do |lib|
+          puts pretty_library(lib)
+        end
+        puts "\nTotal matches: #{results.size.to_s.bold.magenta}"
       rescue Exception => e
         error e
         puts e.backtrace.join("\n") if ENV['DEBUG']
+      end
+
+      def pretty_library(lib, **options)
+        "#{lib.name.bold.blue} (#{lib.version.yellow}), by #{lib.author.magenta}"
       end
 
       def params

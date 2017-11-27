@@ -23,7 +23,7 @@ module Arli
 
       unless file && File.exist?(file)
         raise(Arli::Errors::ArliFileNotFound,
-              "Arlifile could not be found at #{Dir.pwd}/#{file}")
+              "Arlifile could not be found at #{file}")
       end
 
       FileUtils.mkpath(library_path) unless Dir.exist?(library_path)
@@ -36,12 +36,8 @@ module Arli
       end
     end
 
-    def each_dependency(&_block)
-      dependencies.each do |dependency|
-        within_library_path do
-          yield(dependency)
-        end
-      end
+    def each_dependency(&block)
+      within_library_path { dependencies.each(&block) }
     end
 
     private
@@ -49,7 +45,7 @@ module Arli
     def parse_file
       self.file_hash = ::YAML.load(::File.read(self.file))
       file_hash['dependencies'].map do |lib|
-        ::Arli::Library.new(::Arduino::Library::Model.from_hash(lib))
+        ::Arli::Library.new(::Arduino::Library::Model.from(lib))
       end
     end
   end

@@ -24,16 +24,22 @@ module Arli
       end
 
       def parse!
-        self.command_name = detect_command
-        parse_command_arguments!(command_name)
-        unless Arli.config.help
-          self.command = instantiate_command
-          if self.command
-            config.runtime.command.instance = command
-            config.runtime.command.name     = command_name
+        begin
+          self.command_name = detect_command
+          parse_command_arguments!(command_name)
+          unless Arli.config.help
+            self.command = instantiate_command
+            if self.command
+              config.runtime.command.instance = command
+              config.runtime.command.name     = command_name
+            end
           end
+          self
+        rescue Exception => e
+          error(e)
+          self.command = nil
+          Arli.config.help =  true
         end
-        self
       end
 
       def parse_command_arguments!(cmd)

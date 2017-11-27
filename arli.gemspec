@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'arduino-library', '~> 0.4.1'
+  spec.add_dependency 'arduino-library', '~> 0.5.1'
   spec.add_dependency 'colored2'
   spec.add_dependency 'hashie'
   spec.add_dependency 'dry-types'
@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'archive-zip'
 
 
+  spec.add_development_dependency 'yard'
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'

@@ -1,21 +1,24 @@
-require_relative 'base'
+require_relative 'action'
 module Arli
   module Actions
-    class GitRepo < Base
+    class GitRepo < Action
 
-      def install
-        c = exists? ? git_update_command : git_clone_command
-        s 'running git...'
+      def act
+        c = library.exists? ? git_update_command : git_clone_command
+        ___ 'running ' + c.blue + ' '
         execute(c)
-        super
+        ok
+      rescue Exception => e
+        fuck
+        raise e
       end
 
       def git_update_command
-        "cd #{lib_dir} && git pull --rebase 2>&1"
+        "cd #{path} && git pull --rebase 2>&1"
       end
 
       def git_clone_command
-        "git clone -v #{lib.url} #{lib_dir} 2>&1"
+        "git clone -v #{library.url} #{path} 2>&1"
       end
 
       protected
@@ -28,7 +31,6 @@ module Arli
         o, e, s = Open3.capture3(cmd)
         info("\n" + o) if o if Arli.debug?
         info("\n" + e.red) if e && Arli.debug?
-        s
       rescue Exception => e
         error "Error running [#{args.join(' ')}]\n" +
                 "Current folder is [#{Dir.pwd.yellow}]", e

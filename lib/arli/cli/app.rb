@@ -23,11 +23,18 @@ module Arli
       end
 
       def start
+        if argv.empty?
+          factory.default_help
+          return
+        end
+
         parse_global_flags
-        return if Arli.config.help
+          return if Arli.config.help
+
         finder = CommandFinder.new(argv, config: config)
         finder.parse!
         return if Arli.config.help
+
         if finder.command
           self.command = finder.command
           execute!
@@ -35,9 +42,9 @@ module Arli
           factory.default_help
         end
       rescue OptionParser::InvalidOption => e
-        report_exception(e, 'Command line usage error!')
+        report_exception(e, 'Invalid flags or options')
       rescue Arli::Errors::InvalidCommandError => e
-        report_exception(e, 'This command does not exist')
+        report_exception(e, 'Unknown command')
       rescue Exception => e
         report_exception(e)
       end
