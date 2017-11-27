@@ -37,8 +37,8 @@ $ gem install arli
 Run `arli --help` for more information:
 
 ```bash
-Usage:
-    arli [options] [ command [options]  ]
+age:
+    arli [ options ] [ command [ options ]  ]
 
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
@@ -47,10 +47,10 @@ Usage:
     -h, --help             prints this help
 
 Available Commands:
-    install      : installs libraries defined in Arlifile
-    search       : Flexible Search of the Arduino Library Database
+    install      — installs libraries defined in Arlifile
+    search       — Flexible Search of the Arduino Library Database
 
-See arli <command> --help for more information on a specific command.
+See arli command --help for more information on a specific command.
 ```
 
 #### Install Command
@@ -69,10 +69,10 @@ Usage:
     arli install [options]
 
 Command Options
-    -l, --libs PATH        Local folder where libraries are installed
+    -l, --libraries PATH   Local folder where libraries are installed
                            Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
 
-    -p, --arli-path PATH   Folder where Arlifile is located,
+    -a, --arli-path PATH   Folder where Arlifile is located,
                            Defaults to the current directory.
 
     -e, --if-exists ACTION If a library folder already exists, by default
@@ -86,7 +86,6 @@ Command Options
     -h, --help             prints this help
 ```
 
-
 #### Search Command
 
 To search Arduino library database, you can use the search command:
@@ -96,7 +95,7 @@ Description:
     Flexible Search of the Arduino Library Database
 
 Usage:
-    arli search <query> [options]
+    arli search [ name-match | expression ] [options]
 
 Command Options
     -d FILE/URL,           a JSON file name, or a URL that contains the index
@@ -110,7 +109,7 @@ Command Options
     -h, --help             prints this help
 
 Example:
-    arli search 'name: /AudioZero/, version: "1.0.1"'
+     arli search 'name: /AudioZero/, version: "1.0.1"'
 ```
 
 For example:

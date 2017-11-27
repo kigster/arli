@@ -72,20 +72,20 @@ module Arli
         on('-h', '--help', 'prints this help') do
           ::Arli.config.help = true
 
-          is_command = command_name && command_name.is_a?(Hash)
+          command_hash = factory.command_parsers[command_name]
 
-          if is_command
+          if command_hash && command_hash[:description]
             output 'Description:'
-            output '    ' + command_name
+            output '    ' + command_hash[:description]
             output ''
           end
 
           output_help
           output_command_help if commands
 
-          if is_command && command_name[:example]
+          if command_hash && command_hash[:example]
             output 'Example:'
-            output '     ' + command_name[:example]
+            output '     ' + command_hash[:example]
           end
         end
       end

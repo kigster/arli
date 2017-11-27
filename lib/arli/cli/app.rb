@@ -29,7 +29,7 @@ module Arli
         end
 
         parse_global_flags
-          return if Arli.config.help
+        return if Arli.config.help
 
         finder = CommandFinder.new(argv, config: config)
         finder.parse!
