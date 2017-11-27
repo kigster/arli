@@ -149,7 +149,49 @@ Command Options
 
 #### Search Command
 
-To search Arduino library database, you can use the search command:
+To search Arduino library database, you can use the search command.
+
+You can search in two ways:
+
+ 1. simple name match
+ 2. complex arbitrary attribute match, that supports regular expressions and more.
+
+`arli search AudioZero` does a simple search by name, and returns 3 results:
+
+```bash
+❯ arli search AudioZero
+AudioZero (1.0.1), by Arduino
+AudioZero (1.0.0), by Arduino
+AudioZero (1.1.1), by Arduino
+
+Total matches: 3
+```
+
+The search argument can also be a ruby-syntaxed expression, that (if you know ruby)  is actually `eval`-ed into the method parameters. Here are a few examples:
+
+
+
+You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
+
+```bash
+❯ arli search 'name: /adafruit/i' -m 0
+Adafruit ADS1X15 (1.0.0), by Adafruit
+Adafruit ADXL345 (1.0.0), by Adafruit
+Adafruit AM2315 (1.0.0), by Adafruit
+Adafruit AM2315 (1.0.1), by Adafruit
+.....
+WEMOS Matrix Compatible With Adafruit GFX Library (1.0.0), by Thomas O Fredericks
+WEMOS Matrix Compatible With Adafruit GFX Library (1.1.0), by Thomas O Fredericks
+Adafruit SGP30 Sensor (1.0.0), by Adafruit
+
+Total matches: 352
+```
+
+With `-m 0` flag, we disabled the default search limit of 100, and got all of the libraries that have the word "adafruit" in their name. We could have used `version:`, or `author`, or `website`, or even `url` and `archiveFileName` fields. For complete description of available library attributes, please see the official definition of the [`library.properties`](https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5:-Library-specification#library-metadata) file.
+
+A detailed description of the complete search functionality is documented in the library that provides it — [arduino-library](https://github.com/kigster/arduino-library#using-search). Arli uses `arduino-library` gem behind the scenes to search, and lookup libraries.
+
+Below is the help screen for the search command:
 
 ```bash
 Description:
@@ -173,17 +215,6 @@ Example:
      arli search 'name: /AudioZero/, version: "1.0.1"'
 ```
 
-For example:
-
-```bash
-$ arli search -s 'name: "AudioZero", version: "1.0.1"'
-```
-
-You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
-
-```bash
-$ arli search -s 'name: /adafruit/i' -m 10
-```
 
 ## Development
 
