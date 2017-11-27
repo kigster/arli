@@ -55,11 +55,12 @@ See arli command --help for more information on a specific command.
 
 #### Install Command
 
-Use this command to install libraries for the first time. 
+Use this command to install or re-install libraries.
 
-NOTE: unless you pass `-e` flag, install command falls back to `update` if
-the target folder already exists.  With `-e` flag, installer aborts if the 
-target library already exists.
+You can specify libraries in the `Arlifile` by providing either just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard database. Alternatively, your can pass `archiveFileName`, `checksum` — which all uniquely identify a library in the database.
+
+Sometimes a library will not be in the database, in which case just provide the name and `url` field for it. The URL can either be a git URL, or a downloadable ZIP file.
+
 
 ```bash
 Description:
