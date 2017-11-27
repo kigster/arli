@@ -23,7 +23,7 @@ module Arli
 
       unless file && File.exist?(file)
         raise(Arli::Errors::ArliFileNotFound,
-              "Arlifile could not be found at #{file}")
+              "Arlifile could not be found at\n#{file.bold.yellow}")
       end
 
       FileUtils.mkpath(library_path) unless Dir.exist?(library_path)

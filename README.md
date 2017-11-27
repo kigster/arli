@@ -94,7 +94,7 @@ So let's specify where our libraries live, and run `arli install` inside that pr
 ```bash
 ❯ export ARDUINO_CUSTOM_LIBRARY_PATH=~/Documents/Arduino/libraries/
 ❯ cd skethes/wallclock-arduino
-❯ arli install
+❯ arli instal
 Adafruit GFX Library (1.2.2) ....... (Adafruit_GFX)
 DS1307RTC (1.4.0) ......
 Adafruit LED Backpack Library (1.1.6) ....... (Adafruit_LEDBackpack)

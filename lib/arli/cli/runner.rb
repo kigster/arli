@@ -17,7 +17,6 @@ module Arli
           $stdout = @stdout
 
           Arli::CLI::App.new(@argv).start
-          ap(Arli.config.to_hash, indent: 10, index: false) if Arli.config.debug
           0
         rescue StandardError => e
           b = e.backtrace
@@ -31,6 +30,7 @@ module Arli
           $stderr = STDERR
           $stdin  = STDIN
           $stdout = STDOUT
+          ap(Arli.config.to_hash, indent: 6, index: false) if Arli.config.debug
         end
         @kernel.exit(exit_code)
       end

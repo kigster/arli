@@ -31,19 +31,21 @@ module Arli
     def error(msg, exception = nil)
       __pf "#{msg.to_s.red}\n" if msg
       __pf "#{exception.inspect.red}\n\n" if exception
-      ap Arli.config.to_hash if Arli.config.debug and Arli::Output.enabled?
     end
 
     def report_exception(e, header = nil)
       __pf header.bold.yellow + ': ' if header
       error e.message if (e && e.respond_to?(:message))
-      __pf e.backtrace.reverse.join("\n") if (e && Arli.config.trace)
+      if e && Arli.config.trace
+        __pf e.backtrace.reverse.join("\n")
+      elsif e
+        __pf "\nUse -t (--trace) for detailed exception\n" +
+             "or -D (--debug) to print Arli config\n"
+      end
     end
 
     def raise_invalid_arli_command!(cmd, e = nil)
-      report_exception(e) if e
-      raise Arli::Errors::InvalidCommandError,
-            "#{cmd ? cmd.to_s.bold.red.bold : 'nil'}"
+      raise Arli::Errors::InvalidCommandError.new(cmd)
     end
 
     # Shortcuts disabled in tests
