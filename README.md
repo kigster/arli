@@ -12,9 +12,6 @@ a YAML formatted file declaring dependencies, as follows:
 # vi:syntax=yaml
 version: 1.0.0
 dependencies:
-  - name: ESP8266WiFi
-    version: '1.0'
-    url: https://github.com/esp8266/Arduino
   - name: Time
   - name: "Adafruit GFX Library"
   - name: SimpleTimer
