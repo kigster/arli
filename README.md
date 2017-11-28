@@ -5,11 +5,14 @@
 
 # Arli
 
-Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by includin a tiny file called `Arlifile` that defines your project's external library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally and do it consistently and reliably.
+Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by including a small text file called `Arlifile` that defines your project's Arduino library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally to a custom location, and do it all consistently and reliably.
 
-This way you can share projects with others, and they will be able to automatically download and install the dependent libraries instead of havin to do that manually.
+That way you can share projects with others and they will be able to automatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
 
-The gem was created to fill the need of slightly more complex Arduino projects that DO NOT use Arduino IDE, and instead use other technologies, such as `ArduinoCmake`  in managing many Arduino libraries  in a consistent way. Arli's API was loosely inspired by Bundler.
+Here is a screenshot of running `arli install` inside a project with the `Arlifile` that defines all of it's library dependencies into a local project folder `./libraries`:
+
+![](docs/arli-in-action.png)
+
 
 ## Overview
 
@@ -92,18 +95,21 @@ arli (0.6.1) © 2017 Konstantin Gredeskoul, MIT License.
 
 ### Command `install`
 
-Use this command to install or re-install libraries.
+Use this command to install or re-install Arduino libraries.
 
-You can specify libraries in the `Arlifile` by providing either just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard database. Alternatively, your can pass `archiveFileName`, `checksum` — which all uniquely identify a library in the database.
+You can specify libraries in the `Arlifile` by providing just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard database. Alternatively, your can pass fields `archiveFileName`, `checksum` — which all uniquely identify a library in the database.
 
-Sometimes a library will not be in the database, in which case just provide the name and `url` field for it. The URL can either be a git URL, or a downloadable ZIP file.
-
+If a library you are using is not in the public database just provide its `name` and the `url` fields. The URL can either be a git URL, or a downloadable ZIP file. Arli will use the `url` field if it's available without trying to search for the library elsewhere.
 
 #### Automatic Folder Name Correction
 
-Arli has an build-in action that's invoked during installation of the libraries: once the library is upacked into a folder (either using git or unzip), it's contents is searched for source files. The name of the directory is then compared to the files found, and in some cases Arli will rename the library folder to match the source files.
+Arli understands that the folder where the library is installed must be named correctly: in other words, **folder name must match the header file inside of the folder** for the library to be found.
 
-For example, 'Adafruit GFX Library' is the proper name of the corresponding library, and it's ZIP archive will unpack into `Adafruit_GFX_Library-1.4.3` folder.  Arli will first remove the version number, and move it to `Adafruit_GFX_Library`, but then it will detect that the file inside is `Adafruit_GFX.h`, and so the top-level folder gets renamed to `Adafruit_GFX` as well. This is an audacious attempt to make sense of the chaos that is the Arduino Library world.
+When Arli downloads libraries in ZIP format, they are unpacked into folder that are named differently. Arli will then search that folder for the source and header files. The name of the directory is then compared to the files found, and in some cases Arli will automatically **rename the library folder to match the main header file.**. 
+
+> For example, 'Adafruit GFX Library' is the proper name of a corresponding library, and it's ZIP archive will unpack into a folder named `Adafruit_GFX_Library-1.4.3`.  Arli will then detect that the header file inside the folder is `Adafruit_GFX.h`. In this case Arli will rename the top-level folder to `Adafruit_GFX`, and make the library valid, and its folder easily found. 
+> 
+> This is an audacious attempt to make sense of the chaos that is the Arduino Library world.
 
 #### An Example
 
@@ -126,10 +132,10 @@ dependencies:
 
 You can see that most libraries are specified by name, except one (SimpleTimer) is specified together with the URL, which will be used to `git clone` the library.
 
-So let's specify where our libraries live, and run `arli install` inside that project:
+So let's specify where our libraries live, and run `arli install` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
 
+![](docs/arli-in-action.png)
 
-![](arli-in-action.png)
 
 Below is the complete help for the install command for reference:
 
@@ -168,6 +174,7 @@ Examples:
 
      # Install a single library matched by the --name flag
      arli install -n "Adafruit GFX Library"```
+```
 
 ### Command `search`
 
@@ -194,7 +201,7 @@ The search argument can also be a ruby-syntaxed expression, that (if you know ru
 You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
 
 ```bash
-❯ arli search 'name: /adafruit/i' -
+❯ arli search 'name: /adafruit/i' 
 Adafruit ADS1X15 (1.0.0), by Adafruit
 Adafruit ADXL345 (1.0.0), by Adafruit
 Adafruit AM2315 (1.0.0), by Adafruit
