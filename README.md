@@ -3,6 +3,8 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/maintainability)](https://codeclimate.com/github/kigster/arli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/test_coverage)](https://codeclimate.com/github/kigster/arli/test_coverage)
 
+**NOTE: This software is currently in BETA. Bugs are possible, and reporting them is encouraged.**
+
 # Arli
 
 Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by including a small text file called `Arlifile` that defines your project's Arduino library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally to a custom location, and do it all consistently and reliably.
@@ -120,6 +122,7 @@ Here is the `arli install` command inside CMake-based project to build a [Wall C
 ---
 dependencies:
 - name: "Adafruit GFX Library"
+  version: '1.2.0'
 - name: "DS1307RTC"
 - name: "Adafruit LED Backpack Library"
 - name: "Adafruit Unified Sensor"
@@ -201,7 +204,7 @@ The search argument can also be a ruby-syntaxed expression, that (if you know ru
 You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
 
 ```bash
-❯ arli search 'name: /adafruit/i' 
+❯ arli search 'name: /adafruit/i' -m 0
 Adafruit ADS1X15 (1.0.0), by Adafruit
 Adafruit ADXL345 (1.0.0), by Adafruit
 Adafruit AM2315 (1.0.0), by Adafruit
