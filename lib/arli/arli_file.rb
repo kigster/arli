@@ -51,7 +51,20 @@ module Arli
     end
 
     def make_lib(lib)
-      ::Arli::Library.new(::Arduino::Library::Model.from(lib))
+      ::Arli::Library.new(library_model(lib))
+    end
+
+    def library_model(lib)
+      ::Arduino::Library::Model.from(lib).tap do |model|
+        if model.nil?
+          lib_output = (lib && lib['name']) ? lib['name'] : lib.inspect
+          raise Arli::Errors::LibraryNotFound, 'Error: '.bold.red +
+                "Library #{lib_output.yellow} ".red + "was not found.\n\n".red +
+                    %Q[  HINT: run #{"arli search 'name: /#{lib_output}/'".green}\n] +
+                    %Q[        to find the exact name of the library you are trying\n] +
+                    %Q[        to install. Alternatively, provide a url: field.\n]
+        end
+      end
     end
   end
 end

@@ -7,4 +7,4 @@ dependencies:
   - name: NTPClient
     version: '3.1.0'
   - name: SimpleTimer
-    urL: https://github.com/jfturcot/SimpleTimer
+    url: https://github.com/jfturcot/SimpleTimer

@@ -1,0 +1,5 @@
+# vi:syntax=yaml
+version: 1.0.0
+dependencies:
+  - name: "Adafruit Unified Sensor"
+  - name: "DSLKFJDSLKJFSLDK"

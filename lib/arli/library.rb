@@ -1,4 +1,5 @@
 require_relative 'installer'
+require_relative 'errors'
 
 module Arli
   class Library
