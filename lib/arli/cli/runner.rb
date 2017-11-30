@@ -30,9 +30,14 @@ module Arli
           $stderr = STDERR
           $stdin  = STDIN
           $stdout = STDOUT
-          ap(Arli.config.to_hash, indent: 6, index: false) if Arli.config.debug
+          print_debug_info
         end
         @kernel.exit(exit_code)
+      end
+
+      def print_debug_info
+        Arli.config.runtime = nil
+        $stdout.puts JSON.pretty_generate(Arli.config.to_hash).gsub(/("\w+":)/, '\1'.bold.blue) if Arli.config.debug
       end
     end
   end

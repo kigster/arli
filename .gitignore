@@ -15,3 +15,4 @@
 .ruby-version
 .rspec_status
 !/lib/arli/commands/install.rb
+!/lib/arli/cli/parser.rb

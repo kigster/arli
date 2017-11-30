@@ -9,7 +9,7 @@
 
 Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by including a small text file called `Arlifile` that defines your project's Arduino library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally to a custom location, and do it all consistently and reliably.
 
-That way you can share projects with others and they will be able to automatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
+That way you can share projects with others and they will be able to autsomatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
 
 Here is a screenshot of running `arli install` inside a project with the `Arlifile` that defines all of it's library dependencies into a local project folder `./libraries`:
 

@@ -34,33 +34,16 @@ module Arli
 
         def command_parsers
           @command_parsers ||= {
-              install: {
-                  description: 'installs libraries defined in Arlifile or by -n flag',
-                  examples:    [
-                                   { desc: 'Install all libs defined in the ./Arlifile file',
-                                     cmd:  'arli install' },
-                                   { desc: 'Install a single library matched by the --name flag',
-                                     cmd:  'arli install -n "Adafruit GFX Library"' }
-                               ],
-
-                  parser:      -> (command_name) {
-                    make_parser(command_name) do |parser|
-                      parser.banner = usage_line 'install'
-                      parser.option_install
-                      parser.option_help(command_name: command_name)
-                    end
-                  } },
-
               search:  {
-                  description: 'Flexible Search of the Arduino Library Database',
+                  description: 'Search the Arduino Library Database (or a custom one)',
                   examples:    [
                                    { desc: 'Search using the regular expression containing the name:',
                                      cmd:  'arli search AudioZero' },
 
-                                   { desc: 'Same exact search as above, but using advanced ruby hash arguments syntax:',
+                                   { desc: 'Same exact search as above, but using ruby hash syntax:',
                                      cmd:  %Q{arli search 'name: /AudioZero/'} },
 
-                                   { desc: 'Search using case insensitive name search:',
+                                   { desc: 'Search using case insensitive name search, and :',
                                      cmd:  %Q{arli search 'name: /adafruit/i'} },
 
                                   { desc: 'Finally, search for the exact name match:',
@@ -74,7 +57,43 @@ module Arli
                       parser.option_help(command_name: command_name)
                     end
                   }
-              }
+              },
+
+              bundle: {
+                  description: 'installs all libraries defined in the Arlifile',
+                  examples:    [
+                                   { desc: 'Install all libs defined in Arlifile:',
+                                     cmd:  'arli bundle ' },
+
+                                   { desc: 'Install all libs defined in src/Arlifile',
+                                     cmd:  'arli bundle -a src ' }
+                               ],
+
+                  parser:      -> (command_name) {
+                    make_parser(command_name) do |parser|
+                      parser.banner = usage_line 'bundle'
+                      parser.option_bundle
+                      parser.option_help(command_name: command_name)
+                    end
+                  } },
+
+              install: {
+                  description: 'installs a single library',
+                  examples:    [
+                                   { desc: 'Install the latest version of this library',
+                                     cmd:  'arli install "Adafruit GFX Library"' },
+
+                                   { desc: 'Install the library from a Github URL',
+                                     cmd:  'arli install https://github.com/jfturcot/SimpleTimer' },
+                               ],
+
+                  parser:      -> (command_name) {
+                    make_parser(command_name) do |parser|
+                      parser.banner = usage_line 'install' + ' [ "name" | [ git-url | zip-url ]'.magenta
+                      parser.option_install
+                      parser.option_help(command_name: command_name)
+                    end
+                  } },
           }
         end
 
@@ -93,15 +112,18 @@ module Arli
         end
 
         def global_usage(command)
-          "Usage:\n    " + Arli::Configuration::ARLI_COMMAND.blue +
-              ' [ options ] '.yellow + '[ ' + (command || 'command').green +
-              ' [ options ] '.yellow + ' ]' + "\n"
+          'Usage:'.magenta +
+            "\n    " + arli_command + ' options '.yellow +
+            "\n    " + arli_command + ' ' + ((command || 'command')).green + ' [ options ] '.yellow + "\n"
+        end
+
+        def arli_command
+          @arli_command ||= Arli::Configuration::ARLI_COMMAND.blue.bold
         end
 
         def command_usage(command)
-          "Usage:\n    " + Arli::Configuration::ARLI_COMMAND.blue + ' ' +
-              command.green +
-              ' [options]'.yellow + "\n\n" +
+          'Usage:'.magenta +
+              "\n    " + arli_command + ' ' + command.green + ' [options]'.yellow + "\n\n" +
               'Command Options'
         end
 

@@ -1,5 +1,5 @@
 require 'arli/configuration'
-
+require 'colored2'
 module Arli
   module CLI
     class Parser < OptionParser
@@ -21,7 +21,11 @@ module Arli
       end
 
       def option_install
-        option_library_name
+        option_lib_home
+        option_if_exists
+      end
+
+      def option_bundle
         option_lib_home
         option_dependency_file
         option_if_exists
@@ -35,14 +39,6 @@ module Arli
         end
       end
 
-      def option_library_name
-        on('-n', '--name NAME',
-           'If provided a library name is searched and, if found',
-           'installed. In this mode Arlifile not used.' + "\n\n") do |v|
-          config.install.library_names << { name: v }
-        end
-      end
-
       def option_lib_home
         on('-l', '--libraries PATH',
            'Local folder where custom Arduino libraries are installed',
@@ -52,7 +48,7 @@ module Arli
       end
 
       def option_search
-        on('-d', '--database FILE/URL',
+        on('-d', '--database URL',
            'a JSON(.gz) file path or a URL of the library database.',
            'Defaults to the Arduino-maintained database.') do |v|
           config.database.path = v
@@ -63,6 +59,20 @@ module Arli
            'Set to 0 to disable. Default is 100.') do |v|
           config.search.results.limit = v.to_i if v
         end
+
+        on('-f', '--format FORMAT',
+           'Output format for search results, can be one of',
+           'json, yaml, csv, props') do |v|
+          raise ::OptionParser::InvalidOption, "Format #{v.yellow} is not supported"
+          config.search.results.format = v
+        end
+
+        on('-a', '--attrs a1,at2',
+           'For YAML/JSON/Properties format, print only the ',
+           'specified attributes, eg, "name,version"') do |v|
+          config.search.results.attrs = v.split(',')
+        end
+
       end
 
       def option_if_exists
@@ -90,7 +100,7 @@ module Arli
           command_hash = factory.command_parsers[command_name]
 
           if command_hash && command_hash[:description]
-            output 'Description:'
+            header 'Description'
             output '    ' + command_hash[:description]
             output ''
           end
@@ -106,8 +116,13 @@ module Arli
         end
       end
 
+      def header(string)
+        output "#{string.bold.magenta}:"
+        output
+      end
+
       def output_examples(examples)
-        output 'Examples:'
+        header 'Examples'
         indent = '     '
         examples.each do |example|
           output
@@ -131,7 +146,8 @@ module Arli
 
       def command_help
 
-        subtext = "Available Commands:\n"
+        header 'Available Commands'
+        subtext = ''
         factory.command_parsers.each_pair do |command, config|
           subtext << %Q/#{sprintf('    %-12s', command.to_s).green} — #{sprintf('%s', config[:description]).blue}\n/
         end
@@ -156,6 +172,10 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
       end
 
       def common_help_options
+        on('-C', '--no-color',
+           'Disable any color output.') do |*|
+          Colored2.disable!# if $stdout.tty?
+        end
         on('-D', '--debug',
            'Print debugging info.') do |v|
           config.debug = true
@@ -181,7 +201,7 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
 
       def print_version_copyright
         output << Arli::Configuration::ARLI_COMMAND.bold.yellow + ' (' + Arli::VERSION.bold.green + ')' +
-            " © 2017 Konstantin Gredeskoul, MIT License."
+            ' © 2017 Konstantin Gredeskoul, MIT License.'.dark unless Arli.config.quiet
       end
     end
   end

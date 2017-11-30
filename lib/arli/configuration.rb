@@ -35,15 +35,26 @@ module Arli
     end
 
     setting :search do
+      setting :argument
       setting :default_field, :name
       setting :results do
+        setting :attrs
         setting :limit, 100
         setting :format, :inspect
       end
     end
 
-    setting :install do
+    setting :bundle do
       setting :library_names, []
+      setting :if_exists do
+        setting :overwrite, true
+        setting :backup, false
+        setting :abort, false
+      end
+    end
+
+    setting :install do
+      setting :argument
       setting :if_exists do
         setting :overwrite, true
         setting :backup, false
