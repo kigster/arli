@@ -28,15 +28,15 @@ module Arli
       end
 
       def overwrite?
-        config.install.if_exists.overwrite
+        config.if_exists.overwrite
       end
 
       def backup?
-        config.install.if_exists.backup
+        config.if_exists.backup
       end
 
       def abort?
-        config.install.if_exists.abort
+        config.if_exists.abort
       end
 
       def mv(from, to)

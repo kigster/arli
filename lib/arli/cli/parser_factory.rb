@@ -9,13 +9,13 @@ module Arli
         def default_help
           gp = global_parser
           gp.parse!(%w(--help))
-          gp.print
+          print_parser_help(gp)
         end
 
         def parse_argv(parser, argv)
           if parser
             parser.parse!(argv)
-            parser.print
+            print_parser_help(parser)
           end
         end
 
@@ -97,7 +97,6 @@ module Arli
           }
         end
 
-
         def commands
           command_parsers.keys
         end
@@ -112,7 +111,7 @@ module Arli
         end
 
         def global_usage(command)
-          'Usage:'.magenta +
+          'Usage:'.magenta.bold +
             "\n    " + arli_command + ' options '.yellow +
             "\n    " + arli_command + ' ' + ((command || 'command')).green + ' [ options ] '.yellow + "\n"
         end
@@ -122,13 +121,17 @@ module Arli
         end
 
         def command_usage(command)
-          'Usage:'.magenta +
+          'Usage:'.magenta.bold +
               "\n    " + arli_command + ' ' + command.green + ' [options]'.yellow + "\n\n" +
-              'Command Options'
+              'Options'.magenta.bold
         end
 
         def usage_line(command = nil)
           command ? command_usage(command) : global_usage(command)
+        end
+
+        def print_parser_help(parser)
+          parser.print
         end
       end
 

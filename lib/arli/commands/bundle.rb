@@ -2,7 +2,6 @@ require 'json'
 require 'arli'
 require 'net/http'
 require_relative 'base'
-require_relative '../installer'
 
 module Arli
   module Commands
@@ -17,7 +16,7 @@ module Arli
       def setup
         self.arlifile = Arli::ArliFile.new(
             config:    config,
-            libraries: Arli.config.install.library_names)
+            libraries: Arli.config.bundle.library_names)
       end
 
       def params

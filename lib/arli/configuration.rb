@@ -20,6 +20,7 @@ module Arli
       end
     end
 
+    # Default locations
     setting :libraries do
       setting :path, ::Arduino::Library::DefaultDatabase.library_path
     end
@@ -29,11 +30,20 @@ module Arli
       setting :url, ::Arduino::Library::DefaultDatabase.library_index_url
     end
 
-    setting :arlifile do
-      setting :path, ::Dir.pwd
-      setting :name, ::Arli::Configuration::DEFAULT_FILENAME
+    setting :if_exists do
+      setting :overwrite, true
+      setting :backup, false
+      setting :abort, false
     end
 
+    # Global flags
+    setting :debug, ENV['ARLI_DEBUG'] || false
+    setting :trace, false
+    setting :verbose, false
+    setting :help, false
+    setting :quiet, false
+
+    # Commands
     setting :search do
       setting :argument
       setting :default_field, :name
@@ -46,27 +56,18 @@ module Arli
 
     setting :bundle do
       setting :library_names, []
-      setting :if_exists do
-        setting :overwrite, true
-        setting :backup, false
-        setting :abort, false
+      # Arlifile
+      setting :arlifile do
+        setting :path, ::Dir.pwd
+        setting :name, ::Arli::Configuration::DEFAULT_FILENAME
       end
     end
 
     setting :install do
-      setting :argument
-      setting :if_exists do
-        setting :overwrite, true
-        setting :backup, false
-        setting :abort, false
-      end
+      setting :name
+      setting :url
     end
 
-    setting :debug, ENV['ARLI_DEBUG'] || false
-    setting :trace, false
-    setting :verbose, false
-    setting :help, false
-    setting :quiet, false
   end
 end
 

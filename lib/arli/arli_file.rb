@@ -24,7 +24,7 @@ module Arli
       if libraries && !libraries.empty?
         self.dependencies = libraries.map{ |lib| make_lib(lib) }
       else
-        self.file         = "#{config.arlifile.path}/#{config.arlifile.name}"
+        self.file         = "#{config.bundle.arlifile.path}/#{config.bundle.arlifile.name}"
         unless file && File.exist?(file)
           raise(Arli::Errors::ArliFileNotFound,
                 "Arlifile could not be found at\n#{file.bold.yellow}")
