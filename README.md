@@ -9,12 +9,11 @@
 
 Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by including a small text file called `Arlifile` that defines your project's Arduino library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally to a custom location, and do it all consistently and reliably.
 
-That way you can share projects with others and they will be able to autsomatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
+That way you can share projects with others and they will be able to automatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
 
-Here is a screenshot of running `arli install` inside a project with the `Arlifile` that defines all of it's library dependencies into a local project folder `./libraries`:
+Here is a screenshot of running `arli bundle` inside a project with the `Arlifile` that defines all of the project's library dependencies. We install into a default libraries folder `~/Documents/Arduino/Libraries`:
 
 ![](docs/arli-in-action.png)
-
 
 ## Overview
 
@@ -24,7 +23,7 @@ In a nutshell, Arli relies on the publicly available database of the vast majori
 
 Sometimes, however, an Arduino library you use may not part of the main database. No problem! Just add the `url:` attribute together with the library name. The URL can either be a Github URL, or a URL to a downloadable ZIP file. Arli will figure out the rest. 
 
-### Arlifile
+### Arlifile and `bundle`
 
 `Arlifile` is a YAML-formatted file that looks like this below. We list all dependencies using the library names that are provided in the database (you can search for the libraries you need prior to populating this file):
 
@@ -53,12 +52,12 @@ You can provide the following fields in the Arilfile if you want the library to 
 
 In all of the above cases, Arli will search the standard library database provided by the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
 
-### Single Library Install
+### Single Library and `install`
 
-You can also install just a single library by passing `--name` flag (`-n`), for example:
+You can also install just a single library by using the `install` command, instead of the `bundle`. Install accepts either a `--lib-name` flag (`-n`), or a url `-u`, `--lib-url`, for example:
 
 ```bash
-arli install --name 'Adafruit GFX Library'
+arli install --lib-name 'Adafruit GFX Library'
 ```
 
 ## Gem Installation
@@ -138,7 +137,7 @@ dependencies:
 
 You can see that most libraries are specified by name, except one (SimpleTimer) is specified together with the URL, which will be used to `git clone` the library.
 
-So let's specify where our libraries live, and run `arli install` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
+So let's specify where our libraries live, and run `arli bundle` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
 
 
 Below is the complete help for the `bundle` command for reference:
@@ -223,10 +222,10 @@ Description:
 
 Examples:
      # Install the latest version of this library
-     arli install "Adafruit GFX Library"
+     arli install -n "Adafruit GFX Library"
 
      # Install the library from a Github URL
-     arli install https://github.com/jfturcot/SimpleTimer
+     arli install -u https://github.com/jfturcot/SimpleTimer
 ```
 
 ### Command `search`
