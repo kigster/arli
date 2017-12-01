@@ -24,7 +24,7 @@ module Arli
       end
 
       def params
-        "library: #{library_argument}"
+        " • #{library_argument['url'] || library_argument['name']}"
       end
 
       def run
@@ -42,8 +42,6 @@ module Arli
           lib['name'] ||= File.basename(cfg.url)
         end
 
-        require 'pp'
-        pp lib
         lib
       end
     end

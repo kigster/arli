@@ -88,9 +88,11 @@ module Arli
     def header(command: nil)
       out = "\n#{hr}\n"
       out << "Arli (#{::Arli::VERSION.yellow})"
-      out << " running command #{command.name.to_s.magenta.bold}" if command
-      out << " for #{command.params.to_s.blue}\n" if command && Arli.config.verbose
-      out << "Library Path: #{Arli.default_library_path.green}\n"
+      out << ", Command: #{command.name.to_s.magenta.bold}" if command
+      if command && command.params && Arli.config.verbose
+        out << "\n#{command.params.to_s.blue}\n"
+      end
+      out << "\nLibrary Path: #{Arli.default_library_path.green}\n"
       out << "#{hr}\n"
       info out
     end

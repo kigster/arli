@@ -22,9 +22,6 @@ module Arli
       end
 
       def process_search
-        puts runtime.argv.inspect.bold.red
-        puts Arli.config.search.to_hash
-
         search             = runtime.argv.first
 
         self.search_string = if search =~ /:/
