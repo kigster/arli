@@ -36,11 +36,19 @@ module Arli
         self
       end
 
+      def detect_command
+        return nil unless non_flag_argument?
+        cmd = argv.shift.to_sym
+        if factory.valid_command?(cmd)
+          cmd
+        else
+          raise_invalid_arli_command!(cmd)
+        end
+      end
+
       def parse_command_arguments!(cmd)
         parser = factory.command_parser(cmd)
-        if parser
-          factory.parse_argv(parser, argv)
-        end
+        factory.parse_argv(parser, argv) if parser
       end
 
       def instantiate_command
@@ -53,14 +61,9 @@ module Arli
         end
       end
 
-      def detect_command
-        return nil unless argv.first && argv.first !~ /^-.*$/
-        cmd = argv.shift.to_sym
-        if factory.valid_command?(cmd)
-          cmd
-        else
-          raise_invalid_arli_command!(cmd)
-        end
+
+      def non_flag_argument?
+        argv.first && argv.first !~ /^-.*$/
       end
 
       def factory

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'yaml'
 
 RSpec.describe Arli::ArliFile do
-  let(:file) { Arli.config.arlifile.name }
+  let(:file) { Arli.config.bundle.arlifile.name }
   let(:path) { 'spec/fixtures/file1' }
   let(:file_path) { path + '/' + file }
   let(:contents) { File.read(file_path) }
@@ -16,7 +16,7 @@ RSpec.describe Arli::ArliFile do
   end
 
   context 'ArliFile' do
-    before { Arli.configure { |config| config.arlifile.path = path } }
+    before { Arli.configure { |config| config.bundle.arlifile.path = path } }
 
     subject(:arli_file) { described_class.new(config: Arli.config) }
 

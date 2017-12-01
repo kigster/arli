@@ -6,8 +6,8 @@ RSpec.describe Arli::Configuration do
   before do
     described_class.configure do |config|
       config.libraries.path = '/tmp'
-      config.arlifile.path  = '/tmp'
-      config.install.if_exists.overwrite = true
+      config.bundle.arlifile.path  = '/tmp'
+      config.if_exists.overwrite = true
     end
   end
 
@@ -19,9 +19,9 @@ RSpec.describe Arli::Configuration do
     end
 
     it 'should have set the overwrite' do
-      expect(config.install.if_exists.overwrite).to be_truthy
-      expect(config.install.if_exists.backup).to be_falsey
-      expect(config.install.if_exists.abort).to be_falsey
+      expect(config.if_exists.overwrite).to be_truthy
+      expect(config.if_exists.backup).to be_falsey
+      expect(config.if_exists.abort).to be_falsey
     end
   end
 
@@ -29,7 +29,6 @@ RSpec.describe Arli::Configuration do
     it 'should still correctly setup index_url' do
       expect(config.search.results.limit).to eq 100
     end
-
   end
 end
 

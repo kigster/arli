@@ -11,6 +11,7 @@ RSpec.describe Arli::CLI::App do
   end
 
   context 'with global flags' do
+    before { expect(Arli::CLI::ParserFactory).to receive(:print_parser_help) }
     let(:argv) { %w[-v -t install] }
     before { app.parse_global_flags }
     its(:argv) { should eq %w(install) }
@@ -40,9 +41,9 @@ RSpec.describe Arli::CLI::App do
     end
   end
 
-  context 'install command' do
+  context 'bundle command' do
     let(:lib_dir) { './tmp' }
-    let(:argv) { %W[install -l #{lib_dir} -a spec/fixtures/file3 ] }
+    let(:argv) { %W[bundle -l #{lib_dir} -a spec/fixtures/file3 ] }
 
     subject(:app) { described_class.new(argv) }
 
@@ -56,7 +57,7 @@ RSpec.describe Arli::CLI::App do
     it 'should create library folder' do
       expect(Arli.config.libraries.path).to eq(lib_dir)
       expect(Dir.exist?(lib_dir)).to be_truthy
-      expect(app.command.name).to eq :install
+      expect(app.command.name).to eq :bundle
     end
   end
 end

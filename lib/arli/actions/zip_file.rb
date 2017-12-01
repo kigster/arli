@@ -1,4 +1,3 @@
-require 'archive/zip'
 require_relative 'action'
 
 module Arli

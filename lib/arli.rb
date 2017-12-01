@@ -26,10 +26,10 @@ module Arli
     end
 
     def default_library_path
-      dehomify_path(self.config.libraries.path)
+      tilda_path(self.config.libraries.path)
     end
 
-    def dehomify_path(absolute_path)
+    def tilda_path(absolute_path)
       absolute_path.gsub(%r(#{ENV['HOME']}), '~')
     end
   end

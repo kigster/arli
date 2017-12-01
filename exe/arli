@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
-require 'arli/cli/runner'
+require 'colored2'
+if %w(-C -Ch -hC --no-color).any? { |f| ARGV.include?(f) }
+  Colored2.disable!
+end
 
+require 'arli/cli/runner'
 Arli::CLI::Runner.new(ARGV.dup).execute!
 

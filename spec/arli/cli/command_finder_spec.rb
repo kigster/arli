@@ -10,18 +10,18 @@ RSpec.describe Arli::CLI::CommandFinder do
     its(:detect_command) { should be_nil }
   end
 
-  context 'install command' do
-    let(:argv) { %w[install -l /tmp -a spec/fixtures/file2 ] }
-    its(:detect_command) { should eq :install }
+  context 'bundle command' do
+    let(:argv) { %w[bundle -l /tmp -a spec/fixtures/file2 ] }
+    its(:detect_command) { should eq :bundle }
 
     context 'command' do
       before { finder.parse! }
       subject(:command) { finder.command }
 
-      it { is_expected.to be_kind_of(Arli::Commands::Install) }
+      it { is_expected.to be_kind_of(Arli::Commands::Bundle) }
 
       it 'should have changed the library path' do
-        expect(config.arlifile.path).to eq('spec/fixtures/file2')
+        expect(config.bundle.arlifile.path).to eq('spec/fixtures/file2')
         expect(config.libraries.path).to eq('/tmp')
       end
     end

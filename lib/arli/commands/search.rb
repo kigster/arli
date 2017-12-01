@@ -5,7 +5,6 @@ require 'arli'
 require 'arli/commands/base'
 require 'arli/errors'
 require 'arduino/library'
-require 'awesome_print'
 
 module Arli
   module Commands
@@ -22,13 +21,13 @@ module Arli
         super(*args)
       end
 
-      def setup
+      def process_search
         search             = runtime.argv.first
 
         self.search_string = if search =~ /:/
                                search
                              elsif search
-                               "name: /#{search}/"
+                               "#{config.search.default_field}: /#{search}/"
                              end
 
         self.limit = config.search.results.limit
@@ -41,8 +40,12 @@ module Arli
         begin
           self.search_opts = eval("{ #{search_string} }")
         rescue => e
+          message = e.message
+          if message =~ /undefined method.*Arduino::Library::Model/
+            message = "Invalid attributed search. Possible values are:\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
+          end
           raise Arli::Errors::InvalidSyntaxError, "Search string '#{search_string}' is invalid.\n" +
-              e.message.red
+              message.red
         end
 
         unless search_opts.is_a?(::Hash) && search_opts.size > 0
@@ -56,6 +59,7 @@ module Arli
       end
 
       def run
+        process_search
         self.results = search(database, **search_opts)
         results.sort.map do |lib|
           puts pretty_library(lib)

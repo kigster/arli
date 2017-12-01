@@ -22,10 +22,10 @@ RSpec.describe 'arli executable', :type => :aruba do
     end
   end
 
-  context 'search install file3/Arlifile' do
+  context 'bundle file3/Arlifile' do
     let(:root_dir) { Dir.pwd }
     let(:lib_dir) { root_dir + '/tmp/libraries' }
-    let(:args) { "install -a #{root_dir}/spec/fixtures/file3 -l #{lib_dir}" }
+    let(:args) { "bundle -a #{root_dir}/spec/fixtures/file3 -l #{lib_dir}" }
 
     before do
       FileUtils.rm_rf(lib_dir)
@@ -35,7 +35,7 @@ RSpec.describe 'arli executable', :type => :aruba do
       expect(Dir.pwd).to end_with('arli')
     end
 
-    it 'should install libraries' do
+    it 'should bundle libraries' do
       expect(output).to match(/Adafruit/)
       expect(Dir.exist?(lib_dir)).to be(true)
       expect(Dir.exist?("#{lib_dir}/Time")).to be(true)
@@ -44,11 +44,10 @@ RSpec.describe 'arli executable', :type => :aruba do
     end
   end
 
-  context 'search & install a single library' do
-    let(:lib_name) { 'Adafruit GFX Library' }
+  context 'install a single library' do
     let(:root_dir) { Dir.pwd }
     let(:lib_dir) { root_dir + '/tmp/libraries' }
-    let(:args) { "install -n '#{lib_name}' -l #{lib_dir}" }
+    let(:args) { "install #{lib_args} -l #{lib_dir}" }
 
     before do
       FileUtils.rm_rf(lib_dir)
@@ -56,17 +55,36 @@ RSpec.describe 'arli executable', :type => :aruba do
       run_simple command
     end
 
-    it 'should install libraries' do
-      expect(output).to match(/installed to/)
-      expect(Dir.exist?(lib_dir)).to be(true)
-      expect(Dir.exist?("#{lib_dir}/Adafruit_GFX")).to be(true)
+    context '--lib-name' do
+      let(:lib_args) { "-n '#{lib_name}' " }
+      let(:lib_name) { 'Adafruit GFX Library' }
+      let(:lib_actual) { 'Adafruit_GFX' }
+
+      it 'should install this one library' do
+        expect(output).to match(/#{lib_actual}/)
+        expect(Dir.exist?(lib_dir)).to be(true)
+        expect(Dir.exist?("#{lib_dir}/#{lib_actual}")).to be(true)
+      end
+    end
+
+    context '--lib-url' do
+      let(:lib_args) { "-u #{lib_url} " }
+      let(:lib_url) { 'https://github.com/jfturcot/SimpleTimer' }
+      let(:lib_actual) { 'SimpleTimer' }
+
+      it 'should install this one library' do
+        expect(output).to match(/#{lib_actual}/)
+        expect(Dir.exist?(lib_dir)).to be(true)
+        `ls -al #{lib_dir}`
+        expect(Dir.exist?("#{lib_dir}/#{lib_actual}")).to be(true)
+      end
     end
   end
 
   context 'fail gracefully when a library is missing' do
     let(:root_dir) { Dir.pwd }
     let(:lib_dir) { root_dir + '/tmp/libraries' }
-    let(:args) { "install -a #{root_dir}/spec/fixtures/file4  -l #{lib_dir}" }
+    let(:args) { "bundle -a #{root_dir}/spec/fixtures/file4  -l #{lib_dir}" }
 
     before do
       FileUtils.rm_rf(lib_dir)

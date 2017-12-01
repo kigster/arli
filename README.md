@@ -11,10 +11,9 @@ Arli is an awesomely simple and very easy to use Arduino Library Installer. It a
 
 That way you can share projects with others and they will be able to automatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
 
-Here is a screenshot of running `arli install` inside a project with the `Arlifile` that defines all of it's library dependencies into a local project folder `./libraries`:
+Here is a screenshot of running `arli bundle` inside a project with the `Arlifile` that defines all of the project's library dependencies. We install into a default libraries folder `~/Documents/Arduino/Libraries`:
 
 ![](docs/arli-in-action.png)
-
 
 ## Overview
 
@@ -24,7 +23,7 @@ In a nutshell, Arli relies on the publicly available database of the vast majori
 
 Sometimes, however, an Arduino library you use may not part of the main database. No problem! Just add the `url:` attribute together with the library name. The URL can either be a Github URL, or a URL to a downloadable ZIP file. Arli will figure out the rest. 
 
-### Arlifile
+### Arlifile and `bundle`
 
 `Arlifile` is a YAML-formatted file that looks like this below. We list all dependencies using the library names that are provided in the database (you can search for the libraries you need prior to populating this file):
 
@@ -53,12 +52,12 @@ You can provide the following fields in the Arilfile if you want the library to 
 
 In all of the above cases, Arli will search the standard library database provided by the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
 
-### Single Library Install
+### Single Library and `install`
 
-You can also install just a single library by passing `--name` flag (`-n`), for example:
+You can also install just a single library by using the `install` command, instead of the `bundle`. Install accepts either a `--lib-name` flag (`-n`), or a url `-u`, `--lib-url`, for example:
 
 ```bash
-arli install --name 'Adafruit GFX Library'
+arli install --lib-name 'Adafruit GFX Library'
 ```
 
 ## Gem Installation
@@ -77,8 +76,10 @@ Run `arli --help` for more information:
 
 ```bash
 Usage:
-    arli [ options ] [ command [ options ]  ]
+    arli options
+    arli command [ options ]
 
+    -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
     -v, --verbose          Print more information.
@@ -87,17 +88,18 @@ Usage:
     -h, --help             prints this help
 
 Available Commands:
-    install      — installs libraries defined in Arlifile or by -n flag
-    search       — Flexible Search of the Arduino Library Database
+    search       — Search the Arduino Library Database (or a custom one)
+    bundle       — installs all libraries defined in the Arlifile
+    install      — installs a single library
 
 See arli command --help for more information on a specific command.
 
-arli (0.6.1) © 2017 Konstantin Gredeskoul, MIT License.
+arli (0.8.0) © 2017 Konstantin Gredeskoul, MIT License.
 ```
 
-### Command `install`
+### Command `bundle`
 
-Use this command to install or re-install Arduino libraries.
+Use this command to install Arduino libraries.
 
 You can specify libraries in the `Arlifile` by providing just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard database. Alternatively, your can pass fields `archiveFileName`, `checksum` — which all uniquely identify a library in the database.
 
@@ -115,7 +117,7 @@ When Arli downloads libraries in ZIP format, they are unpacked into folder that 
 
 #### An Example
 
-Here is the `arli install` command inside CMake-based project to build a [Wall Clock using Arduino](https://github.com/kigster/wallclock-arduino). This project has the following `Arlifile`:
+Here is the `arli bundle` command inside CMake-based project to build a [Wall Clock using Arduino](https://github.com/kigster/wallclock-arduino). This project has the following `Arlifile`:
 
 ```yaml
 # vi:syntax=yaml
@@ -135,26 +137,19 @@ dependencies:
 
 You can see that most libraries are specified by name, except one (SimpleTimer) is specified together with the URL, which will be used to `git clone` the library.
 
-So let's specify where our libraries live, and run `arli install` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
-
-![](docs/arli-in-action.png)
+So let's specify where our libraries live, and run `arli bundle` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
 
 
-Below is the complete help for the install command for reference:
+Below is the complete help for the `bundle` command for reference:
 
 
 ```bash
-Description:
-    installs libraries defined in Arlifile or by -n flag
-
+❯ be exe/arli bundle -h
 Usage:
-    arli install [options]
+    arli bundle [options]
 
-Command Options
-    -n, --name NAME        If provided a library name is searched and, if found
-                           installed. In this mode Arlifile not used.
-
-    -l, --libraries PATH   Local folder where custom Arduino libraries are installed
+Options
+    -l, --lib-path PATH    Local folder where custom Arduino libraries are installed
                            Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
 
     -a, --arli-path PATH   Folder where Arlifile is located,
@@ -164,6 +159,7 @@ Command Options
                            it will be overwritten or updated if possible.
                            Alternatively you can either abort or backup
 
+    -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
     -v, --verbose          Print more information.
@@ -171,12 +167,65 @@ Command Options
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Examples:
-     # Install all libs defined in the ./Arlifile file
-     arli install
+Description:
+    installs all libraries defined in the Arlifile
 
-     # Install a single library matched by the --name flag
-     arli install -n "Adafruit GFX Library"```
+Examples:
+     # Install all libs defined in Arlifile:
+     arli bundle
+
+     # Install all libs defined in src/Arlifile
+     arli bundle -a src
+```
+
+### Command `install`
+
+Use this command to install a single library by either a name or URL:
+
+Eg:
+
+```bash
+❯ be exe/arli install -n 'Adafruit GFX Library' -l ./libs
+❯ be exe/arli install -u 'https://github.com/jfturcot/SimpleTimer' -l ./libs
+```
+
+Complete help is:
+
+
+```bash
+❯ be exe/arli install -h
+Usage:
+    arli install [ "name" | [ git-url | zip-url ] [options]
+
+Options
+    -l, --lib-path PATH    Local folder where custom Arduino libraries are installed
+                           Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
+
+    -u, --lib-url URL      Attempts to install the library by its URL
+                           Github project URL or a downloadable Zip are supported.
+    -n, --lib-name NAME    Searches and installs library by its name,
+                           unless URL is also provided
+    -e, --if-exists ACTION If a library folder already exists, by default
+                           it will be overwritten or updated if possible.
+                           Alternatively you can either abort or backup
+
+    -C, --no-color         Disable any color output.
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -q, --quiet            Print less information.
+    -V, --version          Print current version and exit
+    -h, --help             prints this help
+
+Description:
+    installs a single library
+
+Examples:
+     # Install the latest version of this library
+     arli install -n "Adafruit GFX Library"
+
+     # Install the library from a Github URL
+     arli install -u https://github.com/jfturcot/SimpleTimer
 ```
 
 ### Command `search`
@@ -224,25 +273,38 @@ A detailed description of the complete search functionality is documented in the
 Below is the help screen for the search command:
 
 ```bash
-Description:
-    Flexible Search of the Arduino Library Database
-
+❯ be exe/arli search -h
 Usage:
-    arli search [ name-match | expression ] [options]
+    arli search [ name | search-expression ] [options]
 
-Command Options
-    -d FILE/URL,           a JSON file name, or a URL that contains the index
-        --database         Defaults to the Arduino-maintained list
+Options
+    -d, --database URL     a JSON(.gz) file path or a URL of the library database.
+                           Defaults to the Arduino-maintained database.
     -m, --max NUMBER       if provided, limits the result set to this number
-                           Defaults to 100
+                           Set to 0 to disable. Default is 100.
+    -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
     -v, --verbose          Print more information.
+    -q, --quiet            Print less information.
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Example:
-     arli search 'name: /AudioZero/, version: "1.0.1"'
+Description:
+    Search the Arduino Library Database (or a custom one)
+
+Examples:
+     # Search using the regular expression containing the name:
+     arli search AudioZero
+
+     # Same exact search as above, but using ruby hash syntax:
+     arli search 'name: /AudioZero/'
+
+     # Search using case insensitive name search, and :
+     arli search 'name: /adafruit/i'
+
+     # Finally, search for the exact name match:
+     arli search '^Time$'
 ```
 
 
