@@ -5,9 +5,10 @@ require 'yaml'
 module Arli
   class Configuration
 
-    DEFAULT_FILENAME    = 'Arlifile'.freeze
-    ACTIONS_WHEN_EXISTS = %i(backup overwrite abort)
-    ARLI_COMMAND        = 'arli'.freeze
+    DEFAULT_FILENAME      = 'Arlifile'.freeze
+    ACTIONS_WHEN_EXISTS   = %i(backup overwrite abort)
+    ARLI_COMMAND          = 'arli'.freeze
+    DEFAULT_RESULTS_LIMIT = 100
 
     extend Dry::Configurable
 
@@ -49,7 +50,7 @@ module Arli
       setting :default_field, :name
       setting :results do
         setting :attrs
-        setting :limit, 100
+        setting :limit, DEFAULT_RESULTS_LIMIT
         setting :format, :inspect
       end
     end

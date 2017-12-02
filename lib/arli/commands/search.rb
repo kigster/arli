@@ -34,7 +34,7 @@ module Arli
 
         unless search_string
           raise Arli::Errors::InvalidSyntaxError,
-                'Please provide search string after the "search" command'
+                'Expected an argument or a flag to follow the command ' + 'search'.bold.green
         end
 
         begin
@@ -65,6 +65,9 @@ module Arli
           puts pretty_library(lib)
         end
         puts "\nTotal matches: #{results.size.to_s.bold.magenta}"
+        if results.size == Arli::Configuration::DEFAULT_RESULTS_LIMIT
+          puts "Hint: use #{'-m 0'.bold.green} to disable the limit, or set it to another value."
+        end
       rescue Exception => e
         error e
         puts e.backtrace.join("\n") if ENV['DEBUG']

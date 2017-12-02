@@ -9,8 +9,8 @@ end
 
 # Some state gets fucked, and tests fail when run this way.
 
-# Aruba.configure do |config|
-#   config.command_launcher = :in_process
-#   config.main_class       = Arli::CLI::Runner
-# end
-#
+Aruba.configure do |config|
+  config.command_launcher = :in_process
+  config.main_class       = Arli::CLI::Runner
+end
+

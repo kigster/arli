@@ -47,6 +47,8 @@ module Arli
         report_exception(e, 'Invalid flags or options')
       rescue Arli::Errors::InvalidCommandError => e
         report_exception(e, 'Unknown command')
+      rescue Arli::Errors::InvalidSyntaxError => e
+        report_exception(e, 'Incorrect command usage')
       rescue Exception => e
         report_exception(e)
       end

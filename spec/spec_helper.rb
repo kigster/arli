@@ -16,6 +16,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+
   config.before do
     Arli.configure do |config|
       config.help    = false
@@ -23,9 +24,7 @@ RSpec.configure do |config|
       config.trace   = false
       config.debug   = false
     end
-  end
-
-  config.before do
+    
     Arli::Output.disable!
   end
 

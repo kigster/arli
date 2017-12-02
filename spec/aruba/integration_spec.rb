@@ -1,7 +1,7 @@
 require 'aruba_helper'
 
 RSpec.describe 'arli executable', :type => :aruba do
-  let(:command) { "exe/arli #{args}" }
+  let(:command) { "exe/arli #{args} -C " }
   let(:output) { last_command_started.stdout.chomp }
 
   context 'simple commands' do
@@ -30,7 +30,6 @@ RSpec.describe 'arli executable', :type => :aruba do
     before do
       FileUtils.rm_rf(lib_dir)
       expect(Dir.exist?(lib_dir)).to be(false)
-      expect(Dir.exist?(lib_dir)).to be(false)
       run_simple command
       expect(Dir.pwd).to end_with('arli')
     end
@@ -50,13 +49,15 @@ RSpec.describe 'arli executable', :type => :aruba do
     let(:args) { "install #{lib_args} -l #{lib_dir}" }
 
     before do
+      Arli.config.install.url = nil
+      Arli.config.install.name = nil
       FileUtils.rm_rf(lib_dir)
       expect(Dir.exist?(lib_dir)).to be(false)
       run_simple command
     end
 
     context '--lib-name' do
-      let(:lib_args) { "-n '#{lib_name}' " }
+      let(:lib_args) { "-v -n '#{lib_name}' " }
       let(:lib_name) { 'Adafruit GFX Library' }
       let(:lib_actual) { 'Adafruit_GFX' }
 
@@ -68,14 +69,13 @@ RSpec.describe 'arli executable', :type => :aruba do
     end
 
     context '--lib-url' do
-      let(:lib_args) { "-u #{lib_url} " }
+      let(:lib_args) { "-v -u #{lib_url} " }
       let(:lib_url) { 'https://github.com/jfturcot/SimpleTimer' }
       let(:lib_actual) { 'SimpleTimer' }
 
       it 'should install this one library' do
         expect(output).to match(/#{lib_actual}/)
         expect(Dir.exist?(lib_dir)).to be(true)
-        `ls -al #{lib_dir}`
         expect(Dir.exist?("#{lib_dir}/#{lib_actual}")).to be(true)
       end
     end

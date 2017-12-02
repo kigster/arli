@@ -34,7 +34,7 @@ module Arli
 
       def option_arlifile_path
         on('-a', '--arli-path PATH',
-           'Folder where ' + 'Arlifile'.green + ' is located,',
+           'An alternate folder with the ' + 'Arlifile'.green + ' file.',
            "Defaults to the current directory.\n\n") do |v|
           config.bundle.arlifile.path = v
         end
@@ -55,8 +55,8 @@ module Arli
 
       def option_lib_home
         on('-l', '--lib-path PATH',
-           'Local folder where custom Arduino libraries are installed',
-           "Defaults to #{Arli.default_library_path}\n\n") do |v|
+           'Destination: typically your Arduino libraries folder',
+           "Defaults to #{'~/Documents/Arduino/Libraries'.green}\n\n") do |v|
           config.libraries.path = v
         end
       end
@@ -137,7 +137,7 @@ module Arli
 
       def output_examples(examples)
         header 'Examples'
-        indent = '     '
+        indent = '    '
         examples.each do |example|
           output
           output indent + '# ' + example[:desc]
