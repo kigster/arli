@@ -89,7 +89,7 @@ module Arli
 
                   parser:      -> (command_name) {
                     make_parser(command_name) do |parser|
-                      parser.banner = usage_line 'install' + ' [ "name" | [ git-url | zip-url ]'.magenta
+                      parser.banner = usage_line 'install' + ' [ -n "name" | -u [ git-url | zip-url ]'.magenta
                       parser.option_install
                       parser.option_help(command_name: command_name)
                     end
