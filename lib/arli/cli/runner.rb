@@ -17,8 +17,7 @@ module Arli
           $stdout = @stdout
 
           Arli::CLI::App.new(@argv).start
-          #print_debug_info
-          #@stdout.puts
+          print_debug_info
           0
         rescue StandardError => e
           b = e.backtrace
@@ -37,10 +36,9 @@ module Arli
       end
 
       def print_debug_info
-        Arli.config.runtime = nil
-        $stdout.puts JSON.pretty_generate(Arli.config.to_hash).gsub(/("\w+":)/, '\1'.bold.blue) if Arli.config.debug
+        $stdout.puts JSON.pretty_generate(Arli.config.to_hash).gsub(/("\w+":)/, '\1'.bold.blue) \
+          if Arli.config.debug
       end
     end
   end
-
 end

@@ -44,11 +44,17 @@ module Arli
         " • #{library.to_s}"
       end
 
+      def post_install
+        #
+      end
+
       private
 
       def validate_search(arg, results)
         raise Arli::Errors::LibraryNotFound,
-              "Can't find library by argument #{arg}" if results.nil? || results.empty?
+              "Can't find library by argument #{arg.bold.yellow}" if results.nil? || results.empty?
+        raise Arli::Errors::TooManyMatchesError,
+              "More than one match found for #{arg.bold.yellow}" if results.map(&:name).uniq.size > 1
       end
 
       def validate_library

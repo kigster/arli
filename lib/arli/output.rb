@@ -45,7 +45,11 @@ module Arli
     end
 
     def report_exception(e, header = nil)
-      __pf header.bold.yellow + ': ' if header
+      if header
+        __pf header.bold.yellow + ': '
+      else
+        __pf 'Error: '.bold.red
+      end
       error e.message if (e && e.respond_to?(:message))
       if e && Arli.config.trace
         __pf "\n"

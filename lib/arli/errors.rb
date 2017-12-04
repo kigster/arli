@@ -20,6 +20,8 @@ module Arli
 
     class InstallerError < ArliError; end
 
+    class TooManyMatchesError < ArliError; end
+
     class ZipFileError < InstallerError; end
   end
 end

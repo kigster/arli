@@ -13,6 +13,7 @@ module Arli
       attr_accessor :arlifile, :lock_file
 
       def setup
+        super
         self.arlifile = Arli::ArliFile.new(config: config)
         self.lock_file = Arli::Lock::File.new(config: config)
       end
@@ -31,6 +32,10 @@ module Arli
 
       def install_with_arli_file
         arlifile.install
+        post_install
+      end
+
+      def post_install
         lock_file.lock!(*arlifile.libraries)
       end
     end

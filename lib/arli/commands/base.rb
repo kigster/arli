@@ -15,13 +15,7 @@ module Arli
 
       def initialize(config: Arli.config)
         self.config = config
-        FileUtils.mkdir_p(library_path) unless Dir.exist?(library_path)
-        FileUtils.mkdir_p(temp_path) unless Dir.exist?(temp_path)
         setup
-      end
-
-      def run(*args)
-        raise ArgumentError, 'This method must be implemented in subclasses'
       end
 
       def runtime
@@ -41,11 +35,17 @@ module Arli
       end
 
       def setup
-        raise AbstractMethodCalled, "#setup on #{self.class}"
+        FileUtils.mkdir_p(library_path) unless Dir.exist?(library_path)
+        FileUtils.mkdir_p(temp_path) unless Dir.exist?(temp_path)
+      end
+
+      def run(*args)
+        raise Arli::Errors::AbstractMethodCalled,
+          'This method must be implemented in subclasses'
       end
 
       def params
-        raise AbstractMethodCalled, "#params on #{self.class}"
+        ''
       end
     end
   end

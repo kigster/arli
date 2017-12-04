@@ -15,7 +15,7 @@ RSpec.describe Arli do
     end
   end
 
-  its(:debug) { should be_falsey }
-  its(:verbose) { should be_falsey }
-  its(:trace) { should be_falsey }
+  its(:debug) { should be(false) }
+  its(:verbose) { should be(false) }
+  its(:trace) { should be(false) }
 end

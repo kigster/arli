@@ -4,6 +4,9 @@ RSpec.describe Arli::CLI::CommandFinder do
 
   subject(:finder) { described_class.new(argv) }
   let(:config) { Arli.config }
+  before {
+    Arli.config.libraries.temp_dir = Dir.mktmpdir
+  }
 
   context 'no command or arguments' do
     let(:argv) { %w[] }
