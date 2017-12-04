@@ -7,12 +7,45 @@ module Arli
       include Arli::Output
 
       extend Forwardable
-      def_delegators :@library, :exists?, :path, :dir, :libraries_home
+      def_delegators :@library,
+                     :exists?,
+                     :path, :temp_path,
+                     :dir, :temp_dir,
+                     :libraries_home
 
       class << self
-        def inherited(klazz)
-          action_name                          = klazz.name.gsub(/.*::/, '').underscore.to_sym
-          ::Arli::Actions.actions[action_name] = klazz
+        def inherited(base)
+
+          base.instance_eval do
+            class << self
+              attr_writer :check_command, :check_pattern, :description
+
+              def action_name
+                name.gsub(/.*::/, '').underscore.to_sym
+              end
+
+              def set_or_get(var_name, val = nil)
+                var = "@#{var_name}".to_sym
+                self.instance_variable_set(var, val) if val
+                self.instance_variable_get(var)
+              end
+
+              def check_pattern(val = nil)
+                set_or_get('check_pattern', val)
+              end
+
+              def check_command(val = nil)
+                set_or_get('check_command', val)
+              end
+
+              def description(val = nil)
+                set_or_get('description', val)
+              end
+            end
+          end
+
+          # Add to the list of actions
+          ::Arli::Actions.actions[base.action_name] = base
         end
       end
 
@@ -23,50 +56,37 @@ module Arli
         self.config  = config
       end
 
-      def act(**_opts)
-        raise 'Abstract method #act called on Action'
+      def run!
+        execute
+      rescue Exception => e
+        action_fail(self, e)
       end
 
-      def overwrite?
-        config.if_exists.overwrite
-      end
-
-      def backup?
-        config.if_exists.backup
-      end
-
-      def abort?
-        config.if_exists.abort
+      def supported?
+        return @supported if defined?(@supported)
+        if self.class.check_command && self.class.check_pattern
+          @supported = (`#{self.class.check_command} 2>/dev/null | grep "#{self.class.check_pattern}"`.chomp != '')
+        else
+          @supported = true
+        end
       end
 
       def mv(from, to)
-        handle_preexisting_folder(to)
         FileUtils.mv(from, to)
       end
 
-      def handle_preexisting_folder(to)
-        if Dir.exist?(to)
-          if abort?
-            raise ::Arli::Errors::LibraryAlreadyExists, "Directory #{to} already exists"
-          elsif backup?
-            backup!(to)
-          elsif overwrite?
-            FileUtils.rm_rf(to)
-          end
-        end
+      def to_s
+        "<Action:#{(Arli::Actions.action_name(self) || 'unknown action').bold.blue}: lib=#{library.name}>"
       end
 
-      def backup!(p)
-        if Dir.exist?(p)
-          backup_path = "#{p}.arli-backup-#{Time.now.strftime('%Y%m%d%H%M%S')}"
-          FileUtils.mv(p, backup_path)
-          if config.verbose
-            ___ "\nNOTE: path #{p.blue} has been backed up to #{backup_path.bold.green}\n"
-          elsif !config.quiet
-            ___ ' backed up and'
-          end
-        end
+      protected
+
+      def execute(**_opts)
+        raise Arli::Errors::AbstractMethodCalled,
+              'Abstract method #execute called on Base'
       end
+
+
     end
   end
 end

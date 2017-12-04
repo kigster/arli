@@ -1,7 +1,7 @@
 require 'forwardable'
 require 'optparse'
 require 'colored2'
-
+require 'tmpdir'
 require_relative 'parser'
 require_relative 'command_finder'
 require_relative 'parser_factory'
@@ -17,9 +17,11 @@ module Arli
       attr_accessor :argv, :config, :command
 
       def initialize(argv, config: Arli.config)
-        self.argv                = argv
-        self.config              = config
-        self.config.runtime.argv = argv
+        self.argv                      = argv
+        self.config                    = config
+        self.config.runtime.argv       = argv
+        self.config.runtime.pwd        = ::Dir.pwd
+        Arli.config.libraries.temp_dir = ::Dir.mktmpdir
       end
 
       def start
@@ -51,6 +53,9 @@ module Arli
         report_exception(e, 'Incorrect command usage')
       rescue Exception => e
         report_exception(e)
+      ensure
+        d = Arli.config.libraries.temp_dir
+        FileUtils.rm_rf(d) if Dir.exist?(d) rescue nil
       end
 
       def parse_global_flags

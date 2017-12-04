@@ -1,48 +1,68 @@
+require 'hashie/mash'
+require 'net/http'
 require 'json'
 require 'arli'
-require 'net/http'
+
+require 'arduino/library'
 require_relative 'base'
+require_relative 'bundle'
 
 module Arli
   module Commands
-    class Install < Base
+    class Install < Bundle
+      require 'arduino/library/include'
 
-      attr_accessor :arlifile
-
-      def initialize(*args)
-        super(*args)
-      end
-
-      def cfg
-        config.install
-      end
+      attr_accessor :library
 
       def setup
-        self.arlifile = Arli::ArliFile.new(
-            config:    config,
-            libraries: [library_argument])
+        validate_argument
+
+        self.library  = identify_library(runtime.argv.first)
+        validate_library
+
+        self.arlifile = Arli::ArliFile.new(config: config, libraries: [library]) if library
+      end
+
+      # arg can be 'Adafruit GFX Library'
+      def identify_library(arg)
+        if File.exist?(arg)
+          begin
+            Arduino::Library::Model.from(arg)
+          rescue
+            nil
+          end
+        elsif arg =~ %r[https?://]
+          Arduino::Library::Model.from_hash(url: arg, name: File.basename(arg))
+        else
+          results = search(name: /^#{arg}$/i)
+          validate_search(arg, results)
+          results.sort.last if results && !results.empty?
+        end
       end
 
       def params
-        " • #{library_argument['url'] || library_argument['name']}"
-      end
-
-      def run
-        arlifile.each_dependency { |lib| lib.install }
+        " • #{library.to_s}"
       end
 
       private
 
-      def library_argument
-        lib        = Hash.new
-        lib['name'] = cfg.name if cfg.name
+      def validate_search(arg, results)
+        raise Arli::Errors::LibraryNotFound,
+              "Can't find library by argument #{arg}" if results.nil? || results.empty?
+      end
 
-        if cfg.url
-          lib['url']  = cfg.url
-          lib['name'] ||= File.basename(cfg.url)
-        end
+      def validate_library
+        raise Arli::Errors::LibraryNotFound,
+              "Library #{cfg.to_hash} was not found" unless library
+      end
 
-        lib
+      def validate_argument
+        raise InvalidInstallSyntaxError,
+              "Missing installation argument: a name, a file or a URL." unless runtime.argv.first
+      end
+
+      def cfg
+        config.install
       end
     end
   end

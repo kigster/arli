@@ -1,5 +1,7 @@
 # vi:syntax=yaml
-version: 1.0.0
+version: 1.0.1
+library_path: './libraries'
+lock_format: cmake
 dependencies:
   - name: ESP8266WiFi
     version: '1.0'

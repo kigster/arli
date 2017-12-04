@@ -2,22 +2,27 @@ require_relative 'action'
 
 module Arli
   module Actions
-    class ZipFile < Action
-      def act
-        # TODO: verify that this works if backup option is provided
-        library.rm_rf!
+    class UnzipFile < Action
+      description 'Downloads and unzip remote ZIP archives'
+      check_command 'unzip -h'
+      check_pattern 'extract files to pipe'
+
+      def execute
+        return if library.url.nil?
+        return if library.url !~ /\.zip$/i
+
         download!
+
         if File.exist?(zip_archive)
-          FileUtils.rm_rf(zip_folder) if zip_folder
+          FileUtils.rm_rf(top_dir_inside_zip) if top_dir_inside_zip
           unzip(zip_archive, '.')
-          FileUtils.move(zip_folder, dir) if Dir.exist?(zip_folder)
+          FileUtils.move(top_dir_inside_zip, dir) if Dir.exist?(top_dir_inside_zip)
         end
       rescue Exception => e
         fuck
-        puts
         raise(e)
       ensure
-        delete_zip!
+        delete_zip! rescue nil
       end
 
       private
@@ -35,7 +40,7 @@ module Arli
       end
 
       # list the contents of the archive and grab the top level folder
-      def zip_folder
+      def top_dir_inside_zip
         @zip_folder ||= `unzip -Z1 #{zip_archive} | awk 'BEGIN{FS="/"}{print $1}' | uniq | tail -1`.chomp
       end
 

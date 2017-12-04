@@ -3,15 +3,20 @@ require 'tty-cursor'
 
 module Arli
   module Output
+    CHAR_FAILURE = '✖'.red
+    CHAR_SUCCESS = '✔'.green
 
     class << self
       attr_accessor :enabled, :cursor
+
       def enable!
         self.enabled = true
       end
+
       def enabled?
         self.enabled
       end
+
       def disable!
         self.enabled = false
       end
@@ -43,10 +48,12 @@ module Arli
       __pf header.bold.yellow + ': ' if header
       error e.message if (e && e.respond_to?(:message))
       if e && Arli.config.trace
-        __pf e.backtrace.reverse.join("\n")
+        __pf "\n"
+        __pf 'Top 10 stack trace'.bold.yellow + "\n"
+        __pf e.backtrace.reverse[-10..-1].join("\n").red + "\n"
       elsif e
         __pf "\nUse -t (--trace) for detailed exception\n" +
-             "or -D (--debug) to print Arli config\n"
+                 "or -D (--debug) to print Arli config\n"
       end
     end
 
@@ -73,16 +80,57 @@ module Arli
       printf(*args) if Arli::Output.enabled?
     end
 
-    def ok
-      ___ '.'.green
+
+    def print_target_dir(d, verb = 'installed')
+      print_action_success(d.green, "#{verb} #{d.green} ")
     end
 
-    def check
-      ___ '✔'.green
+    def print_action_starting(action_name)
+      if verbose?
+        indent_cursor
+        ___ "⇨ #{action_name.yellow} ... "
+      end
+      if block_given?
+        yield
+        ok if verbose?
+      end
+    end
+
+    def print_action_success(short, verbose = nil)
+      if verbose? && !quiet?
+        indent_cursor
+        ___ "⇨ #{verbose || short} #{CHAR_SUCCESS}"
+      elsif !quiet?
+        ___ "#{short} #{CHAR_SUCCESS} "
+      end
+    end
+
+    def print_action_failure(short, verbose = nil)
+      if verbose? && !quiet?
+        indent_cursor
+        ___ "⇨ #{verbose || short} #{CHAR_FAILURE}\n"
+      elsif !quiet?
+        ___ "#{short} #{CHAR_FAILURE} "
+      end
+    end
+
+    def action_fail(action, exception)
+      print_action_failure(action.action_name,
+                           "#{action.class.action_name} failed with #{exception.message.red}\n" +
+                               "Action Description: #{action.class.description}")
+      raise(exception)
+    end
+
+    def action_ok(action)
+      print_action_success(action.action_name)
+    end
+
+    def ok
+      ___ " #{CHAR_SUCCESS} "
     end
 
     def fuck
-      ___ '✖'.red
+      ___ " #{CHAR_FAILURE} "
     end
 
     def header(command: nil)
@@ -101,5 +149,34 @@ module Arli
       ('-' * (ENV['COLUMNS'] || 80)).red.dark
     end
 
+    # Some shortcuts
+    def verbose?
+      config.verbose && !quiet?
+    end
+
+    def quiet?
+      config.quiet
+    end
+
+    def overwrite?
+      config.if_exists.overwrite
+    end
+
+    def backup?
+      config.if_exists.backup
+    end
+
+    def abort?
+      config.if_exists.abort
+    end
+
+    def debug?
+      config.debug
+    end
+
+    private
+    def indent_cursor
+      ___ cursor.column(40)
+    end
   end
 end

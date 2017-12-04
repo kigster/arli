@@ -16,6 +16,7 @@ module Arli
       def initialize(config: Arli.config)
         self.config = config
         FileUtils.mkdir_p(library_path) unless Dir.exist?(library_path)
+        FileUtils.mkdir_p(temp_path) unless Dir.exist?(temp_path)
         setup
       end
 
@@ -35,12 +36,16 @@ module Arli
         config.libraries.path
       end
 
-      def setup
+      def temp_path
+        config.libraries.temp_dir
+      end
 
+      def setup
+        raise AbstractMethodCalled, "#setup on #{self.class}"
       end
 
       def params
-
+        raise AbstractMethodCalled, "#params on #{self.class}"
       end
     end
   end

@@ -2,29 +2,36 @@ require 'json'
 require 'arli'
 require 'net/http'
 require_relative 'base'
+require_relative '../arli_file'
+require_relative '../lock/formats'
+require_relative '../lock/file'
 
 module Arli
   module Commands
     class Bundle < Base
 
-      attr_accessor :arlifile
-
-      def initialize(*args)
-        super(*args)
-      end
+      attr_accessor :arlifile, :lock_file
 
       def setup
-        self.arlifile = Arli::ArliFile.new(
-            config:    config,
-            libraries: Arli.config.bundle.library_names)
+        self.arlifile = Arli::ArliFile.new(config: config)
+        self.lock_file = Arli::Lock::File.new(config: config)
       end
 
       def params
-        "libraries: \n • " + arlifile.dependencies.map(&:name).join("\n • ")
+        if arlifile&.libraries
+          "libraries: \n • " + arlifile.libraries.map(&:name).join("\n • ")
+        end
       end
 
       def run
-        arlifile.each_dependency { |lib| lib.install }
+        install_with_arli_file
+      end
+
+      protected
+
+      def install_with_arli_file
+        arlifile.install
+        lock_file.lock!(*arlifile.libraries)
       end
     end
   end

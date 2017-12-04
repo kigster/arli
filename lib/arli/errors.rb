@@ -6,6 +6,10 @@ module Arli
 
     class InvalidSyntaxError  < ArliError; end
 
+    class InvalidSearchSyntaxError  < InvalidSyntaxError; end
+
+    class InvalidInstallSyntaxError  < InvalidSyntaxError; end
+
     class AbstractMethodCalled < ArliError; end
 
     class ArliFileNotFound < ArliError; end

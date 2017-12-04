@@ -21,7 +21,7 @@ RSpec.describe Arli::CLI::CommandFinder do
       it { is_expected.to be_kind_of(Arli::Commands::Bundle) }
 
       it 'should have changed the library path' do
-        expect(config.bundle.arlifile.path).to eq('spec/fixtures/file2')
+        expect(config.arlifile.path).to eq('spec/fixtures/file2')
         expect(config.libraries.path).to eq('/tmp')
       end
     end

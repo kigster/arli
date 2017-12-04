@@ -46,19 +46,17 @@ RSpec.describe 'arli executable', :type => :aruba do
   context 'install a single library' do
     let(:root_dir) { Dir.pwd }
     let(:lib_dir) { root_dir + '/tmp/libraries' }
+    let(:lib_args) { " '#{lib_identifier}' -v -t " }
     let(:args) { "install #{lib_args} -l #{lib_dir}" }
 
     before do
-      Arli.config.install.url = nil
-      Arli.config.install.name = nil
       FileUtils.rm_rf(lib_dir)
       expect(Dir.exist?(lib_dir)).to be(false)
       run_simple command
     end
 
-    context '--lib-name' do
-      let(:lib_args) { "-v -n '#{lib_name}' " }
-      let(:lib_name) { 'Adafruit GFX Library' }
+    context 'install by library name' do
+      let(:lib_identifier) { 'Adafruit GFX Library' }
       let(:lib_actual) { 'Adafruit_GFX' }
 
       it 'should install this one library' do
@@ -68,9 +66,8 @@ RSpec.describe 'arli executable', :type => :aruba do
       end
     end
 
-    context '--lib-url' do
-      let(:lib_args) { "-v -u #{lib_url} " }
-      let(:lib_url) { 'https://github.com/jfturcot/SimpleTimer' }
+    context 'install by file or URL' do
+      let(:lib_identifier) { 'https://github.com/jfturcot/SimpleTimer' }
       let(:lib_actual) { 'SimpleTimer' }
 
       it 'should install this one library' do

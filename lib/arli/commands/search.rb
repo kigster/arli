@@ -15,71 +15,93 @@ module Arli
                     :search_opts,
                     :results,
                     :limit,
-                    :database
+                    :database,
+                    :format
 
       def initialize(*args)
         super(*args)
+        self.format = :short
       end
 
-      def process_search
-        search             = runtime.argv.first
-
-        self.search_string = if search =~ /:/
-                               search
-                             elsif search
-                               "#{config.search.default_field}: /#{search}/"
-                             end
-
-        self.limit = config.search.results.limit
-
-        unless search_string
-          raise Arli::Errors::InvalidSyntaxError,
-                'Expected an argument or a flag to follow the command ' + 'search'.bold.green
-        end
-
-        begin
-          self.search_opts = eval("{ #{search_string} }")
-        rescue => e
-          message = e.message
-          if message =~ /undefined method.*Arduino::Library::Model/
-            message = "Invalid attributed search. Possible values are:\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
-          end
-          raise Arli::Errors::InvalidSyntaxError, "Search string '#{search_string}' is invalid.\n" +
-              message.red
-        end
-
-        unless search_opts.is_a?(::Hash) && search_opts.size > 0
-          raise Arli::Errors::InvalidSyntaxError, "Search string '#{search_string}' did not eval to Hash.\n"
-        end
-
-        self.database = db_default
-
-        search_opts.merge!(limit: limit) if limit && limit > 0
-        search_opts.delete(:limit) if limit == 0
-      end
 
       def run
-        process_search
-        self.results = search(database, **search_opts)
-        results.sort.map do |lib|
-          puts pretty_library(lib)
+        self.search_opts = process_search_options!
+        self.results     = search(database, **search_opts).sort
+
+        results.map do |lib|
+          method = "to_s_#{format}".to_sym
+          lib.send(method) if lib.respond_to?(method)
         end
-        puts "\nTotal matches: #{results.size.to_s.bold.magenta}"
-        if results.size == Arli::Configuration::DEFAULT_RESULTS_LIMIT
-          puts "Hint: use #{'-m 0'.bold.green} to disable the limit, or set it to another value."
-        end
+        print_total_with_help
       rescue Exception => e
         error e
         puts e.backtrace.join("\n") if ENV['DEBUG']
       end
 
-      def pretty_library(lib, **options)
-        "#{lib.name.bold.blue} (#{lib.version.yellow}), by #{lib.author.magenta}"
-      end
+      private
 
-      def params
-        search_opts
-      end
+        def process_search_options!
+          self.search_string = extract_search_argument!
+          raise_error_unless_search_string!
+
+          self.limit = config.search.results.limit
+
+          search_opts = {}
+          begin
+            search_opts = eval("{ #{search_string} }")
+          rescue => e
+            handle_error(e)
+          end
+
+          unless search_opts.is_a?(::Hash) && search_opts.size > 0
+            raise Arli::Errors::InvalidSearchSyntaxError,
+                  "Search string '#{search_string}' did not eval to Hash.\n"
+          end
+
+          self.database = db_default
+
+          search_opts.merge!(limit: limit) if limit && limit > 0
+          search_opts.delete(:limit) if limit == 0
+          search_opts
+        end
+
+        def extract_search_argument!
+          search = runtime.argv.first
+          if search =~ /:/
+            search
+          elsif search
+            "#{config.search.default_field}: /#{search}/"
+          end
+        end
+
+        def raise_error_unless_search_string!
+          unless search_string
+            raise Arli::Errors::InvalidSyntaxError,
+                  'Expected an argument or a flag to follow the command ' + 'search'.bold.green
+          end
+        end
+
+        def handle_and_raise_error(e)
+          message = e.message
+          if message =~ /undefined method.*Arduino::Library::Model/
+            message = "Invalid attributed search. Possible values are:" +
+                "\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
+          end
+          raise Arli::Errors::InvalidSearchSyntaxError,
+                "Search string '#{search_string}' is invalid.\n" +
+                    message.red
+        end
+
+        def print_total_with_help
+          puts "\nTotal matches: #{results.size.to_s.bold.magenta}"
+          if results.size == Arli::Configuration::DEFAULT_RESULTS_LIMIT
+            puts "Hint: use #{'-m 0'.bold.green} to disable the limit, or set it to another value."
+          end
+        end
+
+        def params
+          search_opts
+        end
     end
   end
 end

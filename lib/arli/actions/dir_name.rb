@@ -10,9 +10,13 @@ module Arli
     # This action renames invalid library folders based on the
     # source files found inside.
     class DirName < Action
+
+      description 'Auto-detects the canonical library folder name'
+
       attr_accessor :sources, :headers
 
-      def act
+      def execute
+
         find_source_files
 
         # so "dir" is the 'Adafruit_Unified_Sensor'
@@ -20,29 +24,27 @@ module Arli
         # rename the folder
 
         if headers.include?(dir) || sources.include?(dir)
-          print_target_dir(dir)
+          set_canonical_dir!(dir)
         else
-          # if we end up setting this, we'll also move the folder.
-          canonical_dir =
+          candidate =
               if_only_one(headers) ||
                   if_only_one(sources) ||
                   if_header_a_substring(headers)
 
-          if canonical_dir
-            library.canonical_dir = canonical_dir
-            mv(dir, library.canonical_dir)
-            print_target_dir(canonical_dir)
-          else
-            library.canonical_dir = dir
-            print_target_dir(dir)
-          end
+          set_canonical_dir!(candidate)
         end
-
-
       end
 
-      def print_target_dir(d)
-        ___ " installed to #{d.green} #{'✔'.green}" unless Arli.config.quiet
+      private
+
+      def set_canonical_dir!(canonical_dir)
+        if canonical_dir && canonical_dir != dir
+          mv(dir, canonical_dir)
+          library.canonical_dir = canonical_dir
+        else
+          library.canonical_dir = dir
+        end
+        print_target_dir(library.canonical_dir, 'installed to')
       end
 
       def if_header_a_substring(files)

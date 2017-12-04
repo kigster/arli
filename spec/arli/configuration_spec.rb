@@ -6,7 +6,7 @@ RSpec.describe Arli::Configuration do
   before do
     described_class.configure do |config|
       config.libraries.path = '/tmp'
-      config.bundle.arlifile.path  = '/tmp'
+      config.arlifile.path  = '/tmp'
       config.if_exists.overwrite = true
     end
   end
