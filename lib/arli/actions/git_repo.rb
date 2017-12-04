@@ -7,10 +7,8 @@ module Arli
       check_pattern 'git version'
 
       def execute
-        c      = library.exists? ? git_update_command : git_clone_command
-        action = library.exists? ? 'updated' : 'cloned'
-        run_system_command(c)
-        print_action_success(action, "git repo was #{action}")
+        run_system_command(git_clone_command)
+        print_action_success('cloned', "cloned from #{library.url}")
       end
 
       def git_update_command

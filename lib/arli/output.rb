@@ -88,7 +88,7 @@ module Arli
     def print_action_starting(action_name)
       if verbose?
         indent_cursor
-        ___ "⇨ #{action_name.yellow} ... "
+        ___ "⇨  #{action_name.yellow} ... "
       end
       if block_given?
         yield
@@ -99,7 +99,7 @@ module Arli
     def print_action_success(short, verbose = nil)
       if verbose? && !quiet?
         indent_cursor
-        ___ "⇨ #{verbose || short} #{CHAR_SUCCESS}"
+        ___ "⇨  #{verbose || short} #{CHAR_SUCCESS}"
       elsif !quiet?
         ___ "#{short} #{CHAR_SUCCESS} "
       end
@@ -108,14 +108,14 @@ module Arli
     def print_action_failure(short, verbose = nil)
       if verbose? && !quiet?
         indent_cursor
-        ___ "⇨ #{verbose || short} #{CHAR_FAILURE}\n"
+        ___ "⇨  #{verbose || short} #{CHAR_FAILURE}\n"
       elsif !quiet?
         ___ "#{short} #{CHAR_FAILURE} "
       end
     end
 
     def action_fail(action, exception)
-      print_action_failure(action.action_name,
+      print_action_failure(action.class.action_name,
                            "#{action.class.action_name} failed with #{exception.message.red}\n" +
                                "Action Description: #{action.class.description}")
       raise(exception)
