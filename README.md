@@ -15,6 +15,8 @@ Here is a screenshot of running `arli bundle` inside a project with the `Arlifil
 
 ![](docs/arli-in-action.png)
 
+Note that `-f yaml` specifies the format of the "lock" file (`Arlifile.lock`), which is also copied to `Arlifile.lock.[format]`. So in this case our `Arlifile.lock` will be in YAML format, and will contain all library details obtained from the central database.
+
 ## Overview
 
 ### How Does It Work?
@@ -28,17 +30,7 @@ Sometimes, however, an Arduino library you use may not part of the main database
 `Arlifile` is a YAML-formatted file that looks like this below. We list all dependencies using the library names that are provided in the database (you can search for the libraries you need prior to populating this file):
 
 
-```yaml
-# vi:syntax=yaml
-# File: Arlifile
-version: 1.0.0
-dependencies:
-  - name: Time
-  - name: "Adafruit GFX Library"
-    version: '1.2.1'
-  - name: SimpleTimer
-    url: https://github.com/jfturcot/SimpleTimer
-```
+![](docs/arlifile.png)
 
 The libraries may be specified with a name and url only, in which case no search is performed, and the provided URL is used to install the library.  The library `SimpleTimer` above is not in the main database, therefore we provide URL for Arli to use.
 
@@ -51,6 +43,30 @@ You can provide the following fields in the Arilfile if you want the library to 
  * `checksum` and `archiveFileName` can be used as they both uniquely identify a library.
 
 In all of the above cases, Arli will search the standard library database provided by the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
+
+#### Lock File `Arlifile.lock`
+
+The lock file is created every time `arli bundle` runs, and it's always in the same folder that the `Arlifile` itself.
+
+The purpose of this file is to document the resolved libraries installed. There are four formats that are supported:
+
+ * text 
+ * json
+ * yaml
+ * cmake
+
+Each format is sligthly different: YAML and JSON will simply include full library info, while text format includes resolved folder names, versions, and the download URL. 
+
+#### CMake Integration
+
+The CMake lock file is meant to be consumed by projects relying on the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake). We are still working on the complete integration, which would hopefully allow the following features:
+
+ * auto-generate Arduino project with library dependencies using cmake
+ * provide CMake plugin that runs `arli bundle -f cmake`, and reads the `Arlifile.lock.cmake`
+ * this will auto-generate each Arduino library into it's own static library, and then link your project with them all.
+
+**CMake Coming Soon!**
+
 
 ### Single Library and `install`
 
@@ -88,13 +104,13 @@ Usage:
     -h, --help             prints this help
 
 Available Commands:
-    search       — Search the Arduino Library Database (or a custom one)
-    bundle       — installs all libraries defined in the Arlifile
-    install      — installs a single library
+    search       — Search standard Arduino Library Database with over 4K entries
+    bundle       — Installs all libraries specified in Arlifile
+    install      — Installs a single library either by searching, or url or local ZIP
 
 See arli command --help for more information on a specific command.
 
-arli (0.8.0) © 2017 Konstantin Gredeskoul, MIT License.
+arli (0.8.2) © 2017 Konstantin Gredeskoul, MIT License.
 ```
 
 ### Command `bundle`
@@ -144,16 +160,29 @@ Below is the complete help for the `bundle` command for reference:
 
 
 ```bash
-❯ be exe/arli bundle -h
+❯ arli bundle -h
+Description:
+    Installs all libraries specified in Arlifile
+
+    This command reads Arlifile (from the current folder, by default),
+    and then it installs all dependent libraries specified there, checking if
+    each already exists, and if not —  downloading them, and installing them into
+    your Arduino Library folder. Both the folder with the Arlifile, as well as the
+    destination library path folder can be changed with the command line flags.
+
 Usage:
     arli bundle [options]
 
 Options
-    -l, --lib-path PATH    Local folder where custom Arduino libraries are installed
-                           Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
+    -l, --lib-path PATH    Destination: typically your Arduino libraries folder
+                           Defaults to ~/Documents/Arduino/Libraries
 
-    -a, --arli-path PATH   Folder where Arlifile is located,
+    -a, --arli-path PATH   An alternate folder with the Arlifile file.
                            Defaults to the current directory.
+
+    -f, --format FMT       Arli writes an Arlifile.lock with resolved info.
+                           The default format is text. Use -f to set it
+                           to one of: cmake, text, json, yaml
 
     -e, --if-exists ACTION If a library folder already exists, by default
                            it will be overwritten or updated if possible.
@@ -167,15 +196,12 @@ Options
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Description:
-    installs all libraries defined in the Arlifile
-
 Examples:
-     # Install all libs defined in Arlifile:
-     arli bundle
+    # Install all libs defined in Arlifile:
+    arli bundle
 
-     # Install all libs defined in src/Arlifile
-     arli bundle -a src
+    # Custom Arlifile location, and destination path:
+    arli bundle -a ./src -l ./libraries
 ```
 
 ### Command `install`
@@ -193,18 +219,22 @@ Complete help is:
 
 
 ```bash
-❯ be exe/arli install -h
+❯ arli install -h
+Description:
+    Installs a single library either by searching, or url or local ZIP
+
+    This command installs a single library into your library path
+    using the third argument to the command arli install
+    which can be a library name, local ZIP file, or a remote URL
+    (either ZIP or Git Repo)
+
 Usage:
-    arli install [ "name" | [ git-url | zip-url ] [options]
+    arli install [ "library name" | url | local-zip ]  [options]
 
 Options
-    -l, --lib-path PATH    Local folder where custom Arduino libraries are installed
-                           Defaults to ~/Dropbox/Workspace/oss/arduino/libraries
+    -l, --lib-path PATH    Destination: typically your Arduino libraries folder
+                           Defaults to ~/Documents/Arduino/Libraries
 
-    -u, --lib-url URL      Attempts to install the library by its URL
-                           Github project URL or a downloadable Zip are supported.
-    -n, --lib-name NAME    Searches and installs library by its name,
-                           unless URL is also provided
     -e, --if-exists ACTION If a library folder already exists, by default
                            it will be overwritten or updated if possible.
                            Alternatively you can either abort or backup
@@ -217,15 +247,15 @@ Options
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Description:
-    installs a single library
-
 Examples:
-     # Install the latest version of this library
-     arli install -n "Adafruit GFX Library"
+    # Install the latest version of this library
+    arli install "Adafruit GFX Library"
 
-     # Install the library from a Github URL
-     arli install -u https://github.com/jfturcot/SimpleTimer
+    # Install the library from a Github URL
+    arli install https://github.com/jfturcot/SimpleTimer
+
+    # Install a local ZIP file
+    arli install ~/Downloads/DHT-Library.zip
 ```
 
 ### Command `search`
@@ -273,7 +303,16 @@ A detailed description of the complete search functionality is documented in the
 Below is the help screen for the search command:
 
 ```bash
-❯ be exe/arli search -h
+❯ arli search -h
+Description:
+    Search standard Arduino Library Database with over 4K entries
+
+    This command provides both the simple name-based search interface,
+    and the most sophisticated field-by-field search using a downloaded,
+    and locally cached Public Arduino Database JSON file, maintained
+    by Arduino and the Community. If you know of another database,
+    that's what the --database flag is for.
+
 Usage:
     arli search [ name | search-expression ] [options]
 
@@ -290,21 +329,21 @@ Options
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Description:
-    Search the Arduino Library Database (or a custom one)
-
 Examples:
-     # Search using the regular expression containing the name:
-     arli search AudioZero
+    # Search using the regular expression containing the name:
+    arli search AudioZero
 
-     # Same exact search as above, but using ruby hash syntax:
-     arli search 'name: /AudioZero/'
+    # Same exact search as above, but using ruby hash syntax:
+    arli search 'name: /AudioZero/'
 
-     # Search using case insensitive name search, and :
-     arli search 'name: /adafruit/i'
+    # Lets get a particular version of the library
+    arli search 'name: "AudioZero", version: "1.0,2"'
 
-     # Finally, search for the exact name match:
-     arli search '^Time$'
+    # Search using case insensitive name search, and :
+    arli search 'name: /adafruit/i'
+
+    # Finally, search for the exact name match:
+    arli search '^Time$'
 ```
 
 

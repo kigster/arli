@@ -183,10 +183,10 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
            'Print exception stack traces.') do |v|
           config.trace = v
         end
-        on('-n', '--dry-run',
-           'Only print actions, but do not do them.') do |v|
-          config.trace = v
-        end
+#        on('-n', '--dry-run',
+#           'Only print actions, but do not do them.') do |v|
+#          config.trace = v
+#        end
         on('-v', '--verbose',
            'Print more information.') do |v|
           config.verbose = true
