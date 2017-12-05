@@ -41,7 +41,7 @@ module Arli
                                     "and the most sophisticated field-by-field search using a downloaded, \n",
                                     "and locally cached Public Arduino Database JSON file, maintained\n",
                                     "by Arduino and the Community. If you know of another database,\n",
-                                    "that's what the --database flag is for."],
+                                    "that's what the --database flag is for.\n"],
                       examples:    [
                                        { desc: 'Search using the regular expression containing the name:',
                                          cmd:  'arli search AudioZero' },

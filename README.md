@@ -198,29 +198,33 @@ So let's specify where our libraries live, and run `arli bundle` inside that pro
 Below is the complete help for the `bundle` command for reference:
 
 ```
-❯ be exe/arli search -h
+❯ arli bundle -h
 Description:
-    Search standard Arduino Library Database with over 4K entries
+    Installs all libraries specified in Arlifile
 
-    This command provides both the simple name-based search interface,
-    and the most sophisticated field-by-field search using a downloaded,
-    and locally cached Public Arduino Database JSON file, maintained
-    by Arduino and the Community. If you know of another database,
-    that's what the --database flag is for.
+    This command reads Arlifile (from the current folder, by default),
+    and then it installs all dependent libraries specified there, checking if
+    each already exists, and if not —  downloading them, and installing them into
+    your Arduino Library folder. Both the folder with the Arlifile, as well as the
+    destination library path folder can be changed with the command line flags.
+
 Usage:
-    arli search [ name | search-expression ] [options]
+    arli bundle [options]
 
 Options
-    -d, --database URL     a JSON(.gz) file path or a URL of the library database.
-                           Defaults to the Arduino-maintained database.
+    -l, --lib-path PATH    Destination: typically your Arduino libraries folder
+                           Defaults to ~/Documents/Arduino/Libraries
 
-    -m, --max NUMBER       if provided, limits the result set using the
-                           total number of the unique library name matches.
-                           Default is 0, which means no limit.
+    -a, --arli-path PATH   An alternate folder with the Arlifile file.
+                           Defaults to the current directory.
 
-    -f, --format FMT       Optional format of the search results.
-                           The default is short. Available
-                           formats: with_versions, long, short, json, yaml
+    -f, --format FMT       Arli writes an Arlifile.lock with resolved info.
+                           The default format is text. Use -f to set it
+                           to one of: cmake, text, json, yaml
+
+    -e, --if-exists ACTION If a library folder already exists, by default
+                           it will be overwritten or updated if possible.
+                           Alternatively you can either abort or backup
 
     -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
@@ -231,20 +235,11 @@ Options
     -h, --help             prints this help
 
 Examples:
-    # Search using the regular expression containing the name:
-    arli search AudioZero
+    # Install all libs defined in Arlifile:
+    arli bundle
 
-    # Same exact search as above, but using ruby hash syntax:
-    arli search 'name: /AudioZero/'
-
-    # Lets get a particular version of the library
-    arli search 'name: "AudioZero", version: "1.0,2"'
-
-    # Search using case insensitive name search, and :
-    arli search 'name: /adafruit/i'
-
-    # Finally, search for the exact name match:
-    arli search '^Time$'
+    # Custom Arlifile location, and destination path:
+    arli bundle -a ./src -l ./libraries
 ```
 
 <a name="command-install"></a>
@@ -256,8 +251,8 @@ Use this command to install a single library by either a name or URL:
 Eg:
 
 ```bash
-❯ be exe/arli install 'Adafruit GFX Library' -l ./libs
-❯ be exe/arli install 'https://github.com/jfturcot/SimpleTimer'
+❯ arli install 'Adafruit GFX Library' -l ./libs
+❯ arli install 'https://github.com/jfturcot/SimpleTimer'
 ```
 
 Complete help is:
@@ -330,7 +325,7 @@ The search argument can also be a ruby-syntaxed expression, that (if you know ru
 You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
 
 ```
-❯ be exe/arli search 'name: /adafruit/i'
+❯ arli search 'name: /adafruit/i'
 
 --------------------------------------------------------------------------------
 Arli (0.8.4), Command: search
@@ -362,7 +357,7 @@ Finally, you can change the output format of the search, by passing `-f <format>
 For example, here is a how long format looks like:
 
 ```
-❯ be exe/arli search 'name: /adafruit/i'  -f long
+❯ arli search 'name: /adafruit/i'  -f long
 
 --------------------------------------------------------------------------------
 Arli (0.8.4), Command: search
@@ -398,7 +393,7 @@ A detailed description of the complete search functionality is documented in the
 
 Below is the help screen for the search command:
 
-```bash
+```
 ❯ arli search -h
 Description:
     Search standard Arduino Library Database with over 4K entries
@@ -408,17 +403,29 @@ Description:
     and locally cached Public Arduino Database JSON file, maintained
     by Arduino and the Community. If you know of another database,
     that's what the --database flag is for.
-
+    
 Usage:
     arli search [ name | search-expression ] [options]
 
 Options
     -d, --database URL     a JSON(.gz) file path or a URL of the library database.
                            Defaults to the Arduino-maintained database.
-    -m, --max NUMBER       if provided, limits the result set to this number
-                           Set to 0 to disable. Default is 100.
-    
-    [ snip ...]
+
+    -m, --max NUMBER       if provided, limits the result set using the
+                           total number of the unique library name matches.
+                           Default is 0, which means no limit.
+
+    -f, --format FMT       Optional format of the search results.
+                           The default is short. Available
+                           formats: with_versions, long, short, json, yaml
+
+    -C, --no-color         Disable any color output.
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -q, --quiet            Print less information.
+    -V, --version          Print current version and exit
+    -h, --help             prints this help
 
 Examples:
     # Search using the regular expression containing the name:
@@ -432,9 +439,6 @@ Examples:
 
     # Search using case insensitive name search, and :
     arli search 'name: /adafruit/i'
-
-    # Search advanced Ruby Proc 
-    arli search 'architectures: [ "avr" ]'
 
     # Finally, search for the exact name match:
     arli search '^Time$'
