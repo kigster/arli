@@ -64,7 +64,7 @@ module Arli
         lib_versions = versions.clone
         latest       = lib_versions.pop
         append do
-          "_______________________________________________________________\n\n" +
+              "\n"
               "Name:        #{lib.name.bold.yellow}\n" +
               "Versions:    #{latest.bold.yellow}, #{lib_versions.reverse.join(', ').green}\n" +
               (lib.author ? "Author(s):   #{lib.author.red}\n" : '') +
