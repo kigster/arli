@@ -26,7 +26,7 @@ RSpec.describe Arli::ArliFile do
 
     context 'custom filename' do
       let(:path) { 'spec/fixtures/file1' }
-      its(:first) { should be_kind_of(Arli::Library::Proxy) }
+      its(:first) { should be_kind_of(Arli::Library::SingleVersion) }
       context 'first dependency' do
         subject(:library) { arli_file.first }
         its(:name) { should eq 'ESP8266WiFi' }

@@ -179,9 +179,8 @@ module Arli
         config.debug
       end
 
-      private
-      def indent_cursor
-        ___ cursor.column(40)
+      def indent_cursor(value = 40)
+        ___ cursor.column(value)
       end
     end
   end

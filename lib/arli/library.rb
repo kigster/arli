@@ -4,5 +4,4 @@ module Arli
   end
 end
 
-require_relative 'library/proxy'
-require_relative 'library/installer'
+require_relative 'library/single_version'

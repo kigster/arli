@@ -1,6 +1,5 @@
 require 'forwardable'
 require 'optparse'
-require 'colored2'
 require 'tmpdir'
 require_relative 'parser'
 require_relative 'command_finder'

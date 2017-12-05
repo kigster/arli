@@ -8,3 +8,4 @@ end
 require 'arli/cli/runner'
 Arli::CLI::Runner.new(ARGV.dup).execute!
 
+

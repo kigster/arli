@@ -1,7 +1,7 @@
 require 'forwardable'
 require 'arli'
 require 'arli/actions'
-require_relative 'proxy'
+require_relative 'single_version'
 
 module Arli
   module Library

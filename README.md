@@ -43,6 +43,19 @@ Next, below is a screenshot of running `arli bundle` inside of that with the abo
 
 ![](docs/arli-in-action.png)
 
+Let's break down what you see on the above screenshot: 
+
+ * First Arli prints the header, containing Arli version, the command, as well as the destination library path that the libraries are going to get installed to.
+ * Next, Arli is looping, and for each library without the `url` field, it performs a search by the library `name` (and optionally its `version`), and then it prints the resulting library's name in blue. 
+ * The `version` that either was specified in the `Arlifile`, or is the latest for this library is printed next, in green. 
+ * Then Arli downloads the library sources either using the URL provided, or the URL attribute of the search result. Note, that **Arli always downloads libraries into a temporary folder first, always!**. It then scans the files inside, and determines the *canonical directory name* for the given library based on the most appropriate C/C++ header file. The library is first moved to this new name within the temporary folder, and the resulting directory is finally moved into the library path, while also handling the use-case where the library's canonical folder may already exist in the destination. There are three possible actions in this case that can be taken:
+
+ * the silent default action is to simply **overwrite the existing library folder**.
+ * by using `-e [ abort | backup ]` you can optionally do the following: 
+   * With the `abort` option, the first time an existing library is encountered, the entire command is halted, and an exception is thrown.
+   * With the `backup` option, the old library folder is moved by adding an extension `.arli-backup-<TIMESTAMP>`.
+   
+
 Note that `-f yaml` specifies the format of the 'lock' file (`Arlifile.<format>`). So in this case our `Arlifile.yaml` will contain all library details obtained from the central database in YAML format. 
 
 ### How Does It Work?
@@ -50,6 +63,8 @@ Note that `-f yaml` specifies the format of the 'lock' file (`Arlifile.<format>`
 In a nutshell, Arli relies on the publicly available database of the vast majority of public Ardiuino libraries. This database is maintained by Arduino themselves, and is a [giant gzipped JSON file](http://downloads.arduino.cc/libraries/library_index.json.gz). Arli automatically downloads and caches the index on a local file system, and then lets you search and install libraries using either a simple name search, or more sophisticated ruby-like syntax that supports searching for ANY attribute as an equal match, or a regular expressions, or even a [Proc](http://ruby-doc.org/core-2.4.2/Proc.html).
 
 Sometimes, however, an Arduino library you use may not part of the main database. No problem! Just add the `url:` attribute together with the library name to `Arlifile`. The URL can either be a Github URL, or a URL to a downloadable ZIP file. Arli will figure out the rest. 
+
+<a name="folder-detection"></a>
 
 #### Automatic Folder Name Correction
 
@@ -102,15 +117,20 @@ Use this command to install Arduino libraries defined in the `Arlifile` yaml fil
 
 There are two main categories of libraries you will be installing:
 
- 1. One of the officially registered in the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz), which is a giant gzipped JSON file. Arli will download and cache this file locally.
+ 1. One of the officially registered in the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz), which is a giant gzipped JSON file. Arli will download and cache this file locally, and use it to find libraries. 
 
  2. Using the `:url` field that links to either a remote ZIP file, or a Github Repo.
+ 
+> When using the public database, which at the time of this writing contains 1220 unique libraries, spanning 4019 separate versions. when the remote file's size changes, will Arli automatically detects that by issuing a `HEAD` HTTP request, and after comparing the size to the locally cached version, it might decide to re-download it. 
+> 
+> Note that this functionality is provided by the "sister" Ruby gem called [`arduino-library`](https://github.com/kigster/arduino-library), which essentially provides most of the underlying library-specific functionality.
+ 
 
 #### Installing from the Database
 
 You can specify libraries by providing just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard 
 
-You can provide the following fields in the Arilfile if you want the library to be found in the Arduino Library database:
+You can provide the following fields in the `Arilfile` if you want the library to be found in the Arduino Library database:
 
  * `name` should be the exact match. Use double quotes if the name contains spaces.
  * `version` can be used together with the `name` to specify a particular version. When `name` is provided without `version`, the latest version is used.
@@ -175,46 +195,56 @@ You can see that most libraries are specified by name, except one (SimpleTimer) 
 
 So let's specify where our libraries live, and run `arli bundle` inside that project. Below is a screenshot of running `arli` inside of the Wall Clock Arduino project:
 
-
 Below is the complete help for the `bundle` command for reference:
 
-
-```bash
-❯ arli bundle -h
+```
+❯ be exe/arli search -h
 Description:
-    Installs all libraries specified in Arlifile
+    Search standard Arduino Library Database with over 4K entries
 
-    This command reads Arlifile (from the current folder, by default),
-    and then it installs all dependent libraries specified there, checking if
-    each already exists, and if not —  downloading them, and installing them into
-    your Arduino Library folder. Both the folder with the Arlifile, as well as the
-    destination library path folder can be changed with the command line flags.
-
+    This command provides both the simple name-based search interface,
+    and the most sophisticated field-by-field search using a downloaded,
+    and locally cached Public Arduino Database JSON file, maintained
+    by Arduino and the Community. If you know of another database,
+    that's what the --database flag is for.
 Usage:
-    arli bundle [options]
+    arli search [ name | search-expression ] [options]
 
 Options
-    -l, --lib-path PATH    Destination: typically your Arduino libraries folder
-                           Defaults to ~/Documents/Arduino/Libraries
+    -d, --database URL     a JSON(.gz) file path or a URL of the library database.
+                           Defaults to the Arduino-maintained database.
 
-    -a, --arli-path PATH   An alternate folder with the Arlifile file.
-                           Defaults to the current directory.
+    -m, --max NUMBER       if provided, limits the result set using the
+                           total number of the unique library name matches.
+                           Default is 0, which means no limit.
 
-    -f, --format FMT       Arli writes an Arlifile.lock with resolved info.
-                           The default format is text. Use -f to set it
-                           to one of: cmake, text, json, yaml
+    -f, --format FMT       Optional format of the search results.
+                           The default is short. Available
+                           formats: with_versions, long, short, json, yaml
 
-    -e, --if-exists ACTION If a library folder already exists, by default
-                           it will be overwritten or updated if possible.
-                           Alternatively you can either abort or backup
+    -C, --no-color         Disable any color output.
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -q, --quiet            Print less information.
+    -V, --version          Print current version and exit
+    -h, --help             prints this help
 
-    [ snip ...]
 Examples:
-    # Install all libs defined in Arlifile:
-    arli bundle
+    # Search using the regular expression containing the name:
+    arli search AudioZero
 
-    # Custom Arlifile location, and destination path:
-    arli bundle -a ./src -l ./libraries
+    # Same exact search as above, but using ruby hash syntax:
+    arli search 'name: /AudioZero/'
+
+    # Lets get a particular version of the library
+    arli search 'name: "AudioZero", version: "1.0,2"'
+
+    # Search using case insensitive name search, and :
+    arli search 'name: /adafruit/i'
+
+    # Finally, search for the exact name match:
+    arli search '^Time$'
 ```
 
 <a name="command-install"></a>
@@ -279,34 +309,90 @@ You can search in two ways:
 
 `arli search AudioZero` does a simple search by name, and would match any library with 'AudioZero' in the name, such as `AudioZeroUpdated`. This search returns three results sorted by the version number:
 
-```bash
+```
 ❯ arli search AudioZero
-AudioZero (1.0.0), by Arduino
-AudioZero (1.0.1), by Arduino
-AudioZero (1.1.1), by Arduino
 
-Total matches: 3
+--------------------------------------------------------------------------------
+Arli (0.8.4), Command: search
+Library Path: ~/Documents/Arduino/Libraries
+--------------------------------------------------------------------------------
+
+AudioZero                                       (1.1.1)    ( 3 total versions )
+
+———————————————————————
+  Total Versions : 3
+Unique Libraries : 1
+———————————————————————
 ```
 
 The search argument can also be a ruby-syntaxed expression, that (if you know ruby)  is actually `eval`-ed into the method parameters. Here are a few examples:
 
 You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
 
-```bash
-❯ arli search 'name: /adafruit/i' -m 0
-Adafruit ADS1X15 (1.0.0), by Adafruit
-Adafruit ADXL345 (1.0.0), by Adafruit
-Adafruit AM2315 (1.0.0), by Adafruit
-Adafruit AM2315 (1.0.1), by Adafruit
-.....
-WEMOS Matrix Compatible With Adafruit GFX Library (1.0.0), by Thomas O Fredericks
-WEMOS Matrix Compatible With Adafruit GFX Library (1.1.0), by Thomas O Fredericks
-Adafruit SGP30 Sensor (1.0.0), by Adafruit
+```
+❯ be exe/arli search 'name: /adafruit/i'
 
-Total matches: 352
+--------------------------------------------------------------------------------
+Arli (0.8.4), Command: search
+Library Path: ~/Documents/Arduino/Libraries
+--------------------------------------------------------------------------------
+
+Adafruit ADS1X15                                (1.0.0)    ( 1 total versions )
+Adafruit ADXL345                                (1.0.0)    ( 1 total versions )
+Adafruit AHRS                                   (1.1.3)    ( 5 total versions )
+Adafruit AM2315                                 (1.0.1)    ( 2 total versions )
+Adafruit AMG88xx Library                        (1.0.0)    ( 1 total versions )
+......
+dafruit WS2801 Library                         (1.0.0)    ( 1 total versions )
+Adafruit microbit Library                       (1.0.0)    ( 1 total versions )
+Adafruit nRF8001                                (1.1.1)    ( 2 total versions )
+Adafruit seesaw Library                         (1.0.1)    ( 2 total versions )
+Adafruit_VL53L0X                                (1.0.2)    ( 2 total versions )
+Adafruit_VL6180X                                (1.0.2)    ( 2 total versions )
+Adafruit_mp3                                    (1.0.1)    ( 2 total versions )
+WEMOS Matrix Compatible With Adafruit GFX       (1.2.0)    ( 3 total versions )
+———————————————————————
+  Total Versions : 355
+Unique Libraries : 116
+———————————————————————
 ```
 
-With `-m 0` flag, we disabled the default search limit of 100, and got all of the libraries that have the word "adafruit" in their name. We could have used `version:`, or `author`, or `website`, or even `url` and `archiveFileName` fields. For complete description of available library attributes, please see the official definition of the [`library.properties`](https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5:-Library-specification#library-metadata) file.
+Finally, you can change the output format of the search, by passing `-f <format>`, where `format` can be `short` (the default), `long`, `json`, or `yaml`.
+
+For example, here is a how long format looks like:
+
+```
+❯ be exe/arli search 'name: /adafruit/i'  -f long
+
+--------------------------------------------------------------------------------
+Arli (0.8.4), Command: search
+Library Path: ~/Documents/Arduino/Libraries
+--------------------------------------------------------------------------------
+_______________________________________________________________
+Name:        Adafruit ADS1X15
+Versions:    1.0.0,
+Author(s):   Adafruit
+Website:     https://github.com/adafruit/Adafruit_ADS1X15
+Sentence:    Driver for TI's ADS1015: 12-bit Differential or 
+             Single-Ended ADC with PGA and Comparator
+_______________________________________________________________
+Name:        Adafruit ADXL345
+Versions:    1.0.0,
+Author(s):   Adafruit
+Website:     https://github.com/adafruit/Adafruit_ADXL345
+Sentence:    Unified driver for the ADXL345 Accelerometer
+_______________________________________________________________
+Name:        Adafruit AHRS
+Versions:    1.1.3, 1.1.2, 1.1.0, 1.0.2, 1.0.0
+Author(s):   Adafruit
+Website:     https://github.com/adafruit/Adafruit_AHRS
+Sentence:    AHRS (Altitude and Heading Reference System) for Adafruit's 
+             9DOF and 10DOF breakouts
+_______________________________________________________________
+```
+
+
+With `-m LIMIT` flag you can limit number of results. But in our cas above we printed all libraries that had the word "adafruit" (case insensitively) in their official name. We could have used `version:`, or `author`, or `website`, or even `url` and `archiveFileName` fields. For complete description of available library attributes, please see the official definition of the [`library.properties`](https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5:-Library-specification#library-metadata) file.
 
 A detailed description of the complete search functionality is documented in the library that provides it — [arduino-library](https://github.com/kigster/arduino-library#using-search). Arli uses `arduino-library` gem behind the scenes to search, and lookup libraries.
 
@@ -346,6 +432,9 @@ Examples:
 
     # Search using case insensitive name search, and :
     arli search 'name: /adafruit/i'
+
+    # Search advanced Ruby Proc 
+    arli search 'architectures: [ "avr" ]'
 
     # Finally, search for the exact name match:
     arli search '^Time$'

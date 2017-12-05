@@ -4,13 +4,13 @@ require 'open3'
 require 'arli'
 require 'arli/commands/base'
 require 'arli/errors'
+require 'arli/library/multi_version'
 require 'arduino/library'
+
 
 module Arli
   module Commands
     class Search < Base
-
-      LibraryWithVersion = Struct.new(:name, :versions)
 
       require 'arduino/library/include'
 
@@ -20,37 +20,25 @@ module Arli
                     :limit,
                     :database,
                     :format,
-                    :hash,
-                    :custom_print
+                    :unique_libraries
 
       def initialize(*args)
         super(*args)
-        self.format       = :short
-        self.hash         = Hash.new
-        self.custom_print = true
+        self.format = config.search.results.output_format
+        valid_methods = Arli::Library::MultiVersion.format_methods
+        raise Arli::Errors::InvalidSearchSyntaxError,
+              "invalid format #{format}" unless valid_methods.include?(format)
       end
 
       def run
-        self.search_opts = process_search_options!
-        self.results     = search(database, **search_opts).sort
+        self.search_opts      = process_search_options!
+        self.results          = search(database, **search_opts).sort
+        self.unique_libraries = Set.new
 
-        results.map do |lib|
-          hash[lib.name] ||= LibraryWithVersion.new(lib.name, [])
-          hash[lib.name].versions << lib.version
+        results.map { |lib| add_lib_or_version(lib) }
 
-          method = "to_s_#{format}".to_sym
-          if lib.respond_to?(method)
-            self.custom_print = false
-            lib.send(method)
-          end
-        end
-
-        if custom_print
-          previous = nil
-          results.each do |lib|
-            print_lib(hash[lib.name]) unless previous == lib.name
-            previous = lib.name
-          end
+        unique_libraries.each do |multi_version|
+          puts multi_version.send("to_s_#{format}".to_sym)
         end
         print_total_with_help
       rescue Exception => e
@@ -58,10 +46,13 @@ module Arli
         puts e.backtrace.join("\n") if ENV['DEBUG']
       end
 
-      def print_lib(lib)
-        $stdout.puts "#{lib.name.bold.magenta} " +
-           (lib.versions ?
-                "(#{lib.versions.size} versions: #{lib.versions.reverse[0..5].join(', ').blue})": '')
+      def add_lib_or_version(lib)
+        a_version = Arli::Library::MultiVersion.new(lib)
+        if unique_libraries.include?(a_version)
+          unique_libraries.find { |l| l.name == a_version.name }&.add_version(library: lib)
+        else
+          unique_libraries << a_version
+        end
       end
 
       def process_search_options!
@@ -118,10 +109,10 @@ module Arli
       def print_total_with_help
         puts "———————————————————————"
         puts "  Total Versions : #{results.size.to_s.bold.magenta}\n"
-        puts "Unique Libraries : #{hash.keys.size.to_s.bold.magenta}\n"
+        puts "Unique Libraries : #{unique_libraries.size.to_s.bold.magenta}\n"
         puts "———————————————————————"
         if results.size == Arli::Configuration::DEFAULT_RESULTS_LIMIT
-          puts "Hint: use #{'-m 0'.bold.green} to disable the limit, or set it to another value."
+          puts "Hint: use #{'-m 5'.bold.green} to limit the result set."
         end
       end
 

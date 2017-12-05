@@ -2,13 +2,14 @@ require 'spec_helper'
 
 RSpec.describe Arli::Configuration do
   subject(:config) { described_class.config }
-
+  let(:default_limit) { Arli::Configuration::DEFAULT_RESULTS_LIMIT }
   before do
     described_class.configure do |config|
       config.libraries.path = '/tmp'
       config.arlifile.path  = '/tmp'
       config.if_exists.overwrite = true
-      config.search.results.limit = Arli::Configuration::DEFAULT_RESULTS_LIMIT
+      config.search.results.limit = default_limit
+      config.search.results.output_format = :short
     end
   end
 
@@ -28,7 +29,7 @@ RSpec.describe Arli::Configuration do
 
   context 'search command' do
     it 'should still correctly setup index_url' do
-      expect(config.search.results.limit).to eq 100
+      expect(config.search.results.limit).to eq default_limit
     end
   end
 end

@@ -9,7 +9,7 @@ module Arli
     DEFAULT_LOCK_FILENAME = (DEFAULT_FILENAME + '.lock').freeze
     ACTIONS_WHEN_EXISTS   = %i(backup overwrite abort)
     ARLI_COMMAND          = 'arli'.freeze
-    DEFAULT_RESULTS_LIMIT = 100
+    DEFAULT_RESULTS_LIMIT = 0
 
     extend Dry::Configurable
 
@@ -43,6 +43,7 @@ module Arli
     # Global flags
     setting :debug, ENV['ARLI_DEBUG'] || false
     setting :trace, false
+    setting :no_color, false
     setting :dry_run, false
     setting :verbose, false
     setting :help, false
@@ -55,7 +56,7 @@ module Arli
       setting :results do
         setting :attrs
         setting :limit, DEFAULT_RESULTS_LIMIT
-        setting :format, :inspect
+        setting :output_format, :short
       end
     end
 

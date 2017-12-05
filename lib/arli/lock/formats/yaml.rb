@@ -8,7 +8,7 @@ module Arli
 
         def footer
           "# vi:syntax=yaml\n" +
-          YAML.dump(hash)
+          YAML.dump(unique_libraries)
         end
       end
     end

@@ -1,4 +1,3 @@
-require 'colored2'
 require 'arli/cli/app'
 require 'pp'
 module Arli

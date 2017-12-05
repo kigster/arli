@@ -69,15 +69,31 @@ module Arli
       def option_search
         on('-d', '--database URL',
            'a JSON(.gz) file path or a URL of the library database.',
-           'Defaults to the Arduino-maintained database.') do |v|
+           'Defaults to the Arduino-maintained database.' + "\n\n") do |v|
           config.database.path = v
         end
 
         on('-m', '--max NUMBER',
-           'if provided, limits the result set to this number',
-           'Set to 0 to disable. Default is 100.') do |v|
+           'if provided, limits the result set using the ',
+           'total number of the unique library name matches.',
+           'Default is 0, which means no limit.' + "\n\n") do |v|
           config.search.results.limit = v.to_i if v
         end
+
+        formats = Arli::Library::MultiVersion.format_methods
+
+        on('-f', '--format FMT',
+           "Optional format of the search results.",
+           "The default is #{'short'.bold.yellow}. Available ",
+           "formats: #{formats.join(', ').bold.yellow}\n\n") do |v|
+          if formats.include?(v.downcase.to_sym)
+            config.search.results.output_format = v.downcase.to_sym
+          else
+            raise ::OptionParser::InvalidOption,
+                  "#{v.yellow} is not a supported search result format"
+          end
+        end
+
       end
 
       def option_if_exists
@@ -174,6 +190,7 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
         on('-C', '--no-color',
            'Disable any color output.') do |*|
           Colored2.disable! # if $stdout.tty?
+          config.no_color = true
         end
         on('-D', '--debug',
            'Print debugging info.') do |v|
@@ -209,7 +226,7 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
 
       def output_command_description(command_name)
         command_hash = factory.command_parsers[command_name]
-        indent = '    '
+        indent       = '    '
 
         if command_hash
           if command_hash.description
