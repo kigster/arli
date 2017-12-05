@@ -9,11 +9,9 @@
 /spec/coverage/
 /tmp/
 /data
-/spec/coverage/
 /*.enc
 **/.DS_Store
 .ruby-version
 .rspec_status
-!/lib/arli/commands/install.rb
-!/lib/arli/cli/parser.rb
-/spec/fixtures/file*/Arlifile.lock*
+/spec/fixtures/file*/Arlifile.*
+.rake_tasks~

@@ -8,6 +8,7 @@ RSpec.describe Arli::Configuration do
       config.libraries.path = '/tmp'
       config.arlifile.path  = '/tmp'
       config.if_exists.overwrite = true
+      config.search.results.limit = Arli::Configuration::DEFAULT_RESULTS_LIMIT
     end
   end
 

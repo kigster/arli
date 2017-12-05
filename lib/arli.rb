@@ -1,5 +1,6 @@
 require 'arduino/library'
 
+require 'arli/helpers/inherited'
 require 'arli/version'
 require 'arli/extensions'
 require 'arli/errors'

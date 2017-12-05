@@ -6,13 +6,13 @@ require_relative 'parser'
 require_relative 'command_finder'
 require_relative 'parser_factory'
 require_relative '../commands'
-require_relative '../output'
+require 'arli/helpers/output'
 
 
 module Arli
   module CLI
     class App
-      include Arli::Output
+      include Arli::Helpers::Output
 
       attr_accessor :argv, :config, :command
 

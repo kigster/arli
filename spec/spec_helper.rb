@@ -25,10 +25,10 @@ RSpec.configure do |config|
       config.debug   = false
     end
     
-    Arli::Output.disable!
+    Arli::Helpers::Output.disable!
   end
 
   config.before type: :aruba do
-    Arli::Output.enable!
+    Arli::Helpers::Output.enable!
   end
 end

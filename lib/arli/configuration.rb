@@ -64,7 +64,7 @@ module Arli
       setting :path, ::Dir.pwd
       setting :name, ::Arli::Configuration::DEFAULT_FILENAME
       setting :lock_name, ::Arli::Configuration::DEFAULT_LOCK_FILENAME
-      setting :lock_format, :json
+      setting :lock_format, :text
     end
 
     setting :bundle do

@@ -1,8 +1,12 @@
+require 'arli/helpers/inherited'
 
 module Arli
   module Lock
     module Formats
       class Base
+        include Arli::Helpers::Inherited
+        attr_assignable :extension
+
         attr_accessor :lock_file
 
         def initialize(lock_file)
@@ -19,6 +23,10 @@ module Arli
 
         # Optional footer
         def footer
+        end
+
+        def extension
+          self.class.extension
         end
       end
     end

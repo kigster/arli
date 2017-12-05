@@ -4,6 +4,8 @@ module Arli
   module Lock
     module Formats
       class Json < Base
+        extension :json
+
         attr_accessor :hash
 
         def header

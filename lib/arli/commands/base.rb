@@ -4,12 +4,12 @@ require 'open3'
 require 'arli'
 require 'arli/version'
 require 'arli/errors'
-require 'arli/output'
+require 'arli/helpers/output'
 
 module Arli
   module Commands
     class Base
-      include Arli::Output
+      include Arli::Helpers::Output
 
       attr_accessor :config, :name
 

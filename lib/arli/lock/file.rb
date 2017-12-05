@@ -17,9 +17,9 @@ module Arli
 
       def initialize(config: Arli.config)
         self.config         = config
-        self.lock_file_path = "#{config.arlifile.path}/#{config.arlifile.lock_name}"
         self.format         = config.arlifile.lock_format
         self.formatter      = set_formatter(format)
+        self.lock_file_path = "#{config.arlifile.path}/#{config.arlifile.name}.#{formatter.extension}"
         self.file           = ::File.open(lock_file_path, 'w')
 
         append(formatter.header)
@@ -41,7 +41,6 @@ module Arli
         append(formatter.footer)
       ensure
         file.close
-        FileUtils.cp(lock_file_path, "#{lock_file_path}.#{format}")
       end
 
       def append(line = nil)

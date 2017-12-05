@@ -6,7 +6,7 @@ require_relative 'proxy'
 module Arli
   module Library
     class Installer
-      include ::Arli::Output
+      include ::Arli::Helpers::Output
 
       extend Forwardable
       def_delegators :@library, :exists?

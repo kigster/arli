@@ -4,6 +4,7 @@ module Arli
   module Lock
     module Formats
       class Cmake < Base
+        extension :cmake
 
         def header
           "# vi:syntax=cmake\n" +

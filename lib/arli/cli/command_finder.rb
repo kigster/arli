@@ -8,13 +8,13 @@ require_relative 'parser_factory'
 require_relative '../commands'
 require_relative '../commands/search'
 require_relative '../commands/install'
-require_relative '../output'
+require 'arli/helpers/output'
 
 module Arli
   module CLI
     class CommandFinder
 
-      include Arli::Output
+      include Arli::Helpers::Output
 
       attr_accessor :argv, :config, :command_name, :command
 

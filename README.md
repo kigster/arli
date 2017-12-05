@@ -3,88 +3,69 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/maintainability)](https://codeclimate.com/github/kigster/arli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/test_coverage)](https://codeclimate.com/github/kigster/arli/test_coverage)
 
-**NOTE: This software is currently in BETA. Bugs are possible, and reporting them is encouraged.**
+### Discussion
+
+Please head over to Gitter to discuss this project.
+
+[![Gitter](https://img.shields.io/gitter/room/gitterHQ/gitter.svg)](https://gitter.im/arduino-cmake-arli/) 
+
+___
+
+> **NOTE:   
+> This software is currently in BETA. Bugs are possible, and reporting them is encouraged.**
+
+> **NOTE:   
+> Arli should work in any \*nix environment. If you are on Windows, and need support —  please [let us know](https://gitter.im/arduino-cmake-arli/).**
+
+___    
 
 # Arli
 
-Arli is an awesomely simple and very easy to use Arduino Library Installer. It allows your Arduino projects to be portable by including a small text file called `Arlifile` that defines your project's Arduino library dependencies. Using either this file, or command line flags, Arli is able to search for libraries, install them locally to a custom location, and do it all consistently and reliably.
+**Arli** is an *awesomely simple and very easy to use Arduino Library Manager*. If you are using Arduino IDE you may be wondering **why is this needed?**
 
-That way you can share projects with others and they will be able to automatically download and install the dependent libraries instead of having to do that manually. The project is inspired by [Bundler](http://bundler.io/).
+ * Well, for one, Arli can "bundle" libraries not just from the official Arduino database, but also from individual Github URLs. There are thousands of libraries of high quality, that for one reason or another did not make it into the official database.
 
-Here is a screenshot of running `arli bundle` inside a project with the `Arlifile` that defines all of the project's library dependencies. We install into a default libraries folder `~/Documents/Arduino/Libraries`:
+ * Arduino still haven't come up with a way to automatically document project's dependencies on a set of libraries. I believe the best you've got is having to list libraries in comments, and then install each manually. With Arli you can automate this entire process.
+ * [Not everyone likes using Arduino IDE](https://kig.re/2014/08/02/arduino-ide-alternatives.html). So this tool is, perhaps, aimed more at the professional programmers, wanting to build applications that tend to be on a complex side, and rely on multiple third party libraries. Boards like Teensy have a lot more RAM than Arduino UNO and clones, and so it can support much larger projects with dozens of libraries linked in with the firmware.
+ * One of Arli's design goals is to provide a bridge between the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) project, which provides an alternative build system, and is compatible with numerous IDEs such as [Atom](https://atom.io), [JetBrains CLion](https://www.jetbrains.com/clion/), [Visual Studio Code](https://code.visualstudio.com/), or even [Eclipse](https://eclipse.org).
+
+## Overview
+
+Arli allows your Arduino projects to be portable by including a YAML file called `Arlifile` at the top of your project, that defines your project's Arduino library dependencies.
+
+You can use the command `arli bundle` in the project's root directory to search, download and install all dependent libraries defined in the `Arlifile`. You can specify libraries by name and version, or you can omit the version to install the latest one.  You can install libraries to a nested project folder, or a shared custom location where you keep all of your Arduino Libraries, and do it all consistently and reliably over and over again.
+
+Below is an example of an actual `Arlifile` for a [Wall Clock](https://github.com/kigster/arduino-wallclock) project, which is a gorgeous wall clock equipped with a large and bright 7-Segment LED Display that dims automatically when it's dark in the room. In addition, the clock is equipped with multple sensors, a potentiometer, and a rotatary knob for changing time and brightness. This is not a simple project and it has nine library dependencies:
+
+![](docs/arlifile.png)
+
+Next, below is a screenshot of running `arli bundle` inside of that with the above `Arlifile`. We install into the default libraries folder `~/Documents/Arduino/Libraries`:
 
 ![](docs/arli-in-action.png)
 
-Note that `-f yaml` specifies the format of the "lock" file (`Arlifile.lock`), which is also copied to `Arlifile.lock.[format]`. So in this case our `Arlifile.lock` will be in YAML format, and will contain all library details obtained from the central database.
-
-## Overview
+Note that `-f yaml` specifies the format of the 'lock' file (`Arlifile.<format>`). So in this case our `Arlifile.yaml` will contain all library details obtained from the central database in YAML format. 
 
 ### How Does It Work?
 
 In a nutshell, Arli relies on the publicly available database of the vast majority of public Ardiuino libraries. This database is maintained by Arduino themselves, and is a [giant gzipped JSON file](http://downloads.arduino.cc/libraries/library_index.json.gz). Arli automatically downloads and caches the index on a local file system, and then lets you search and install libraries using either a simple name search, or more sophisticated ruby-like syntax that supports searching for ANY attribute as an equal match, or a regular expressions, or even a [Proc](http://ruby-doc.org/core-2.4.2/Proc.html).
 
-Sometimes, however, an Arduino library you use may not part of the main database. No problem! Just add the `url:` attribute together with the library name. The URL can either be a Github URL, or a URL to a downloadable ZIP file. Arli will figure out the rest. 
+Sometimes, however, an Arduino library you use may not part of the main database. No problem! Just add the `url:` attribute together with the library name to `Arlifile`. The URL can either be a Github URL, or a URL to a downloadable ZIP file. Arli will figure out the rest. 
 
-### Arlifile and `bundle`
+#### Automatic Folder Name Correction
 
-`Arlifile` is a YAML-formatted file that looks like this below. We list all dependencies using the library names that are provided in the database (you can search for the libraries you need prior to populating this file):
+Arli understands that the folder where the library is installed must be named correctly: in other words, **folder name must match the header file inside of the folder** for the library to be found.
 
+When Arli downloads libraries in ZIP format, they are unpacked into folder that are named differently. Arli will then search that folder for the source and header files. The name of the directory is then compared to the files found, and in some cases Arli will automatically **rename the library folder to match the main header file.**. 
 
-![](docs/arlifile.png)
+> For example, 'Adafruit GFX Library' is the proper name of a corresponding library, and it's ZIP archive will unpack into a folder named `Adafruit_GFX_Library-1.4.3`.  Arli will then detect that the header file inside the folder is `Adafruit_GFX.h`. In this case Arli will rename the top-level folder to `Adafruit_GFX`, and make the library valid, and its folder easily found. 
 
-The libraries may be specified with a name and url only, in which case no search is performed, and the provided URL is used to install the library.  The library `SimpleTimer` above is not in the main database, therefore we provide URL for Arli to use.
+### Other Commands
 
-If the URL is not provided, you can specify one of several fields that are searched for a matching library. Remember, in this case Arli must find one and only one library to install, otherwise it will throw an error.
+Arli provides several additional commands, described in details down below.
 
-You can provide the following fields in the Arilfile if you want the library to be installed from the central database:
-
- * `name` should be the exact match. Use double quotes if the name contains spaces.
- * `version` can be used together with the `name` to specify a particular version. Without this field, and if the `name` is provided, the latest version is used.
- * `checksum` and `archiveFileName` can be used as they both uniquely identify a library.
-
-In all of the above cases, Arli will search the standard library database provided by the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz) JSON file.
-
-#### Lock File `Arlifile.lock`
-
-The lock file is created every time `arli bundle` runs, and it's always in the same folder that the `Arlifile` itself.
-
-The purpose of this file is to document the resolved libraries installed. There are four formats that are supported:
-
- * text 
- * json
- * yaml
- * cmake
-
-Each format is sligthly different: YAML and JSON will simply include full library info, while text format includes resolved folder names, versions, and the download URL. 
-
-#### CMake Integration
-
-The CMake lock file is meant to be consumed by projects relying on the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake). We are still working on the complete integration, which would hopefully allow the following features:
-
- * auto-generate Arduino project with library dependencies using cmake
- * provide CMake plugin that runs `arli bundle -f cmake`, and reads the `Arlifile.lock.cmake`
- * this will auto-generate each Arduino library into it's own static library, and then link your project with them all.
-
-**CMake Coming Soon!**
-
-
-### Single Library and `install`
-
-You can also install just a single library by using the `install` command, instead of the `bundle`. Install accepts either a `--lib-name` flag (`-n`), or a url `-u`, `--lib-url`, for example:
-
-```bash
-arli install --lib-name 'Adafruit GFX Library'
-```
-
-## Gem Installation
-
-Install the `arli` ruby gem as follows:
-
-```bash
-# if using rbenv, or rvm; otherwise you may need to prefix 
-# with 'sudo'
-$ gem install arli 
-```
+ * You can [search](#search-command) the offical library using any attribute of the library tested against a string, or a regular expression, or even a Ruby Proc if you know how to write them.
+ 
+ * You can also install a single library with [install](#install-command), in which case there is no `Arlifile` or a lock file.
 
 ## Usage
 
@@ -109,27 +90,66 @@ Available Commands:
     install      — Installs a single library either by searching, or url or local ZIP
 
 See arli command --help for more information on a specific command.
-
-arli (0.8.2) © 2017 Konstantin Gredeskoul, MIT License.
 ```
+
+<a name="command-bundle"></a>
 
 ### Command `bundle`
 
-Use this command to install Arduino libraries.
+Use this command to install Arduino libraries defined in the `Arlifile` yaml file.
 
-You can specify libraries in the `Arlifile` by providing just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard database. Alternatively, your can pass fields `archiveFileName`, `checksum` — which all uniquely identify a library in the database.
+![](docs/arlifile.png)
+
+There are two main categories of libraries you will be installing:
+
+ 1. One of the officially registered in the [Arduino official library database](http://downloads.arduino.cc/libraries/library_index.json.gz), which is a giant gzipped JSON file. Arli will download and cache this file locally.
+
+ 2. Using the `:url` field that links to either a remote ZIP file, or a Github Repo.
+
+#### Installing from the Database
+
+You can specify libraries by providing just the `name:` (and posibly `version`) — the name must match exactly a library in the Arduino standard 
+
+You can provide the following fields in the Arilfile if you want the library to be found in the Arduino Library database:
+
+ * `name` should be the exact match. Use double quotes if the name contains spaces.
+ * `version` can be used together with the `name` to specify a particular version. When `name` is provided without `version`, the latest version is used.
+ * `checksum` and `archiveFileName` can be used as they both uniquely identify a library.
+
+#### Installing From a URL
 
 If a library you are using is not in the public database just provide its `name` and the `url` fields. The URL can either be a git URL, or a downloadable ZIP file. Arli will use the `url` field if it's available without trying to search for the library elsewhere.
 
-#### Automatic Folder Name Correction
+### Generated "lock" file — `Arlifile.<format>`
 
-Arli understands that the folder where the library is installed must be named correctly: in other words, **folder name must match the header file inside of the folder** for the library to be found.
+Whenever `bundle` command succeeds, it will create a "lock" file in the same folder where the `Arlifile` file is located.
 
-When Arli downloads libraries in ZIP format, they are unpacked into folder that are named differently. Arli will then search that folder for the source and header files. The name of the directory is then compared to the files found, and in some cases Arli will automatically **rename the library folder to match the main header file.**. 
+The purpose of this file is to list in a machine-parseable way the *fully-resolved* installed library folders. 
 
-> For example, 'Adafruit GFX Library' is the proper name of a corresponding library, and it's ZIP archive will unpack into a folder named `Adafruit_GFX_Library-1.4.3`.  Arli will then detect that the header file inside the folder is `Adafruit_GFX.h`. In this case Arli will rename the top-level folder to `Adafruit_GFX`, and make the library valid, and its folder easily found. 
-> 
-> This is an audacious attempt to make sense of the chaos that is the Arduino Library world.
+There are four lock file formats that are supported, and they can be passed in with the `-f format` eg `--format text` flags to the `bundle` command:
+
+ * `text` 
+ * `json`
+ * `yaml`
+ * `cmake`
+
+Each format produces a file `Arlifile.<format>`: YAML and JSON will simply include the complete library info received from the database, while text format includes a *resolved* library folder names, versions, and the download URL —  all comma separated, one per line.
+
+#### Experimental CMake Integration
+
+The CMake format is currently **work in progress**. 
+
+The main goal is to create a CMake "include" file that can automatically build arli-installed libraries, add their locations to the `include_directories` so that the header files can be found. 
+
+> **Help Wanted!** Do you know CMake well? Help us design the CMake and arduino-cmake integration. 
+
+The CMake lock file is meant to be consumed by projects relying on the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake). We are still working on the complete integration, which would hopefully allow the following features:
+
+ * auto-generate a new Arduino project with the library dependencies using  [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) as the underlying build tool.
+
+ * Optionally, provide a CMake plugin that runs `arli bundle -f cmake`, and reads the `Arlifile.cmake`. That file will contain CMake code to build each dependent library separately as a static library, and then link it to the firmware in the end.
+
+**CMake Coming Soon!**
 
 #### An Example
 
@@ -188,14 +208,7 @@ Options
                            it will be overwritten or updated if possible.
                            Alternatively you can either abort or backup
 
-    -C, --no-color         Disable any color output.
-    -D, --debug            Print debugging info.
-    -t, --trace            Print exception stack traces.
-    -v, --verbose          Print more information.
-    -q, --quiet            Print less information.
-    -V, --version          Print current version and exit
-    -h, --help             prints this help
-
+    [ snip ...]
 Examples:
     # Install all libs defined in Arlifile:
     arli bundle
@@ -204,6 +217,8 @@ Examples:
     arli bundle -a ./src -l ./libraries
 ```
 
+<a name="command-install"></a>
+
 ### Command `install`
 
 Use this command to install a single library by either a name or URL:
@@ -211,12 +226,11 @@ Use this command to install a single library by either a name or URL:
 Eg:
 
 ```bash
-❯ be exe/arli install -n 'Adafruit GFX Library' -l ./libs
-❯ be exe/arli install -u 'https://github.com/jfturcot/SimpleTimer' -l ./libs
+❯ be exe/arli install 'Adafruit GFX Library' -l ./libs
+❯ be exe/arli install 'https://github.com/jfturcot/SimpleTimer'
 ```
 
 Complete help is:
-
 
 ```bash
 ❯ arli install -h
@@ -239,14 +253,8 @@ Options
                            it will be overwritten or updated if possible.
                            Alternatively you can either abort or backup
 
-    -C, --no-color         Disable any color output.
-    -D, --debug            Print debugging info.
-    -t, --trace            Print exception stack traces.
-    -v, --verbose          Print more information.
-    -q, --quiet            Print less information.
-    -V, --version          Print current version and exit
-    -h, --help             prints this help
-
+    [ snip ... ]
+    
 Examples:
     # Install the latest version of this library
     arli install "Adafruit GFX Library"
@@ -257,6 +265,8 @@ Examples:
     # Install a local ZIP file
     arli install ~/Downloads/DHT-Library.zip
 ```
+
+<a name="command-search"></a>
 
 ### Command `search`
 
@@ -321,13 +331,8 @@ Options
                            Defaults to the Arduino-maintained database.
     -m, --max NUMBER       if provided, limits the result set to this number
                            Set to 0 to disable. Default is 100.
-    -C, --no-color         Disable any color output.
-    -D, --debug            Print debugging info.
-    -t, --trace            Print exception stack traces.
-    -v, --verbose          Print more information.
-    -q, --quiet            Print less information.
-    -V, --version          Print current version and exit
-    -h, --help             prints this help
+    
+    [ snip ...]
 
 Examples:
     # Search using the regular expression containing the name:

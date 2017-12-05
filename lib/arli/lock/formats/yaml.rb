@@ -4,6 +4,8 @@ module Arli
   module Lock
     module Formats
       class Yaml < Json
+        extension :yml
+
         def footer
           "# vi:syntax=yaml\n" +
           YAML.dump(hash)
