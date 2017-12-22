@@ -1,12 +1,12 @@
 require 'aruba_helper'
 
-RSpec.describe 'bundle', :type => :aruba do
-  let(:command) { "exe/arli #{args} -C " }
-  let(:output) { last_command_started.stdout.chomp }
+RSpec.describe 'command bundle', :type => :aruba do
+  let(:command) {"exe/arli #{args} -C "}
+  let(:output) {last_command_started.stdout.chomp}
 
   context 'successful installations' do
-    let(:root_dir) { Dir.pwd }
-    let(:lib_dir) { root_dir + '/tmp/libraries' }
+    let(:root_dir) {Dir.pwd}
+    let(:lib_dir) {root_dir + '/tmp/libraries'}
 
     before do
       FileUtils.rm_rf(lib_dir)
@@ -16,8 +16,8 @@ RSpec.describe 'bundle', :type => :aruba do
     end
 
     context 'Arlifile from spec/fixtures/file3' do
-      let(:args) { "bundle -a #{arlifile_path} -l #{lib_dir} -f cmake" }
-      let(:arlifile_path) { "#{root_dir}/spec/fixtures/file3" }
+      let(:args) {"bundle -a #{arlifile_path} -l #{lib_dir} -f cmake"}
+      let(:arlifile_path) {"#{root_dir}/spec/fixtures/file3"}
 
       it 'should bundle libraries' do
         expect(output).to match(/Adafruit/)
@@ -30,8 +30,8 @@ RSpec.describe 'bundle', :type => :aruba do
     end
 
     context 'Arlifile from spec/fixtures/file2' do
-      let(:args) { "bundle -a #{arlifile_path} -l #{lib_dir}" }
-      let(:arlifile_path) { "#{root_dir}/spec/fixtures/file2" }
+      let(:args) {"bundle -a #{arlifile_path} -l #{lib_dir}"}
+      let(:arlifile_path) {"#{root_dir}/spec/fixtures/file2"}
 
       it 'should bundle libraries' do
         expect(output).to match(/RF24/)
@@ -47,10 +47,10 @@ RSpec.describe 'bundle', :type => :aruba do
   end
 
   context 'fail gracefully when a library is missing' do
-    let(:root_dir) { Dir.pwd }
-    let(:lib_dir) { root_dir + '/tmp/libraries' }
-    let(:arlifile_path) { "#{root_dir}/spec/fixtures/file4" }
-    let(:args) { "bundle -a #{arlifile_path} -l #{lib_dir} -f cmake" }
+    let(:root_dir) {Dir.pwd}
+    let(:lib_dir) {root_dir + '/tmp/libraries'}
+    let(:arlifile_path) {"#{root_dir}/spec/fixtures/file4"}
+    let(:args) {"bundle -a #{arlifile_path} -l #{lib_dir} -f cmake"}
 
     before do
       FileUtils.rm_rf(lib_dir)
