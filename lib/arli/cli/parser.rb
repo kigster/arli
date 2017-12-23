@@ -94,6 +94,7 @@ module Arli
           end
         end
 
+        option_search_attributes
       end
 
       def option_if_exists
@@ -128,6 +129,17 @@ module Arli
           else
             print_version_copyright
           end
+        end
+      end
+
+      def option_search_attributes
+        on('-A', '--print-attrs', 'prints full list of available library',
+           'attributes that can be used in search strings.', ' ') do
+
+          ::Arli.config.help = true
+          output ''
+          header('Arduino Library Attributes:')
+          output "  • " + Arduino::Library::Types::LIBRARY_PROPERTIES.keys.join("\n  • ") + "\n\n"
         end
       end
 
@@ -200,10 +212,6 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
            'Print exception stack traces.') do |v|
           config.trace = v
         end
-#        on('-n', '--dry-run',
-#           'Only print actions, but do not do them.') do |v|
-#          config.trace = v
-#        end
         on('-v', '--verbose',
            'Print more information.') do |v|
           config.verbose = true
@@ -235,7 +243,9 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
               output indent + command_hash.sentence.bold
               output ''
             end
-            output indent + Array(command_hash[:description]).map(&:dark).join('').gsub(/\n/, "\n#{indent}")
+
+            text = Array(command_hash[:description]).flatten.join(' ')
+            output text.reformat_wrapped(width = 70, indent_with = 8)
           end
         end
 

@@ -16,6 +16,7 @@ module Arli
 
       attr_accessor :search_string,
                     :search_opts,
+                    :search_method,
                     :results,
                     :limit,
                     :database,
@@ -62,9 +63,12 @@ module Arli
         self.limit  = config.search.results.limit
         search_opts = {}
         begin
-          search_opts = eval("{ #{search_string} }")
+          params_code = "{ #{search_string} }"
+          puts "Evaluating: [#{params_code.blue}]\nSearch Method: [#{search_method.to_s.green}]" if config.trace
+          search_opts = eval(params_code)
+
         rescue => e
-          handle_error(e)
+          handle_and_raise_error(e)
         end
 
         unless search_opts.is_a?(::Hash) && search_opts.size > 0
@@ -82,9 +86,19 @@ module Arli
       def extract_search_argument!
         search = runtime.argv.first
         if search =~ /:/
+          self.search_method = :ruby
           search
+        elsif search.start_with?('/')
+          self.search_method = :regex_name_and_url
+          # exact match
+          "#{config.search.default_field}: #{search}, archiveFileName: #{search}"
+        elsif search.start_with?('=')
+          self.search_method = :equals
+          # exact match
+          "#{config.search.default_field}: '#{search[1..-1]}'"
         elsif search
-          "#{config.search.default_field}: /^#{search}$/"
+          self.search_method = :regex
+          "#{config.search.default_field}: /#{search.downcase}/i"
         end
       end
 

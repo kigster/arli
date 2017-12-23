@@ -11,11 +11,9 @@ Please head over to Gitter to discuss this project.
 
 ___
 
-> **NOTE:   
-> This software is currently in BETA. Bugs are possible, and reporting them is encouraged.**
-
-> **NOTE:   
-> Arli should work in any \*nix environment. If you are on Windows, and need support —  please [let us know](https://gitter.im/arduino-cmake-arli/).**
+> Arli should work in any Unix environment. If you are on Windows, and need support —  please [let us know](https://gitter.im/arduino-cmake-arli/).
+> 
+> See also "sister project" [Arli-CMake](https://github.com/kigster/arli-cmake).
 
 ___    
 
@@ -91,6 +89,9 @@ Usage:
     arli options
     arli command [ options ]
 
+    -A, --print-attrs      prints full list of available library
+                           attributes that can be used in search strings.
+
     -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
@@ -105,6 +106,8 @@ Available Commands:
     install      — Installs a single library either by searching, or url or local ZIP
 
 See arli command --help for more information on a specific command.
+
+arli (0.9.0) © 2017 Konstantin Gredeskoul, MIT License.
 ```
 
 <a name="command-bundle"></a>
@@ -157,7 +160,7 @@ Each format produces a file `Arlifile.<format>`: YAML and JSON will simply inclu
 
 #### Experimental CMake Integration
 
-The CMake format is currently **work in progress**. 
+The CMake format is currently [**work in progress**](https://github.com/kigster/arli-cmake).
 
 The main goal is to create a CMake "include" file that can automatically build arli-installed libraries, add their locations to the `include_directories` so that the header files can be found. 
 
@@ -178,6 +181,8 @@ Here is the `arli bundle` command inside CMake-based project to build a [Wall Cl
 ```yaml
 # vi:syntax=yaml
 ---
+libraries_path: ./libs
+lock_format: cmake
 dependencies:
 - name: "Adafruit GFX Library"
   version: '1.2.0'
@@ -202,11 +207,12 @@ Below is the complete help for the `bundle` command for reference:
 Description:
     Installs all libraries specified in Arlifile
 
-    This command reads Arlifile (from the current folder, by default),
-    and then it installs all dependent libraries specified there, checking if
-    each already exists, and if not —  downloading them, and installing them into
-    your Arduino Library folder. Both the folder with the Arlifile, as well as the
-    destination library path folder can be changed with the command line flags.
+        This command reads Arlifile (from the current
+        folder, by default), and then it installs all dependent libraries
+        specified there, checking if each already exists, and if not —
+        downloading them, and installing them into your Arduino Library
+        folder. Both the folder with the Arlifile, as well as the destination
+        library path folder can be changed with the command line flags.
 
 Usage:
     arli bundle [options]
@@ -234,12 +240,7 @@ Options
     -V, --version          Print current version and exit
     -h, --help             prints this help
 
-Examples:
-    # Install all libs defined in Arlifile:
-    arli bundle
-
-    # Custom Arlifile location, and destination path:
-    arli bundle -a ./src -l ./libraries
+arli (0.9.0) © 2017 Konstantin Gredeskoul, MIT License.
 ```
 
 <a name="command-install"></a>
@@ -262,13 +263,15 @@ Complete help is:
 Description:
     Installs a single library either by searching, or url or local ZIP
 
-    This command installs a single library into your library path
-    using the third argument to the command arli install
-    which can be a library name, local ZIP file, or a remote URL
-    (either ZIP or Git Repo)
+        This command installs a single library into your library path (which
+        can be set with --lib-path flag). Arli interpretes the
+        third argument to arli install as either an exact
+        library name, or a remote URL (either ZIP or Git Repo). You can use
+        search command to first find the right library
+        name, and then pass it to the install command.
 
 Usage:
-    arli install [ "library name" | url | local-zip ]  [options]
+    arli install [ "Exact Library Name" | url ]  [options]
 
 Options
     -l, --lib-path PATH    Destination: typically your Arduino libraries folder
@@ -278,18 +281,20 @@ Options
                            it will be overwritten or updated if possible.
                            Alternatively you can either abort or backup
 
-    [ snip ... ]
-    
+    -C, --no-color         Disable any color output.
+    -D, --debug            Print debugging info.
+    -t, --trace            Print exception stack traces.
+    -v, --verbose          Print more information.
+    -q, --quiet            Print less information.
+    -V, --version          Print current version and exit
+    -h, --help             prints this help
+
 Examples:
-    # Install the latest version of this library
-    arli install "Adafruit GFX Library"
+    # Install the latest version of this library locally
+    arli install "Adafruit GFX Library" -l ./libraries
 
     # Install the library from a Github URL
-    arli install https://github.com/jfturcot/SimpleTimer
-
-    # Install a local ZIP file
-    arli install ~/Downloads/DHT-Library.zip
-```
+    arli install https://github.com/jfturcot/SimpleTimer```
 
 <a name="command-search"></a>
 
@@ -398,14 +403,16 @@ Below is the help screen for the search command:
 Description:
     Search standard Arduino Library Database with over 4K entries
 
-    This command provides both the simple name-based search interface,
-    and the most sophisticated field-by-field search using a downloaded,
-    and locally cached Public Arduino Database JSON file, maintained
-    by Arduino and the Community. If you know of another database,
-    that's what the --database flag is for.
-    
+        This command provides both the simple name-based search interface, and
+        the most sophisticated attribute-specific search using a downloaded,
+        and locally cached Public Arduino Database JSON file, maintained by
+        the Arduino Community. If you know of another database, that's what
+        the --database flag is for. Note that you can print the
+        list of available attributes by running arli with
+        --print-attrs flag.
+
 Usage:
-    arli search [ name | search-expression ] [options]
+    arli search [ -A | search-expression ]  [options]
 
 Options
     -d, --database URL     a JSON(.gz) file path or a URL of the library database.
@@ -419,6 +426,9 @@ Options
                            The default is short. Available
                            formats: with_versions, long, short, json, yaml
 
+    -A, --print-attrs      prints full list of available library
+                           attributes that can be used in search strings.
+
     -C, --no-color         Disable any color output.
     -D, --debug            Print debugging info.
     -t, --trace            Print exception stack traces.
@@ -428,20 +438,23 @@ Options
     -h, --help             prints this help
 
 Examples:
-    # Search using the regular expression containing the name:
-    arli search AudioZero
+    # Finds any library with name matching a given string, case insensitively
+    arli search audiozero
 
-    # Same exact search as above, but using ruby hash syntax:
-    arli search 'name: /AudioZero/'
+    # If the first character is "/", then the argument is assumed to be regex
+    arli search /AudioZero$/
 
-    # Lets get a particular version of the library
-    arli search 'name: "AudioZero", version: "1.0,2"'
+    # If the first character is "=", then the rest is assumed to be exact name
+    arli search =Time
 
-    # Search using case insensitive name search, and :
-    arli search 'name: /adafruit/i'
+    # Lets get a particular version of the library using another attribute
+    arli search 'name: "AudioZero", version: "1.0.2"'
 
-    # Finally, search for the exact name match:
-    arli search '^Time$'
+    # Search using case insensitive search for the author
+    arli search 'author: /adafruit/i'
+
+    # Finally, search for regex match for "WiFi" in a sentence or a paragraph
+    arli search 'sentence: /wifi/i, paragraph: /wifi/i'
 ```
 
 
