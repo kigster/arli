@@ -12,12 +12,7 @@ module Arli
         return if library.url !~ /\.zip$/i
 
         download!
-
-        if File.exist?(zip_archive)
-          FileUtils.rm_rf(top_dir_inside_zip) if top_dir_inside_zip
-          unzip(zip_archive, '.')
-          FileUtils.move(top_dir_inside_zip, dir) if Dir.exist?(top_dir_inside_zip)
-        end
+        move_in_place!
       rescue Exception => e
         fuck
         raise(e)
@@ -26,6 +21,14 @@ module Arli
       end
 
       private
+
+      def move_in_place!
+        if File.exist?(zip_archive)
+          FileUtils.rm_rf(top_dir_inside_zip) if top_dir_inside_zip
+          unzip(zip_archive, '.')
+          FileUtils.move(top_dir_inside_zip, dir) if Dir.exist?(top_dir_inside_zip)
+        end
+      end
 
       def delete_zip!
         FileUtils.rm_f(zip_archive) if File.exist?(zip_archive)

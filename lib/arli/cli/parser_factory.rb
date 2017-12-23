@@ -28,6 +28,7 @@ module Arli
           @global ||= make_parser do |parser|
             parser.banner = usage_line
             parser.sep
+            parser.option_search_attributes
             parser.option_help(commands: true)
           end
         end
@@ -36,32 +37,38 @@ module Arli
           @command_parsers ||= {
               search:  Hashie::Mash.new(
                   {
-                      sentence:    'Search standard Arduino Library Database with over 4K entries',
-                      description: ["This command provides both the simple name-based search interface,\n",
-                                    "and the most sophisticated field-by-field search using a downloaded, \n",
-                                    "and locally cached Public Arduino Database JSON file, maintained\n",
-                                    "by Arduino and the Community. If you know of another database,\n",
-                                    "that's what the --database flag is for.\n"],
+                      sentence:    'Search standard Arduino Library Database with over 4K entries ',
+                      description: %Q[This command provides both the simple name-based search interface,
+                                    and the most sophisticated attribute-specific search using a downloaded, 
+                                    and locally cached Public Arduino Database JSON file, maintained 
+                                    by the Arduino Community. If you know of another database, 
+                                    that's what the #{'--database'.blue} flag is for.
+                                    Note that you can print the list of available attributes by 
+                                    running arli with #{'--print-attrs'.blue} flag.
+                                    ],
                       examples:    [
-                                       { desc: 'Search using the regular expression containing the name:',
-                                         cmd:  'arli search AudioZero' },
+                                       { desc: 'Finds any library with name matching a given string, case insensitively',
+                                         cmd:  'arli search audiozero' },
 
-                                       { desc: 'Same exact search as above, but using ruby hash syntax:',
-                                         cmd:  %Q{arli search 'name: /AudioZero/'} },
+                                       { desc: 'If the first character is "/", then the argument is assumed to be regex',
+                                         cmd:  %Q{arli search /AudioZero$/  } },
 
-                                       { desc: 'Lets get a particular version of the library',
-                                         cmd:  %Q{arli search 'name: "AudioZero", version: "1.0,2"'} },
+                                       { desc: 'If the first character is "=", then the rest is assumed to be exact name',
+                                         cmd:  %Q{arli search =Time  } },
 
-                                       { desc: 'Search using case insensitive name search, and :',
-                                         cmd:  %Q{arli search 'name: /adafruit/i'} },
+                                       { desc: 'Lets get a particular version of the library using another attribute',
+                                         cmd:  %Q{arli search 'name: "AudioZero", version: "1.0.2"'} },
 
-                                       { desc: 'Finally, search for the exact name match:',
-                                         cmd:  %Q{arli search '^Time$'} },
+                                       { desc: 'Search using case insensitive search for the author',
+                                         cmd:  %Q{arli search 'author: /adafruit/i'} },
+
+                                       { desc: 'Finally, search for regex match for "WiFi" in a sentence or a paragraph',
+                                         cmd:  %Q{arli search 'sentence: /wifi/i, paragraph: /wifi/i'} },
                                    ],
 
                       parser:      -> (command_name) {
                         make_parser(command_name) do |parser|
-                          parser.banner = usage_line 'search ' + '[ name | search-expression ]'.magenta
+                          parser.banner = usage_line 'search ' + '[ -A | search-expression ] '.magenta
                           parser.option_search
                           parser.option_help(command_name: command_name)
                         end
@@ -71,15 +78,13 @@ module Arli
               bundle:  Hashie::Mash.new(
                   {
                       sentence: 'Installs all libraries specified in Arlifile',
-                      description:
-                                [
-                                    "This command reads ", "Arlifile".bold.green, " (from the current folder, by default),\n",
-                                    "and then it installs all dependent libraries specified there, checking if \n",
-                                    "each already exists, and if not —  downloading them, and installing them into\n",
-                                    "your Arduino Library folder. Both the folder with the Arlifile, as well as the\n",
-                                    "destination library path folder can be changed with the command line flags.\n",
+                      description: %Q[This command reads #{'Arlifile'.bold.green} (from the current folder, by default),
+                                    and then it installs all dependent libraries specified there, checking if
+                                    each already exists, and if not — downloading them, and installing them into
+                                    your Arduino Library folder. Both the folder with the Arlifile, as well as the
+                                    destination library path folder can be changed with the command line flags.
                                 ],
-                      examples: [
+                      example: [
                                     { desc: 'Install all libs defined in Arlifile:',
                                       cmd:  'arli bundle ' },
 
@@ -98,27 +103,24 @@ module Arli
               install: Hashie::Mash.new(
                   {
                       sentence:    'Installs a single library either by searching, or url or local ZIP',
-                      description: [
-                                       "This command installs a single library into your library path\n",
-                                       "using the third argument to the command #{'arli install'.bold.white}\n".dark ,
-                                       "which can be a library name, local ZIP file, or a remote URL \n",
-                                       "(either ZIP or Git Repo)\n"
-
+                      description: %Q[This command installs a single library into your library path
+                                       (which can be set with #{'--lib-path'.blue} flag).
+                                       Arli interpretes the third argument to #{'arli install'.bold.blue}
+                                       as either an exact library name, or a remote URL
+                                       (either ZIP or Git Repo). You can use #{'search'.bold.green} command
+                                       to first find the right library name, and then pass it to the install command.
                                    ],
                       examples:    [
-                                       { desc: 'Install the latest version of this library',
-                                         cmd:  'arli install "Adafruit GFX Library"' },
+                                       { desc: 'Install the latest version of this library locally',
+                                         cmd:  'arli install "Adafruit GFX Library" -l ./libraries' },
 
                                        { desc: 'Install the library from a Github URL',
-                                         cmd:  'arli install https://github.com/jfturcot/SimpleTimer' },
-
-                                       { desc: 'Install a local ZIP file',
-                                         cmd:  'arli install ~/Downloads/DHT-Library.zip' },
+                                         cmd:  'arli install https://github.com/jfturcot/SimpleTimer' }
                                    ],
 
                       parser:      -> (command_name) {
                         make_parser(command_name) do |parser|
-                          parser.banner = usage_line 'install' + ' [ "library name" | url | local-zip ] '.magenta
+                          parser.banner = usage_line 'install' + ' [ "Exact Library Name" | url ] '.magenta
                           parser.option_install
                           parser.option_help(command_name: command_name)
                         end

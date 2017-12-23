@@ -6,4 +6,10 @@ class String
         tr('-', '_').
         downcase
   end
+
+  def reformat_wrapped(width = 70, indent_with = 8)
+    ind = (' ' * indent_with)
+    (ind + self.gsub(/\s+/, ' ').gsub(/(.{1,#{width}})( |\Z)/, "\\1\n" + ind))
+  end
+
 end

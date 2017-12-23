@@ -15,7 +15,7 @@ RSpec.describe Arli::ArliFile do
     end
 
     its(:version) { should  eq '1.0.1' }
-    its(:library_path) { should eq './libraries'}
+    its(:libraries_path) { should eq './libraries'}
     its(:lock_format) { should eq 'cmake'}
   end
 

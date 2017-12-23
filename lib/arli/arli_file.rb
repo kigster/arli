@@ -3,24 +3,41 @@ require 'yaml'
 require 'forwardable'
 require 'arduino/library'
 require 'hashie/mash'
+require 'hashie/extensions/symbolize_keys'
+require 'arli/library'
 
 module Arli
   class ArliFile
     require 'arduino/library/include'
 
     include Enumerable
-    extend Forwardable
 
+    extend Forwardable
     def_delegators :@dependencies, *(Array.new.methods - Object.methods)
+
+    include ::Arli::Library
 
     attr_accessor :dependencies,
                   :parsed_data,
-                  :arlifile_path
+                  :arlifile_path,
+                  :config
 
     def initialize(config: Arli.config, libraries: [])
-      self.arlifile_path             = "#{config.arlifile.path}/#{config.arlifile.name}"
-      self.dependencies              = read_dependencies(libraries)
-      Arli.config.libraries.temp_dir ||= Dir.mktmpdir
+      self.config = config
+      self.arlifile_path = "#{config.arlifile.path}/#{config.arlifile.name}"
+      self.dependencies = read_dependencies(libraries)
+
+      self.config.libraries.temp_dir ||= Dir.mktmpdir
+
+      if parsed_data
+        if parsed_data.libraries_path
+          self.config.libraries.path = parsed_data.libraries_path
+        end
+
+        if parsed_data.lock_format
+          Arli.config.arlifile.lock_format = parsed_data.lock_format
+        end
+      end
     end
 
     alias libraries dependencies
@@ -43,25 +60,6 @@ module Arli
       end
     end
 
-
-    def library_model(lib)
-      return lib if lib.is_a?(::Arduino::Library::Model)
-      ::Arduino::Library::Model.from(lib).tap do |model|
-        if model.nil?
-          lib_output = (lib && lib['name']) ? lib['name'] : lib.to_s
-          raise Arli::Errors::LibraryNotFound, 'Error: '.bold.red +
-              "Library #{lib_output.yellow} ".red + "was not found.\n\n".red +
-              %Q[  HINT: run #{"arli search 'name: /#{lib_output}/'".green}\n] +
-              %Q[        to find the exact name of the library you are trying\n] +
-              %Q[        to install. Alternatively, provide a url: field.\n]
-        end
-      end
-    end
-
-    def make_lib(lib)
-      ::Arli::Library::SingleVersion.new(library_model(lib))
-    end
-
     def within_path(p, &_block)
       FileUtils.mkpath(p) unless Dir.exist?(p)
       Dir.chdir(p) do
@@ -71,7 +69,7 @@ module Arli
 
     def read_dependencies(libraries)
       if libraries && !libraries.empty?
-        libraries.map { |lib| make_lib(lib) }
+        libraries.map {|lib| make_lib(lib)}
       else
         unless arlifile_path && File.exist?(arlifile_path)
           raise(Arli::Errors::ArliFileNotFound,
@@ -82,8 +80,15 @@ module Arli
     end
 
     def parse_yaml_file
-      self.parsed_data = Hashie::Mash.new(::YAML.load(::File.read(self.arlifile_path)))
-      parsed_data.dependencies.map { |lib| make_lib(lib) }
+      self.parsed_data = Hashie::Mash.new(
+          Hashie::Extensions::SymbolizeKeys.symbolize_keys(
+              ::YAML.load(
+                  ::File.read(
+                      self.arlifile_path)
+              )
+          )
+      )
+      parsed_data.dependencies.map {|lib| make_lib(lib)}
     end
   end
 end
