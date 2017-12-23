@@ -6,6 +6,7 @@ module Arli
       class Cmake < Base
         extension :cmake
 
+
         attr_accessor :libs, :comments
 
         def header
