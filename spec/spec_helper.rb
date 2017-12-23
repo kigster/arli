@@ -19,12 +19,18 @@ RSpec.configure do |config|
 
   config.before do
     Arli.configure do |config|
-      config.help    = false
+      config.help = false
       config.verbose = false
-      config.trace   = false
-      config.debug   = false
+      config.trace = false
+      config.debug = false
+      config.runtime.argv = nil
+      config.runtime.pwd = nil
+      config.runtime.command.name = nil
+      config.runtime.command.instance = nil
+
+
     end
-    
+
     Arli::Helpers::Output.disable!
   end
 

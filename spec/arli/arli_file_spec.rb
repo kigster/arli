@@ -11,7 +11,7 @@ RSpec.describe Arli::ArliFile do
   context 'verify reading from the YAML file' do
     subject { arli_file_hash }
     it 'should load dependencies' do
-      expect(arli_file_hash.dependencies.size).to eq 3
+      expect(arli_file_hash.dependencies.size).to eq 2
     end
 
     its(:version) { should  eq '1.0.1' }
@@ -29,9 +29,9 @@ RSpec.describe Arli::ArliFile do
       its(:first) { should be_kind_of(Arli::Library::SingleVersion) }
       context 'first dependency' do
         subject(:library) { arli_file.first }
-        its(:name) { should eq 'ESP8266WiFi' }
-        its(:version) { should eq '1.0' }
-        its(:url) { should eq 'https://github.com/esp8266/Arduino' }
+        its(:name) { should eq 'NTPClient' }
+        its(:version) { should eq '3.1.0' }
+        its(:url) { should eq 'http://downloads.arduino.cc/libraries/github.com/arduino-libraries/NTPClient-3.1.0.zip' }
       end
     end
 
