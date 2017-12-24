@@ -33,6 +33,8 @@ module Arli
         Dir.chdir(workspace) do
           run_system_command "git clone -v #{template_repo} #{project_name.downcase} 2>&1"
           Dir.chdir(project_name.downcase) do
+            FileUtils.rm_rf('.git')
+            run_system_command 'git init .'
             run_system_command 'bin/setup'
             configure_template!
             rename_files!

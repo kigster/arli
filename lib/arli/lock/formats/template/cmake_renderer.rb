@@ -39,15 +39,15 @@ module Arli
           end
 
           def cpu
-            device && device.cpu ? device.cpu : 'at'
+            device && device.cpu ? device.cpu : 'atmega328p'
           end
 
           def hardware_libraries
-            device && device.libraries ? device.libraries.hardware : []
+            device && device.libraries ? device.libraries.hardware || [] : []
           end
 
           def arduino_libraries
-            device && device.libraries ? device.libraries.arduino : []
+            device && device.libraries ? device.libraries.arduino || [] : []
           end
 
           def device_libraries
@@ -55,7 +55,7 @@ module Arli
           end
 
           def device_libraries_headers_only
-            device_libraries.select { |l| l.headers_only }
+            device_libraries.select { |l| l.headers_only } || []
           end
 
           def library_path
