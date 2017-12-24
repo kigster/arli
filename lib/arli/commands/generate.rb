@@ -31,8 +31,8 @@ module Arli
 
       def run
         Dir.chdir(workspace) do
-          run_system_command "git clone -v #{template_repo} #{project_name.downcase} 2>&1"
-          Dir.chdir(project_name.downcase) do
+          run_system_command "git clone -v #{template_repo} #{project_name} 2>&1"
+          Dir.chdir(project_name) do
             FileUtils.rm_rf('.git')
             run_system_command 'git init .'
             run_system_command 'bin/setup'
