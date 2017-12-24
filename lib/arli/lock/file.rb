@@ -13,34 +13,34 @@ module Arli
                     :config,
                     :formatter,
                     :file,
-                    :format
+                    :format,
+                    :arlifile
 
-      def initialize(config: Arli.config)
+      def initialize(config: Arli.config, arlifile: nil)
         self.config         = config
+        self.arlifile       = arlifile
         self.format         = config.arlifile.lock_format
         self.formatter      = set_formatter(format)
         self.lock_file_path = "#{config.arlifile.path}/#{config.arlifile.name}.#{formatter.extension}"
         self.file           = ::File.open(lock_file_path, 'w')
-
-        append(formatter.header)
       end
 
       def lock(*libraries)
+        append(formatter.header)
         libraries.each do |lib|
           append(formatter.format(lib))
         end
-      end
-
-      def lock!(*args)
-        lock(*args)
+        append(formatter.footer)
       ensure
         close
       end
 
+      def lock!(*args)
+        lock(*args)
+      end
+
       def close
-        append(formatter.footer)
-      ensure
-        file.close
+        file.close rescue nil
       end
 
       def append(line = nil)

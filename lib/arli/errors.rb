@@ -23,5 +23,8 @@ module Arli
     class TooManyMatchesError < ArliError; end
 
     class ZipFileError < InstallerError; end
+
+    class RequiredArgumentsMissing < ArliError; end
+
   end
 end

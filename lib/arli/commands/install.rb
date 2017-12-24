@@ -22,10 +22,9 @@ module Arli
 
       def setup
         super
-
         self.install_argument = runtime.argv.first
         raise InvalidInstallSyntaxError,
-              "Missing installation argument: a name, a file or a URL." unless install_argument
+              'Missing installation argument: a name, a file or a URL.' unless install_argument
 
         self.library = identify_library(install_argument)
         raise Arli::Errors::LibraryNotFound,

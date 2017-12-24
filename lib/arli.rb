@@ -1,5 +1,13 @@
+require 'require_dir'
+
+module Arli
+  extend RequireDir
+  init __FILE__
+end
+
 require 'arduino/library'
 require 'arli/helpers/inherited'
+require 'arli/helpers/system_commands'
 require 'arli/version'
 require 'arli/extensions'
 require 'arli/errors'

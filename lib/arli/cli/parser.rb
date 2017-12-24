@@ -97,9 +97,27 @@ module Arli
         option_search_attributes
       end
 
-      def option_if_exists
+      def option_generate
+        on('-w', '--workspace DIR',
+           'a top-level folder under which the project will be created',
+           'Default is the current folder.' + "\n\n") do |v|
+          config.generate.workspace = v
+        end
+
+        # on('-L', '--libs "LIBS"',
+        #    'Comma separated list of library names, or name ',
+        #    'substrings, to be searched for and added to the ',
+        #    'initial Arlifile. Multiple matches are added anyway',
+        #    'while no matches are skipped' + "\n\n") do |v|
+        #   config.generate.libs = v.split(',')
+        # end
+
+        option_if_exists('project')
+      end
+
+      def option_if_exists(what = 'library')
         on('-e', '--if-exists ACTION',
-           'If a library folder already exists, by default',
+           "If a #{what} folder already exists, by default",
            'it will be overwritten or updated if possible.',
            'Alternatively you can either ' + 'abort'.bold.blue + ' or ' + 'backup'.bold.blue
         ) do |v|
@@ -115,22 +133,18 @@ module Arli
 
       def option_help(commands: false, command_name: nil)
         common_help_options
-
         on('-h', '--help', 'prints this help') do
           ::Arli.config.help = true
 
           command_hash = output_command_description(command_name)
-
-          output_help
+          output_examples(command_hash[:examples]) if command_hash && command_hash[:examples]
           output_command_help if commands
+          output_help
 
-          if command_hash && command_hash[:examples]
-            output_examples(command_hash[:examples])
-          else
-            print_version_copyright
-          end
+          print_version_copyright
         end
       end
+
 
       def option_search_attributes
         on('-A', '--print-attrs', 'prints full list of available library',
@@ -240,12 +254,12 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
           if command_hash.description
             header 'Description'
             if command_hash.sentence
-              output indent + command_hash.sentence.bold
+              output indent + command_hash.sentence.bold.blue
               output ''
             end
 
             text = Array(command_hash[:description]).flatten.join(' ')
-            output text.reformat_wrapped(width = 70, indent_with = 8)
+            output text.reformat_wrapped(width = 70, indent_with = 4).yellow.dark
           end
         end
 

@@ -75,6 +75,38 @@ module Arli
                       }
                   }),
 
+              generate:  Hashie::Mash.new(
+                  {
+                      sentence:    'Generates a new Arduino project with Arlifile',
+
+                      description: %Q[This will create a new project folder, a source file, and an Arlifile
+                                      based on the template project repo defined in the config file. At the moment
+                                      only arduino-cmake is supported as the build environment as it's the one that
+                                      provides the widest choice of developer IDEs to use for programming your project.
+                                      You can use Vim or Emacs, Atom, CLion, Eclipse, Visual Studio, or just plain
+                                      command line to build and upload your project. Some knowledge of CMake is
+                                      helpful.
+                                    ],
+                      examples:    [
+                                       { desc: 'Creates a new project in the specified folder. Default is current dir.',
+                                         cmd:  'arli generate MyClock --workspace ~/Documents/Arduino/Sketches' },
+
+                                       { desc: 'Creates a folder "Blinker" in the current directory',
+                                         cmd:  %Q{arli generate Blinker  } },
+
+                                       { desc: 'Populate initial Arlifile with the libs provided',
+                                         cmd:  %Q{arli generate Weather --libs 'Adafruit Unified Sensor,Adafruit GFX Library,Time' } },
+                                   ],
+
+                      parser:      -> (command_name) {
+                        make_parser(command_name) do |parser|
+                          parser.banner = usage_line 'generate' + ' project-name '.magenta
+                          parser.option_generate
+                          parser.option_help(command_name: command_name)
+                        end
+                      }
+                  }),
+
               bundle:  Hashie::Mash.new(
                   {
                       sentence: 'Installs all libraries specified in Arlifile',
@@ -145,7 +177,7 @@ module Arli
         def global_usage(command)
           'Usage:'.magenta.bold +
               "\n    " + arli_command + ' options '.yellow +
-              "\n    " + arli_command + ' ' + ((command || 'command')).green + ' [ options ] '.yellow + "\n"
+              "\n    " + arli_command + ' ' + ((command || 'command')).cyan.bold + ' [ options ] '.yellow + "\n"
         end
 
         def arli_command
@@ -154,7 +186,7 @@ module Arli
 
         def command_usage(command)
           'Usage:'.magenta.bold +
-              "\n    " + arli_command + ' ' + command.green + ' [options]'.yellow + "\n\n" +
+              "\n    " + arli_command + ' ' + command.bold.cyan + ' [options]'.yellow + "\n\n" +
               'Options'.magenta.bold
         end
 

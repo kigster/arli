@@ -7,8 +7,11 @@ def shell(*args)
   system(args.join(' '))
 end
 
+task :clean do 
+  shell('rm -rfv pkg/ tmp/ coverage/' )
+end
+
 task :permissions do 
-  shell('rm -rf pkg/ tmp/ coverage/' )
   shell("chmod -v o+r,g+r * */* */*/* */*/*/* */*/*/*/* */*/*/*/*/*")
   shell("find . -type d -exec chmod o+x,g+x {} \\;")
 end
@@ -16,8 +19,8 @@ end
 task :build => :permissions
 
 YARD::Rake::YardocTask.new(:doc) do |t|
-  t.files = %w(lib/**/*.rb exe/*.rb - README.md LICENSE)
-  t.options.unshift('--title','"Sym – Symmetric Key Encryption for Your Data"')
+  t.files = %w(lib/**/*.rb exe/*.rb - README.md LICENSE.txt)
+  t.options.unshift('--title','Arli — The Missing Arduino Library Manager')
   t.after = ->() { exec('open doc/index.html') }
 end
 

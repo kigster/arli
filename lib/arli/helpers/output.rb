@@ -7,6 +7,7 @@ module Arli
       CHAR_FAILURE = '✖'.red
       CHAR_SUCCESS = '✔'.green
 
+      # Singleton Class
       class << self
         attr_accessor :enabled, :cursor
 
@@ -22,6 +23,8 @@ module Arli
           self.enabled = false
         end
       end
+
+      # Include Module
 
       self.enable!
       self.cursor = TTY::Cursor
@@ -145,6 +148,7 @@ module Arli
         if command && command.params && Arli.config.verbose
           out << "\n#{command.params.to_s.blue}\n"
         end
+        out << command.additional_info if command.respond_to?(:additional_info)
         out << "\nLibrary Path: #{Arli.default_library_path.green}\n"
         out << "#{hr}\n"
         info out

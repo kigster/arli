@@ -5,11 +5,12 @@ require 'yaml'
 module Arli
   class Configuration
 
-    DEFAULT_FILENAME      = 'Arlifile'.freeze
-    DEFAULT_LOCK_FILENAME = (DEFAULT_FILENAME + '.lock').freeze
-    ACTIONS_WHEN_EXISTS   = %i(backup overwrite abort)
-    ARLI_COMMAND          = 'arli'.freeze
-    DEFAULT_RESULTS_LIMIT = 0
+    DEFAULT_FILENAME       = 'Arlifile'.freeze
+    DEFAULT_LOCK_FILENAME  = (DEFAULT_FILENAME + '.lock').freeze
+    ACTIONS_WHEN_EXISTS    = %i(backup overwrite abort)
+    ARLI_COMMAND           = 'arli'.freeze
+    DEFAULT_RESULTS_LIMIT  = 0
+    GENERATE_TEMPLATE_REPO = 'https://github.com/kigster/arli-cmake'
 
     extend Dry::Configurable
 
@@ -60,12 +61,20 @@ module Arli
       end
     end
 
+    setting :generate do
+      setting :project_name
+      setting :workspace, '.'
+      setting :libs
+      setting :template_repo, GENERATE_TEMPLATE_REPO
+    end
+
     # Arlifile
     setting :arlifile do
       setting :path, ::Dir.pwd
       setting :name, ::Arli::Configuration::DEFAULT_FILENAME
       setting :lock_name, ::Arli::Configuration::DEFAULT_LOCK_FILENAME
       setting :lock_format, :text
+      setting :hash
     end
 
     setting :bundle do

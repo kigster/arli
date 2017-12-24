@@ -1,0 +1,18 @@
+# vi:syntax=yaml
+version: 2.0.0
+libraries_path: "./libraries"
+lock_format: cmake
+device:
+  board: nano
+  cpu: atmega328p
+  libraries:
+    hardware:
+      - name: Wire
+      - name: EEPROM
+        headers_only: true
+    arduino:
+      - name: SD
+dependencies:
+  - name: "Adafruit LED Backpack Library"
+  - name: "Adafruit GFX Library"
+  - name: "Time"

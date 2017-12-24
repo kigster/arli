@@ -91,7 +91,7 @@ module Arli
         elsif search.start_with?('/')
           self.search_method = :regex_name_and_url
           # exact match
-          "#{config.search.default_field}: #{search}, archiveFileName: #{search}"
+          "#{config.search.default_field}: #{search}"
         elsif search.start_with?('=')
           self.search_method = :equals
           # exact match
