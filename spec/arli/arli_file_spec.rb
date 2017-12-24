@@ -6,12 +6,12 @@ RSpec.describe Arli::ArliFile do
   let(:path) { 'spec/fixtures/file1' }
   let(:file_path) { path + '/' + file }
   let(:contents) { File.read(file_path) }
-  let(:arli_file_hash) { Hashie::Mash.new(YAML.load(contents)) }
+  let(:arlifile_hash) { Hashie::Mash.new(YAML.load(contents)) }
 
   context 'verify reading from the YAML file' do
-    subject { arli_file_hash }
+    subject { arlifile_hash }
     it 'should load dependencies' do
-      expect(arli_file_hash.dependencies.size).to eq 2
+      expect(arlifile_hash.dependencies.size).to eq 2
     end
 
     its(:version) { should  eq '1.0.1' }
@@ -32,6 +32,25 @@ RSpec.describe Arli::ArliFile do
         its(:name) { should eq 'NTPClient' }
         its(:version) { should eq '3.1.0' }
         its(:url) { should eq 'http://downloads.arduino.cc/libraries/github.com/arduino-libraries/NTPClient-3.1.0.zip' }
+      end
+    end
+
+    context 'with CMAKE device info' do
+      let(:path) { 'spec/fixtures/file5' }
+      it 'should initialize' do
+        expect(arli_file.first.name).to eq 'Adafruit LED Backpack Library'
+      end
+      its(:arlifile_hash) { should_not be_nil }
+
+      context 'device info' do
+        subject(:device) { arlifile_hash.device }
+        its(:board) { should eq 'nano' }
+        its(:cpu) { should eq 'atmega328p' }
+        its(:libraries) { should include(:hardware) }
+        it 'should have hardware and software libs' do
+          expect(device.libraries.hardware.size).to eq 2
+          expect(device.libraries.arduino.size).to eq 1
+        end
       end
     end
 

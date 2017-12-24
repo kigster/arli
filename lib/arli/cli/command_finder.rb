@@ -52,7 +52,7 @@ module Arli
       end
 
       def instantiate_command
-        self.command_name = detect_command unless command_name
+        self.command_name ||= detect_command
         begin
           name          = command_name.to_s.capitalize.to_sym
           command_class = ::Arli::Commands.const_get(name)

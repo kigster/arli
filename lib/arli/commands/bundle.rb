@@ -15,7 +15,7 @@ module Arli
       def setup
         super
         self.arlifile = Arli::ArliFile.new(config: config)
-        self.lock_file = Arli::Lock::File.new(config: config)
+        self.lock_file = Arli::Lock::File.new(config: config, arlifile: arlifile)
       end
 
       def params

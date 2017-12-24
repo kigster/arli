@@ -1,5 +1,6 @@
+require 'arli'
 require 'arli/cli/app'
-require 'pp'
+
 module Arli
   module CLI
     # For the reasons this file is the way it is, please refer to

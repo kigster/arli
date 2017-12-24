@@ -5,9 +5,11 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'arli/version'
 
 Arli::DESCRIPTION = <<-eof
-  This is a command-line installer of any number of dependent Github
-  projects, or libraries. Arli was created to offer Arduino-based projects 
-  an easy to use and consistent library manager.
+  This is an Arduino Library manager, compatible with the "arduino-cmake" project. 
+  Arli offers a powerful command-line tool to manage any number of dependent Github
+  projects, or official Arduino libraries. Arli was created to offer Arduino-based 
+  projects of moderate to high complexity an easy way to reference external libraries
+  and install them at build time, instead of committing them into the project repo.
 eof
 
 Gem::Specification.new do |spec|
@@ -29,20 +31,20 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'arduino-library', '~> 0.5.4'
-  spec.add_dependency 'colored2'
   spec.add_dependency 'awesome_print'
-  spec.add_dependency 'hashie'
-  spec.add_dependency 'dry-types'
-  spec.add_dependency 'dry-struct'
+  spec.add_dependency 'colored2'
   spec.add_dependency 'dry-configurable'
+  spec.add_dependency 'dry-struct'
+  spec.add_dependency 'dry-types'
+  spec.add_dependency 'hashie'
+  spec.add_dependency 'require_dir'
   spec.add_dependency 'tty-cursor'
 
-
-  spec.add_development_dependency 'yard'
-  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'aruba'
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-its'
-  spec.add_development_dependency 'aruba'
+  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'yard'
 end

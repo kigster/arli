@@ -16,19 +16,16 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-
   config.before do
     Arli.configure do |config|
-      config.help = false
-      config.verbose = false
-      config.trace = false
-      config.debug = false
-      config.runtime.argv = nil
-      config.runtime.pwd = nil
-      config.runtime.command.name = nil
+      config.help                     = false
+      config.verbose                  = false
+      config.trace                    = false
+      config.debug                    = false
+      config.runtime.argv             = nil
+      config.runtime.pwd              = nil
+      config.runtime.command.name     = nil
       config.runtime.command.instance = nil
-
-
     end
 
     Arli::Helpers::Output.disable!

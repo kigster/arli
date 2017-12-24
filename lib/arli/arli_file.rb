@@ -18,9 +18,10 @@ module Arli
     include ::Arli::Library
 
     attr_accessor :dependencies,
-                  :parsed_data,
+                  :arlifile_hash,
                   :arlifile_path,
-                  :config
+                  :config,
+                  :device
 
     def initialize(config: Arli.config, libraries: [])
       self.config = config
@@ -29,15 +30,7 @@ module Arli
 
       self.config.libraries.temp_dir ||= Dir.mktmpdir
 
-      if parsed_data
-        if parsed_data.libraries_path
-          self.config.libraries.path = parsed_data.libraries_path
-        end
-
-        if parsed_data.lock_format
-          Arli.config.arlifile.lock_format = parsed_data.lock_format
-        end
-      end
+      configure_via_arlifile!(arlifile_hash)
     end
 
     alias libraries dependencies
@@ -49,6 +42,14 @@ module Arli
     end
 
     private
+
+    def configure_via_arlifile!(mash)
+      if mash
+        config.libraries.path = mash.libraries_path if mash.libraries_path
+        config.arlifile.lock_format = mash.lock_format if mash.lock_format
+        self.device = mash.device if mash.device
+      end
+    end
 
     def within_temp_path(&block)
       within_path(Arli.config.libraries.temp_dir, &block)
@@ -80,15 +81,17 @@ module Arli
     end
 
     def parse_yaml_file
-      self.parsed_data = Hashie::Mash.new(
+      self.arlifile_hash = Hashie::Mash.new(
           Hashie::Extensions::SymbolizeKeys.symbolize_keys(
               ::YAML.load(
-                  ::File.read(
-                      self.arlifile_path)
+                  ::File.read(self.arlifile_path)
               )
           )
       )
-      parsed_data.dependencies.map {|lib| make_lib(lib)}
+
+      config.arlifile.hash = arlifile_hash
+
+      arlifile_hash.dependencies.map {|lib| make_lib(lib)}
     end
   end
 end

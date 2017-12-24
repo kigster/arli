@@ -47,7 +47,7 @@ module Arli
             end
             puts if verbose?
           else
-            print_action_failure("unsupported", "missing pre-requisites: #{klass.command_name.bold.yellow} did not succeed")
+            print_action_failure('unsupported', "missing pre-requisites: #{klass.command_name.bold.yellow} did not succeed")
           end
         else
           print_action_failure("#{action_name.red} not found")
