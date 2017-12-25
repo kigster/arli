@@ -39,7 +39,14 @@ module Arli
 
       def set_canonical_dir!(canonical_dir)
         if canonical_dir && canonical_dir != dir
-          mv(dir, canonical_dir)
+          # if they are match case insensitively, we may be
+          # on a mac where these are considered the same
+          if dir =~ /^#{canonical_dir}$/i
+            mv(dir, canonical_dir + '.temp')
+            mv(canonical_dir + '.temp', canonical_dir)
+          else
+            mv(dir, canonical_dir)
+          end
           library.canonical_dir = canonical_dir
         else
           library.canonical_dir = dir

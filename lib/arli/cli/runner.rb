@@ -19,11 +19,7 @@ module Arli
           Arli::CLI::App.new(@argv).start
           print_debug_info
           0
-        rescue StandardError => e
-          b = e.backtrace
-          @stderr.puts("#{b.shift.bold}:\n") if Arli.config.debug
-          @stderr.puts("#{e.message.bold.red} (#{e.class.name.yellow})")
-          @stderr.puts(b.map { |s| "\tfrom #{s}" }.join("\n").red)
+        rescue StandardError
           1
         rescue SystemExit => e
           e.status

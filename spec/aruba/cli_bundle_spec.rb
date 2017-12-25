@@ -54,7 +54,7 @@ RSpec.describe 'command bundle', :type => :aruba do
 
     before do
       FileUtils.rm_rf(lib_dir)
-      run_simple command
+      run_simple command, fail_on_error: false
     end
 
     it 'should show an error libraries' do

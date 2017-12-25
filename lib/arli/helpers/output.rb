@@ -63,6 +63,7 @@ module Arli
           __pf "\nUse -t (--trace) for detailed exception\n" +
                    "or -D (--debug) to print Arli config\n"
         end
+        raise(e)
       end
 
       def raise_invalid_arli_command!(cmd, e = nil)
