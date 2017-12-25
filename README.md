@@ -259,28 +259,7 @@ The search argument can also be a ruby-syntaxed expression, that (if you know ru
 
 You can also use regular expressions, and set maximum number of results printed by the `-m MAX` flag.
 
-```
-❯ arli search 'name: /adafruit/i'
-
---------------------------------------------------------------------------------
-Arli (0.8.4), Command: search
-Library Path: ~/Documents/Arduino/Libraries
---------------------------------------------------------------------------------
-
-Adafruit ADS1X15                                (1.0.0)    ( 1 total versions )
-Adafruit ADXL345                                (1.0.0)    ( 1 total versions )
-Adafruit AHRS                                   (1.1.3)    ( 5 total versions )
-Adafruit AM2315                                 (1.0.1)    ( 2 total versions )
-Adafruit AMG88xx Library                        (1.0.0)    ( 1 total versions )
-......
-Adafruit WS2801 Library                         (1.0.0)    ( 1 total versions )
-Adafruit microbit Library                       (1.0.0)    ( 1 total versions )
-Adafruit nRF8001                                (1.1.1)    ( 2 total versions )
-———————————————————————
-  Total Versions : 355
-Unique Libraries : 116
-———————————————————————
-```
+![search](docs/arli-search.png)
 
 #### Search Output Format
 
