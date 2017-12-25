@@ -8,10 +8,10 @@ def shell(*args)
 end
 
 task :clean do 
-  shell('rm -rfv pkg/ tmp/ coverage/' )
+  shell('rm -rf pkg/ tmp/ coverage/' )
 end
 
-task :permissions do 
+task :permissions => [ :clean ] do 
   shell("chmod -v o+r,g+r * */* */*/* */*/*/* */*/*/*/* */*/*/*/*/*")
   shell("find . -type d -exec chmod o+x,g+x {} \\;")
 end

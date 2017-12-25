@@ -16,7 +16,6 @@ module Arli
       attr_accessor :sources, :headers
 
       def execute
-
         find_source_files
 
         # so "dir" is the 'Adafruit_Unified_Sensor'
@@ -32,6 +31,10 @@ module Arli
                   if_header_a_substring(headers)
 
           set_canonical_dir!(candidate)
+        end
+
+        if if_no(sources) && if_have(headers)
+          library.headers_only = true
         end
       end
 
@@ -62,6 +65,14 @@ module Arli
         if file_names.size == 1 && file_names.first != dir
           file_names.first
         end
+      end
+
+      def if_no(file_names)
+        file_names.nil? || file_names.empty?
+      end
+
+      def if_have(file_names)
+        file_names && !file_names.empty?
       end
 
       def find_source_files

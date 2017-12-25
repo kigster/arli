@@ -54,6 +54,10 @@ module Arli
             Array(hardware_libraries + arduino_libraries).flatten
           end
 
+          def custom_libraries_headers_only
+            libraries.select { |l| l.headers_only } || []
+          end
+
           def device_libraries_headers_only
             device_libraries.select { |l| l.headers_only } || []
           end

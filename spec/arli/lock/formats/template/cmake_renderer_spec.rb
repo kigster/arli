@@ -39,8 +39,8 @@ module Arli
             before { arlifile.install }
 
             it 'should have libraries' do
-              expect(arlifile.libraries.size).to eq(3)
-              expect(arlifile.libraries.last.canonical_dir).to eq 'Time'
+              expect(arlifile.libraries.size).to eq(4)
+              expect(arlifile.libraries.last.canonical_dir).to eq 'EEPROMex'
             end
 
             it 'should have created a folder' do
@@ -71,6 +71,10 @@ module Arli
 
                 it 'cmake file should be the same as the render result' do
                   expect(lock_file_contents).to eq(render_result)
+                end
+
+                it 'cmake file should be the same expected fixture' do
+                  expect(lock_file_contents).to eq(expected_result)
                 end
 
               end

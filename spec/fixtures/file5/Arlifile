@@ -16,3 +16,4 @@ dependencies:
   - name: "Adafruit LED Backpack Library"
   - name: "Adafruit GFX Library"
   - name: "Time"
+  - name: "EEPROMEx"

@@ -25,6 +25,8 @@ set(ARLI_ARDUINO_LIBS <% arduino_libraries.each do |library| %>
 
 <% device_libraries_headers_only.each do |library| %>
 set(<%= library.name %>_ONLY_HEADER yes)<% end %>
+<% custom_libraries_headers_only.each do |library| %>
+set(<%= library.canonical_dir %>_ONLY_HEADER yes)<% end %>
 
 include(Arli)
 

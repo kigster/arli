@@ -12,12 +12,14 @@ module Arli
       attr_accessor :lib,
                     :lib_dir,
                     :canonical_dir,
-                    :config
+                    :config,
+                    :headers_only
 
       def initialize(lib, config: Arli.config)
-        self.lib     = lib
-        self.config  = config
-        self.lib_dir = lib.name.gsub(/ /, '_')
+        self.lib          = lib
+        self.config       = config
+        self.lib_dir      = lib.name.gsub(/ /, '_')
+        self.headers_only = false
       end
 
       def install
@@ -50,6 +52,12 @@ module Arli
 
       def exists?
         Dir.exist?(path)
+      end
+
+      def inspect
+        <<-EOF
+Library: #{lib.name} (#{lib.url}), only headers? #{headers_only ? 'YES': 'NO'}
+        EOF
       end
 
       def method_missing(method, *args, &block)
