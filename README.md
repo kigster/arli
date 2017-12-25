@@ -7,16 +7,37 @@ Please visit Gitter to discuss this project.
 
 [![Gitter](https://img.shields.io/gitter/room/gitterHQ/gitter.svg)](https://gitter.im/arduino-cmake-arli/) 
 
-
 # Arli — The Missing Arduino Library Manager
 
 **Arli** is a simple and very easy to use command-line tool, that provides several key functions to aid in Arduino project development. 
 
-### Why not Arduino IDE? Why not Platform.IO?
+### Who is Arli For?
 
-Arduino IDE is not meant for professional engineers — it's an educational tool for students. But if you want to build a sophisticated project in Arduino, you could leverage most of the Object Oriented practices thanks to the C++ support, as well as decoupling your code into modules and/or libraries.
+_Arli is for moderately experienced C or C++ programmers, who have some very beginner/basic knowledge of CMake, and who want to build larger-than-trivial projects using an Arduino-compatible board, while taking advantage of the Object Oriented Design Patterns, decoupling your code into modules and/or libraries, and even using `gTest` library for unit testing your logic (coming soon)._ 
 
-Unfortunately, this is not very easy to do with neither Arduino IDE, nor Platform.IO AFAIK.
+### Why not the Arduino IDE? 
+
+Arduino IDE is not meant for professional engineers — it's a fantastic educational tool for students. And while it lacks basic features of C/C++ development it succeeds in making Arduino programming accessible to young kids and students.
+
+### Why not Platform.IO?
+
+[PlatformIO](http://platformio.org/) is a great "eco-system" that includes not just Arduino, but many other boards, provides integrated library manager, and Atom as the primary IDE. It's a great tool for beginner/intermediate developers, much better than Arduino IDE. 
+
+But its not without it's downsides: Platform IO feels too heavy, and it does not work well **if your preferred IDE is not Atom**. It comes with a gazzilion additional features you'll never use and it tries to be too much all at once. For some people — it's a feature. For others, like me, — perhaps the generation that grew on Unix philosophy — where tasks are delegated to small but very specialized commands that can be all interconnected with pipes (think `grep`, `awk`, `sort`, `uniq`) PlatformIO feels too bloated and complex to use and learn, as it requires a heavy investment of time. 
+
+Please note, that this is the Author's opinion who is shared by some other people in the community, but you should always explore all options to find the one that fits you best.
+
+### How is Arli Different?
+
+Arli is a fast, small, and pretty specialized command line tool (written in Ruby) that does only four or five things really well, and relies on other well-supported projects do its job. 
+
+If you've ever tried to build a sophisticated project for Arduino using perhaps one of the more powerful but compatible boards like [Teensy](https://www.pjrc.com/teensy/) (which has 16x more RAM than the Arduino UNO, which allows you to use MANY MORE libraries at once on a single project.
+
+As an example, a few years ago I built the [**Flix Capacitor**](https://github.com/kigster/flix-capacitor) project, which relied on **ten** external library dependencies. Managing that was impossible! Having someone else build your project on another system... not happening. It was hard even for me to restart the project after a break... So many things could have gone wrong. 
+
+This is the problem Arli (with `arduino-cmake`) solves outright. Your project's dependencies are defined in an `Arlifile`, together with an optional board name and a CPU. You add a bunch of C/C++ files, add them to `CMakeLists.txt` file, create a build directory `build`, cd into it, and run `cmake .. && make`. See [arli-cmake](https://github.com/kigster/arli-cmake) for more information. 
+
+
 
 ### So, How does Arli Do It?
 
@@ -28,23 +49,38 @@ You can easily declare new library depenencies, and Arli will happily find and i
 
 Arli offers several commands, explained below:
 
- * `arli search [ terms ]` — search for a library by name or any attribute
 
- * `arli install 'library-name'` — search, and install a single library
- * `arli bundle` — uses a YAML-formatted `Arlifile` to install a bunch of dependencies. Can optionally generate a CMake include file for this project.
- * `arli generate ProjectName --workspace ~/coding` — generates a clean brand new project in a given folder, that's equipped with `Arlifile`, and builds out of the box.
+* `arli search [ name | regex | ruby-expression]`  
+  [searches](#search-command) for a library by name or any attribute
 
-### Arlifile and Bundle Command
+* `arli install [ name | regex | ruby-expression ]`  
+  search, and [install](#install-command) a single library if only one match is found.
+    
+* `arli bundle [ -f yaml | json | cmake | text ]  `  
+  reads a YAML-formatted `Arlifile`, and [bundles](#bundle-command), i.e. searches, resolves, downloads and installs a bunch of library dependencies to a custom location. 
+  
+  In CMake mode, generates `Arlifile.cmake` that is included in the main CMake of the project.
+    
+* `arli generate ProjectName [ -w ~/workspace ]`  
+  [generates](#generate-command) a clean brand new C/C++ project in a given folder, that consists of  `Arlifile`, a C++ file, a `CMakeLists.txt` file, and the dependent CMake libraries, all included.
 
-`Arlifile` should be placed at the top of your project sources. Here is an example of a simple Arlifile with a bunch of dependencies:
+## Arlifile and the Bundle Command
+
+This is the cornerstone of this library, and so we discuss this in detail.
+
+Below is the image of a pretty comprehensive version of an `Arlifile`, which should be placed at the top of your project sources. 
 
 ![](docs/arlifile.png)
 
-Next, below is a screenshot of running `arli bundle` inside of that folder. In this particular case, libraries are installed into the default folder `~/Documents/Arduino/Libraries`:
+The `dependencies` is the key that lists third-party libraries. But you can also define hardware dependencies such as `Wire`, and the BOARD name and the CPU if your project relies on a particular board. 
 
-![](docs/arli-in-action.png)
+> One of Arli's design goals was for `Arlifile` to become a central "configuration" file for the project, and go beyond pure dependencies and also contain some additional metadata about the project that makes your code easily portable to another computer.
 
 #### Bundle Command Explained
+
+When you run `arli bundle` in the folder with an `Arlifile`, many things happen. Below is another screen shot of running bundle:
+
+![](docs/arli-bundle.png)
 
 Let's break down what you see on the above screenshot: 
 
@@ -72,8 +108,6 @@ $ arli bundle -f [ yaml | json | cmake ]
 
 Will create `Arlifile.yaml` or `Arlifile.cmake` with the set of resolved libraries.
 
-
-
 <a name="folder-detection"></a>
 
 #### Automatic Folder Name Correction
@@ -84,7 +118,7 @@ When Arli downloads libraries in ZIP format, they are unpacked into folder that 
 
 > For example, 'Adafruit GFX Library' is the proper name of a corresponding library, and it's ZIP archive will unpack into a folder named `Adafruit_GFX_Library-1.4.3`.  Arli will then detect that the header file inside the folder is `Adafruit_GFX.h`. In this case Arli will rename the top-level folder to `Adafruit_GFX`, and make the library valid, and its folder easily found. 
 
-<a name="command-generate"></a>
+<a name="generate-command"></a>
 
 ## Command Generate
 
@@ -112,8 +146,7 @@ There is an additional `example` folder that shows the complete example that use
 
 > **IMPORTANT**: Please do not forget to run `bin/setup` script. It downloads `arduino-cmake` dependency, without which the project will not build.
 
-
-<a name="command-bundle"></a>
+<a name="bundle-command"></a>
 
 ## Command Bundle
 
@@ -168,10 +201,19 @@ Each format produces a file `Arlifile.<format>`: YAML and JSON will simply inclu
 
 The CMake format is now fully supported, in tandem with `arduino-cmake` project.
 
+Below is the resulting `Arlifile.cmake` after running `arli bundle` on the above mentioned file.
+
+![](docs/arlifile-cmake.png)
+
 See the `generate` command, which creates a new project with CMake enabled.
 
+If you create `build` folder and run `cmake ..` here is what you'll see:
 
-<a name="command-install"></a>
+![](docs/arli-cmake-build.png)
+
+Just run `make` or `make upload` right after build and upload your firmware.
+
+<a name="install-command"></a>
 
 ## Command `install`
 
@@ -184,7 +226,7 @@ Eg:
 ❯ arli install 'https://github.com/jfturcot/SimpleTimer'
 ```
 
-<a name="command-search"></a>
+<a name="search-command"></a>
 
 ## Command `search`
 
