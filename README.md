@@ -9,11 +9,15 @@ Please visit Gitter to discuss this project.
 
 # Arli — The Missing Arduino Library Manager
 
-**Arli** is a simple and very easy to use command-line tool, that provides several key functions to aid in Arduino project development. 
+**Arli** is a simple and very easy to use the command-line tool, which offers several vital features to aid in Arduino project development, especially for larger projects with many depenencies and external libraries.
 
 ### Who is Arli For?
 
-_Arli is for moderately experienced C or C++ programmers, who have some very beginner/basic knowledge of CMake, and who want to build larger-than-trivial projects using an Arduino-compatible board, while taking advantage of the Object Oriented Design Patterns, decoupling your code into modules and/or libraries, and even using `gTest` library for unit testing your logic (coming soon)._ 
+_Arli is ideally suited for C/C++ programmers who have some basic knowledge of CMake, and who want to build larger-than-trivial projects on Arduino platform.  Arli promotes use and reuse of libraries, which help take advantage of the Object Oriented Design Patterns, decoupling your code into reusable libraries._ 
+
+Having said that, Arli is also helpful for projects that do NOT use CMake.  It can be used purely as a library manager, or GitHub repo downloader. 
+
+One of it's "killer features" is the automatic [library folder name resolution](#folder-detection) which has up until now been a manual step in Arduino development.
 
 ### Why not the Arduino IDE? 
 
@@ -21,48 +25,47 @@ Arduino IDE is not meant for professional engineers — it's a fantastic educati
 
 ### Why not Platform.IO?
 
-[PlatformIO](http://platformio.org/) is a great "eco-system" that includes not just Arduino, but many other boards, provides integrated library manager, and Atom as the primary IDE. It's a great tool for beginner/intermediate developers, much better than Arduino IDE. 
+[PlatformIO](http://platformio.org/) is a great "eco-system" that includes not just Arduino, but many other boards, provides integrated library manager, and Atom as the primary IDE. It's a fantastic tool for beginner/intermediate developers, much better than Arduino IDE. 
 
-But its not without it's downsides: Platform IO feels too heavy, and it does not work well **if your preferred IDE is not Atom**. It comes with a gazzilion additional features you'll never use and it tries to be too much all at once. For some people — it's a feature. For others, like me, — perhaps the generation that grew on Unix philosophy — where tasks are delegated to small but very specialized commands that can be all interconnected with pipes (think `grep`, `awk`, `sort`, `uniq`) PlatformIO feels too bloated and complex to use and learn, as it requires a heavy investment of time. 
+But it's not without its downsides: to some PlatformIO feels *too heavy*. It comes with a gazillion additional features you'll never use and it tries to be too much all at once. For some people — it's a feature.  
+
+PlatformIO goes against the fundamental principals of [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) — which promotes a minimalist; modular software development delegated to specialized commands that can be all interconnected (think `grep`, `awk`, `sort`, `uniq`). 
 
 Please note, that this is the Author's opinion who is shared by some other people in the community, but you should always explore all options to find the one that fits you best.
 
 ### How is Arli Different?
 
-Arli is a fast, small, and pretty specialized command line tool (written in Ruby) that does only four or five things really well, and relies on other well-supported projects do its job. 
+Arli is a fast, small, and pretty specialized command line tool (written in Ruby) that only does **four or five things very well**, and relies on other well-supported projects do their job — in particular, it relies on Arduino SDK, and `arduino-cmake` when it generates new projects.
 
-If you've ever tried to build a sophisticated project for Arduino using perhaps one of the more powerful but compatible boards like [Teensy](https://www.pjrc.com/teensy/) (which has 16x more RAM than the Arduino UNO, which allows you to use MANY MORE libraries at once on a single project.
+Arli shines when you need to build a complicated and multi-dependency project using an Arduino compatible board such as [Teensy](https://www.pjrc.com/teensy/), which has 16x more RAM than the Arduino UNO, and therefore allows you to take advantage of many more third-party Arduino libraries at once within a single project.
 
-As an example, a few years ago I built the [**Flix Capacitor**](https://github.com/kigster/flix-capacitor) project, which relied on **ten** external library dependencies. Managing that was impossible! Having someone else build your project on another system... not happening. It was hard even for me to restart the project after a break... So many things could have gone wrong. 
-
-This is the problem Arli (with `arduino-cmake`) solves outright. Your project's dependencies are defined in an `Arlifile`, together with an optional board name and a CPU. You add a bunch of C/C++ files, add them to `CMakeLists.txt` file, create a build directory `build`, cd into it, and run `cmake .. && make`. See [arli-cmake](https://github.com/kigster/arli-cmake) for more information. 
-
-
+> A few years ago the author built a complex project called [**Filx Capacitor**](https://github.com/kigster/flix-capacitor), which relied on **ten** external libraries. Managing these dependencies was very time-consuming. Asking someone else to build this project on their system was near impossible. Not just that, but even for the author himself, after taking some time off and returning to the project — it was still difficult to figure out why it was suddenly refusing to build. So many things could have gone wrong. 
+>
+> This is the problem Arli (together with the very powerful `arduino-cmake` project) attempts to solve. Your project's dependencies can be cleanly defined in a YAML file called `Arlifile`, together with an optional board name and a CPU. Next, you add a bunch of C/C++ files to the folder, update `CMakeLists.txt` file and rebuild the project, upload the firmware, or connect to the serial port. See [arli-cmake](https://github.com/kigster/arli-cmake#manual-builds) for more information. 
 
 ### So, How does Arli Do It?
 
 Arli integrates natively with the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) project, and provides an automatic generator for new projects, that should compile and upload out of the box.
 
-You can easily declare new library depenencies, and Arli will happily find and install them for you, while the [arli-cmake](https://github.com/kigster/arli-cmake) project (that's a bridge between the two) knows how to compile each external library into a static .a object, and link it with your firmware in the end.
+You can declare library dependencies, and Arli will happily find and install them for you, while the [arli-cmake](https://github.com/kigster/arli-cmake) project (that's a bridge between the two) can be used to compile each external library into a static `.a` object, and link it with your firmware in the end.
 
 ## Overview
 
 Arli offers several commands, explained below:
 
-
 * `arli search [ name | regex | ruby-expression]`  
   [searches](#search-command) for a library by name or any attribute
 
 * `arli install [ name | regex | ruby-expression ]`  
-  search, and [install](#install-command) a single library if only one match is found.
+  search, and [install](#install-command) a single library if the search resulted in one and only one match.
     
-* `arli bundle [ -f yaml | json | cmake | text ]  `  
-  reads a YAML-formatted `Arlifile`, and [bundles](#bundle-command), i.e. searches, resolves, downloads and installs a bunch of library dependencies to a custom location. 
+* `arli bundle [ -f [ yaml | json | cmake | text ]  ] `  
+  reads a YAML-formatted `Arlifile`, and [bundles](#bundle-command), i.e., searches, downloads, resolves the appropriate library folder name, and installs all libraries to either a global location, or a custom location specified by a `-l` flag, or in the `Arlifile` itself.
   
-  In CMake mode, generates `Arlifile.cmake` that is included in the main CMake of the project.
+  In the CMake mode, generates `Arlifile.cmake` that is included in the main CMake of the project.
     
 * `arli generate ProjectName [ -w ~/workspace ]`  
-  [generates](#generate-command) a clean brand new C/C++ project in a given folder, that consists of  `Arlifile`, a C++ file, a `CMakeLists.txt` file, and the dependent CMake libraries, all included.
+  [generates](#generate-command) a clean brand new C/C++ project in a given folder, that consists of  `Arlifile`, a C++ file, a `CMakeLists.txt` file, and the dependent CMake libraries all included.
 
 ## Arlifile and the Bundle Command
 
@@ -78,23 +81,21 @@ The `dependencies` is the key that lists third-party libraries. But you can also
 
 #### Bundle Command Explained
 
-When you run `arli bundle` in the folder with an `Arlifile`, many things happen. Below is another screen shot of running bundle:
+When you run `arli bundle` in the folder with an `Arlifile`, many things happen. Below is another screenshot of running bundle:
 
 ![](docs/arli-bundle.png)
 
-Let's break down what you see on the above screenshot: 
+Let's break down what you see in the above screenshot: 
 
- * First Arli prints the header, containing Arli version, the command, as well as the destination library path that the libraries are going to get installed to.
-
- * Next, Arli is looping, and for each library without the `url` field, it performs a search by the library `name` (and optionally its `version`), and then it prints the resulting library's name in blue. 
- * The `version` that either was specified in the `Arlifile`, or is the latest for this library is printed next, in green. 
+ * Arli reads the list of `dependencies`, and for each library without the `url` field, it performs a search by the library `name` and optionally `version`, and then it prints the found library name in blue. 
+ * The `version` that either was specified in the `Arlifile` or is the latest for this particular library is printed next, in green. 
  * Then Arli downloads the library sources either using the URL provided, or the URL attribute of the search result. Note, that **Arli always downloads libraries into a temporary folder first.**. 
  * Arli then scans the files inside each folder, and cleverly determines the *canonical directory name* for each library based on the most appropriate C/C++ header file. 
- * Next, the library is moved to the new canonical name  within the temporary folder, and then the canonical folder is moved into the destination library path. 
- * If the destination folder already exist, there are three possible actions that can be specified via `-e` flag that will happen:
+ * Next, the library is moved to the new canonical name within the temporary folder, and then the canonical folder is moved into the destination library path. 
+ * If the destination folder already exists, three possible actions can happen, and are controlled with the `-e` flag:
 
-    * the silent default action is to simply **overwrite the existing library folder**.
-    * by using `-e [ abort | backup ]` you can optionally either abort the installation, or create a backup of each existing folder.
+    * the default action is to simply **overwrite the existing library folder**.
+    * by using `-e [ abort | backup ]` you can optionally either abort the installation, or create a backup of the existing folder.
 
 #### Arlifile "Lock" File
 
@@ -110,11 +111,11 @@ Will create `Arlifile.yaml` or `Arlifile.cmake` with the set of resolved librari
 
 <a name="folder-detection"></a>
 
-#### Automatic Folder Name Correction
+### Automatic Folder Name Correction
 
 Arli understands that the folder where the library is installed must be named correctly: in other words, **folder name must match the header file inside of the folder** for the library to be found.
 
-When Arli downloads libraries in ZIP format, they are unpacked into folder that are named differently. Arli will then search that folder for the source and header files. The name of the directory is then compared to the files found, and in some cases Arli will automatically **rename the library folder to match the main header file.**. 
+When Arli downloads libraries in ZIP format, they are unpacked into a folder that would not resolve as an Arduino library folder without having to be renamed. Arli provides an algorithm that searches the contents of the folder for the source and header files. The name of the directory is then compared to the files found, and in most cases Arli will automatically **rename the library folder to match the main header file ** 
 
 > For example, 'Adafruit GFX Library' is the proper name of a corresponding library, and it's ZIP archive will unpack into a folder named `Adafruit_GFX_Library-1.4.3`.  Arli will then detect that the header file inside the folder is `Adafruit_GFX.h`. In this case Arli will rename the top-level folder to `Adafruit_GFX`, and make the library valid, and its folder easily found. 
 
