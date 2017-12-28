@@ -13,18 +13,19 @@ Please visit Gitter to discuss this project.
 
 Arli can:
 
- * automatically **find, download and rename the folders** of any number of third-party Arduino library dependencies
- * maintain a consistent set of libraries for a given project using a YAML-formatted `Arlifile`.
- * generate a new project skeleton that uses [`arduino-cmake`](https://github.com/arduino-cmake/arduino-cmake) as the build environment, which builds and uploads your firmware "out of the box".
- * search for Arduino libraries in the official public [database](http://downloads.arduino.cc/libraries/library_index.json.gz) maintained by Arduino using any attribute, regular expressions, substrings, and more.
+ * automatically **find, download and install** of any number of third-party Arduino library dependencies, while performing a [library folder name resolution](#folder-detection)
+
+ * **maintain a consistent set of libraries** for a given project using a YAML-formatted `Arlifile`.
+
+ * **generate a new project skeleton** that uses [`arduino-cmake`](https://github.com/arduino-cmake/arduino-cmake) as the build environment, which builds and uploads your firmware "out of the box".
+
+ * **search for Arduino libraries** in the official public [database](http://downloads.arduino.cc/libraries/library_index.json.gz) maintained by Arduino using any library attribute by exact match, or regular expression, substring, and more.
 
 ### Who is Arli For?
 
 _Arli is ideally suited for C/C++ programmers who have some basic knowledge of CMake, and who want to build larger-than-trivial projects on Arduino platform.  Arli promotes use and reuse of libraries, which help take advantage of the Object Oriented Design Patterns, decoupling your code into reusable libraries._ 
 
 Having said that, Arli is also helpful for projects that do NOT use CMake.  It can be used purely as a library manager, or GitHub repo downloader. 
-
-One of it's "killer features" is the automatic [library folder name resolution](#folder-detection) which has up until now been a manual step in Arduino development.
 
 ### Why not the Arduino IDE? 
 
@@ -35,7 +36,6 @@ Arduino IDE is not meant for professional engineers — it's a fantastic educati
 [PlatformIO](http://platformio.org/) is a great "eco-system" that includes not just Arduino, but many other boards, provides integrated library manager, and Atom as the primary IDE. It's a fantastic tool for beginner/intermediate developers, much better than Arduino IDE. 
 
 But it's not without its downsides: to some — PlatformIO feels *too heavy*. It comes with a gazillion additional features you'll never use and it tries to be too much all at once. Perhaps for some people — it can be a feature. But for the author and other members of the Arduino dev community, PlatformIO design goes against the fundamental principals of [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), which promotes a minimalist, modular software development delegated to specialized commands that can be all interconnected (think `grep`, `awk`, `sort`, `uniq`). 
-
 
 ### How is Arli Different?
 
@@ -307,9 +307,10 @@ Arli is both an *Arduino Library Manager* and a project generator. If you are us
  * Well, for one, Arli can "bundle" libraries not just from the official Arduino database, but also from individual Github URLs. There are thousands of libraries of high quality, that for one reason or another did not make it into the official database.
 
  * Arduino still haven't come up with a way to automatically document project's dependencies on a set of libraries. I believe the best you've got is having to list libraries in comments, and then install each manually. With Arli you can automate this entire process.
- * [Not everyone likes using Arduino IDE](https://kig.re/2014/08/02/arduino-ide-alternatives.html). So this tool is, perhaps, aimed more at the professional programmers, wanting to build applications that tend to be on a complex side, and rely on multiple third party libraries. Boards like Teensy have a lot more RAM than Arduino UNO and clones, and so it can support much larger projects with dozens of libraries linked in with the firmware.
- * One of Arli's design goals is to provide a bridge between the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) project, which provides an alternative build system, and is compatible with numerous IDEs such as [Atom](https://atom.io), [JetBrains CLion](https://www.jetbrains.com/clion/), [Visual Studio Code](https://code.visualstudio.com/), or even [Eclipse](https://eclipse.org).
 
+ * [Not everyone likes using Arduino IDE](https://kig.re/2014/08/02/arduino-ide-alternatives.html). So this tool is, perhaps, aimed more at the professional programmers, wanting to build applications that tend to be on a complex side, and rely on multiple third party libraries. Boards like Teensy have a lot more RAM than Arduino UNO and clones, and so it can support much larger projects with dozens of libraries linked in with the firmware.
+
+ * One of Arli's design goals is to provide a bridge between the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) project, which provides an alternative build system, and is compatible with numerous IDEs such as [Atom](https://atom.io), [JetBrains CLion](https://www.jetbrains.com/clion/), [Visual Studio Code](https://code.visualstudio.com/), or even [Eclipse](https://eclipse.org).
 
 
 ## Development
