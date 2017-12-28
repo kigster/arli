@@ -11,6 +11,13 @@ Please visit Gitter to discuss this project.
 
 **Arli** is a simple and very easy to use the command-line tool, which offers several vital features to aid in Arduino project development, especially for larger projects with many depenencies and external libraries.
 
+Arli can:
+
+ * automatically **find, download and rename the folders** of any number of third-party Arduino library dependencies
+ * maintain a consistent set of libraries for a given project using a YAML-formatted `Arlifile`.
+ * generate a new project skeleton that uses [`arduino-cmake`](https://github.com/arduino-cmake/arduino-cmake) as the build environment, which builds and uploads your firmware "out of the box".
+ * search for Arduino libraries in the official public [database](http://downloads.arduino.cc/libraries/library_index.json.gz) maintained by Arduino using any attribute, regular expressions, substrings, and more.
+
 ### Who is Arli For?
 
 _Arli is ideally suited for C/C++ programmers who have some basic knowledge of CMake, and who want to build larger-than-trivial projects on Arduino platform.  Arli promotes use and reuse of libraries, which help take advantage of the Object Oriented Design Patterns, decoupling your code into reusable libraries._ 
@@ -27,11 +34,8 @@ Arduino IDE is not meant for professional engineers — it's a fantastic educati
 
 [PlatformIO](http://platformio.org/) is a great "eco-system" that includes not just Arduino, but many other boards, provides integrated library manager, and Atom as the primary IDE. It's a fantastic tool for beginner/intermediate developers, much better than Arduino IDE. 
 
-But it's not without its downsides: to some PlatformIO feels *too heavy*. It comes with a gazillion additional features you'll never use and it tries to be too much all at once. For some people — it's a feature.  
+But it's not without its downsides: to some — PlatformIO feels *too heavy*. It comes with a gazillion additional features you'll never use and it tries to be too much all at once. Perhaps for some people — it can be a feature. But for the author and other members of the Arduino dev community, PlatformIO design goes against the fundamental principals of [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), which promotes a minimalist, modular software development delegated to specialized commands that can be all interconnected (think `grep`, `awk`, `sort`, `uniq`). 
 
-PlatformIO goes against the fundamental principals of [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) — which promotes a minimalist; modular software development delegated to specialized commands that can be all interconnected (think `grep`, `awk`, `sort`, `uniq`). 
-
-Please note, that this is the Author's opinion who is shared by some other people in the community, but you should always explore all options to find the one that fits you best.
 
 ### How is Arli Different?
 
