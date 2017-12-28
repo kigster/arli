@@ -47,12 +47,6 @@ Arli shines when you need to build a complicated and multi-dependency project us
 >
 > This is the problem Arli (together with the very powerful `arduino-cmake` project) attempts to solve. Your project's dependencies can be cleanly defined in a YAML file called `Arlifile`, together with an optional board name and a CPU. Next, you add a bunch of C/C++ files to the folder, update `CMakeLists.txt` file and rebuild the project, upload the firmware, or connect to the serial port. See [arli-cmake](https://github.com/kigster/arli-cmake#manual-builds) for more information. 
 
-### So, How does Arli Do It?
-
-Arli integrates natively with the [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) project, and provides an automatic generator for new projects, that should compile and upload out of the box.
-
-You can declare library dependencies, and Arli will happily find and install them for you, while the [arli-cmake](https://github.com/kigster/arli-cmake) project (that's a bridge between the two) can be used to compile each external library into a static `.a` object, and link it with your firmware in the end.
-
 ## Overview
 
 Arli offers several commands, explained below:
@@ -75,7 +69,7 @@ Arli offers several commands, explained below:
 
 This is the cornerstone of this library, and so we discuss this in detail.
 
-Below is the image of a pretty comprehensive version of an `Arlifile`, which should be placed at the top of your project sources. 
+Below is the image of a pretty comprehensive version of an [`Arlifile`](https://github.com/kigster/weather-pod/blob/master/src/Arlifile), which should be placed at the top of your project sources. 
 
 ![](docs/arlifile.png)
 
