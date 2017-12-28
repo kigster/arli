@@ -85,11 +85,16 @@ When you run `arli bundle` in the folder with an `Arlifile`, many things happen.
 
 Let's break down what you see in the above screenshot: 
 
- * Arli reads the list of `dependencies`, and for each library without the `url` field, it performs a search by the library `name` and optionally `version`, and then it prints the found library name in blue. 
- * The `version` that either was specified in the `Arlifile` or is the latest for this particular library is printed next, in green. 
- * Then Arli downloads the library sources either using the URL provided, or the URL attribute of the search result. Note, that **Arli always downloads libraries into a temporary folder first.**. 
- * Arli then scans the files inside each folder, and cleverly determines the *canonical directory name* for each library based on the most appropriate C/C++ header file. 
- * Next, the library is moved to the new canonical name within the temporary folder, and then the canonical folder is moved into the destination library path. 
+ * Arli reads the list of `dependencies`, and for each library without the `url` field, it performs a search by the library `name` and optionally `version`, and then it prints the found library name in blue.
+ 
+ * The `version` that either was specified in the `Arlifile` or is the latest for this particular library is printed next, in green.
+ 
+ * Then Arli downloads the library sources either using the URL provided, or the URL attribute of the search result. Note, that **Arli always downloads libraries into a temporary folder first.**.
+ 
+ * Arli then scans the files inside each folder, and cleverly determines the [**canonical directory name**](#folder-detection) for each library based on the most appropriate C/C++ header file found within it. This is the name printed to the right in green.
+ 
+ * Next, the library is moved to the new canonical name within the temporary folder, and then the canonical folder is moved into the destination library path.
+ 
  * If the destination folder already exists, three possible actions can happen, and are controlled with the `-e` flag:
 
     * the default action is to simply **overwrite the existing library folder**.
