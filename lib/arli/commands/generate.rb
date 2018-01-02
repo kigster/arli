@@ -32,27 +32,24 @@ module Arli
       def run
         Dir.chdir(workspace) do
           run_with_info(
-            "grabbing the template from\n • #{template_repo.bold.green}...",
-            "git clone -v #{template_repo} #{project_name} 2>&1"
+              "grabbing the template from\n • #{template_repo.bold.green}...",
+              "git clone -v #{template_repo} #{project_name} 2>&1"
           )
           Dir.chdir(project_name) do
             FileUtils.rm_rf('.git')
             FileUtils.rm_rf('example')
             run_with_info(
-              "configuring the new project #{project_name.bold.yellow}",
-              'git init .'
+                "configuring the new project #{project_name.bold.yellow}",
+                'git init .'
             )
-            run_with_info(
-              "running " + 'bin/setup'.bold.green,
-              'bin/setup'
-            )
-            run_with_info("customizing your README and other files...")
-            configure_template!
+            run_with_info('customizing your README and other files...')
             rename_files!
+            configure_template!
             run_with_info(
-              "running bin/build src — to build the basic template",
-              'bin/build src'
+                'running bin/build — to setup and build the project',
             )
+            system('bin/build setup')
+            puts '[OK]'.bold.green
           end
         end
       end
@@ -60,11 +57,11 @@ module Arli
       def run_with_info(message, command = nil)
         info("\n" + message.cyan)
         return unless command
-        o,e,s = run_system_command(command)
-        ok_indent = '    ✔ '.green
+        o, e, s    = run_system_command(command)
+        ok_indent  = '    ✔ '.green
         err_indent = '    x '.red
         info(ok_indent + o.chomp.gsub(/\n/, "\n#{ok_indent}").blue) if o && o.chomp != ''
-        warn(err_indent +  + e.chomp.gsub(/\n/, "\n#{err_indent}").red) if e && e.chomp != ''
+        warn(err_indent + +e.chomp.gsub(/\n/, "\n#{err_indent}").red) if e && e.chomp != ''
       end
 
       def additional_info
@@ -74,25 +71,31 @@ module Arli
       private
 
       def rename_files!
+        FileUtils.mv('README.md', 'README-Arli-CMake.md')
         Dir.chdir('src') do
           FileUtils.mv('MyProject.cpp', "#{project_name}.cpp")
           run_system_command "sed -i 's/MyProject/#{project_name}/g' CMakeLists.txt"
         end
+        run_system_command "sed -i 's/MyProject/#{project_name}/g' CMakeLists.txt"
       end
 
       def configure_template!
         File.open('README.md', 'w') do |f|
           f.write <<-EOF
+          
 
-> NOTE: This is an auto-generated README for a project created with [`arli generate`](https://github.com/kigster/arli) command. Thank you for using Arli!
+> This project has been auto-generated using:
+>  * [arli](https://github.com/kigster/arli) Arduino toolkit, and using the `generate` command. Thank you for using Arli!
+>  * [arli-cmake](https://github.com/kigster/arli-cmake) is the template project that was used as a source for this one.
+>  * [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) is the CMake-based build system for Arduino projects.
+>
+> There is a discussion board for Arli/CMake-based projects. Please join if you have any questions or suggestions!
+> [![Gitter](https://img.shields.io/gitter/room/gitterHQ/gitter.svg)](https://gitter.im/arduino-cmake-arli/)
 
-> TODO: Please update this README to reflect information about you project. :) 
-
-> NOTE: Discuss this project here: [![Gitter](https://img.shields.io/gitter/room/gitterHQ/gitter.svg)](https://gitter.im/arduino-cmake-arli/)
 
 # #{project_name}
 
-My project description.
+**TODO: Please update this README to reflect information about you project. :)** 
 
 ## Prerequisites
 
@@ -106,53 +109,47 @@ My project description.
 
 ## Building #{project_name}
  
-### Run Setup
+### Using the BASH Helper `bin/build`
 
-This project contains a couple of helpful BASH scripts that can automate your setup and build process:
-
-The following script takes care of most dependencies, including a missing Ruby.
+This project contains a BASH script that can automate your setup and build process. The following script takes care of most dependencies, including a missing Ruby.
 
 ```bash
 $ cd ~/workspace/#{project_name}
-$ bin/setup
+$ bin/build [ setup | clean | make-flags ]
 ```
 
 You should see a bunch of output, and upon completion, run `arli` without arguments to see if the command got installed and shows you proper help message. If you get `command not found`, please `[sudo] gem install arli --no-ri --no-rdoc`. Add sudo if your ruby installation is the system one, ie, `which ruby` returns `/usr/bin/ruby`.
 
-### Run Build
 
-Once again, there is a handy BASH script to save you some typing. Run it from the top folder of the project:
-
-```bash
-$ cd ~/workspace/#{project_name}
-$ bin/build src
-```
-
-#### Doing Build Manually
+### Manual Build
 
 If you prefer to have more control over the build, you can of course build manually, 
-and manage `CMakeLists` however you want. 
+and manage `CMakeLists.txt` however you want. 
 
 Once you've run the setup, the manual build is:
 
 ```bash
 $ cd ~/workspace/#{project_name}
-$ cd src 
 $ rm -rf build && mkdir -p build && cd build
 $ cmake ..
 $ make                          # this builds the image
 $ make upload                   # this uploads it to the device
-$ make #{project_name}-serial   # this opens a serial port monitor
+$ # this next command opens a serial port monitor inside a screen session
+$ make #{project_name}-serial   
 ```
+
+#### Customizing the Build
 
 You can use environment variables to set the board, CPU and the port. Simply prefix the following variables before you run `cmake ..`
 
 ```bash
-cd src/build
-BOARD_NAME=nano \
- BOARD_CPU=atmega328p \
- BOARD_DEVICE=/dev/tty.usbserial-DA00WXFY \
- cmake ..
+$ rm -rf build
+$ mkdir -p build
+$ cd build
+$ BOARD_NAME=nano \\
+  BOARD_CPU=atmega328p \\
+  BOARD_DEVICE=/dev/tty.usbserial-DA00WXFY \\
+  cmake ..
 ```
 
 ### Adding External Libraries
