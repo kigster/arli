@@ -21,6 +21,10 @@ Arli can:
 
  * **search for Arduino libraries** in the official public [database](http://downloads.arduino.cc/libraries/library_index.json.gz) maintained by Arduino using any library attribute by exact match, or regular expression, substring, and more.
 
+To get a sense of its feature, we invite you to watch the following screen cast:
+
+[![asciicast](https://asciinema.org/a/155261.png)](https://asciinema.org/a/155261)
+
 ### Who is Arli For?
 
 _Arli is ideally suited for C/C++ programmers who have some basic knowledge of CMake, and who want to build larger-than-trivial projects on Arduino platform.  Arli promotes use and reuse of libraries, which help take advantage of the Object Oriented Design Patterns, decoupling your code into reusable libraries._ 
