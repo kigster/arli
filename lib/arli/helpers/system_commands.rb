@@ -37,6 +37,7 @@ module Arli
         o, e, s = Open3.capture3(cmd)
         info("\n" + o) if o if Arli.debug?
         info("\n" + e.red) if e && Arli.debug?
+        return o, e, s
       rescue Exception => e
         error "Error running [#{args.join(' ')}]\n" +
                   "Current folder is [#{Dir.pwd.yellow}]", e
