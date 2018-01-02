@@ -16,4 +16,5 @@
 /spec/fixtures/file*/Arlifile.*
 /spec/fixtures/file*/libraries
 .rake_tasks~
+.vscode
 

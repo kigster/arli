@@ -8,7 +8,7 @@ def shell(*args)
 end
 
 task :clean do 
-  shell('rm -rf pkg/ tmp/ coverage/' )
+  shell('rm -rf pkg/ tmp/ coverage/ doc/ spec/fixtures/file5/libraries' )
 end
 
 task :permissions => [ :clean ] do 
