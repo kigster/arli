@@ -85,8 +85,11 @@ module Arli
           
 
 > This project has been auto-generated using:
+> 
 >  * [arli](https://github.com/kigster/arli) Arduino toolkit, and using the `generate` command. Thank you for using Arli!
+> 
 >  * [arli-cmake](https://github.com/kigster/arli-cmake) is the template project that was used as a source for this one.
+> 
 >  * [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) is the CMake-based build system for Arduino projects.
 >
 > There is a discussion board for Arli/CMake-based projects. Please join if you have any questions or suggestions!
