@@ -20,7 +20,7 @@ module Arli
       end
 
       def install
-        ___ "#{library.name.blue} "
+        ___ "#{library.name.blue.bold} "
         if library.nil? && library.library.nil?
           ___ ' (no library) '
           fuck
@@ -28,13 +28,13 @@ module Arli
           ___ ' (no url) '
           fuck
         else
-          ___ "(#{library.version.green}) " if library.version
+          ___ "(#{library.version.yellow.bold}) " if library.version
           indent_cursor
           actions(library).each do |action|
             run_action(action)
           end
         end
-        ___ "\n"
+        ___ "\n\n"
       end
 
       def run_action(action_name)

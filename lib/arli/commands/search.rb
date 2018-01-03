@@ -112,7 +112,7 @@ module Arli
       def handle_and_raise_error(e)
         message = e.message
         if message =~ /undefined method.*Arduino::Library::Model/
-          message = "Invalid attributed search. Possible values are:" +
+          message = 'Invalid attributed search. Possible values are:' +
               "\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
         end
         raise Arli::Errors::InvalidSearchSyntaxError,
@@ -121,10 +121,10 @@ module Arli
       end
 
       def print_total_with_help
-        puts "———————————————————————"
+        hr_short
         puts "  Total Versions : #{results.size.to_s.bold.magenta}\n"
         puts "Unique Libraries : #{unique_libraries.size.to_s.bold.magenta}\n"
-        puts "———————————————————————"
+        hr_short
         if results.size == Arli::Configuration::DEFAULT_RESULTS_LIMIT
           puts "Hint: use #{'-m 5'.bold.green} to limit the result set."
         end
@@ -132,6 +132,11 @@ module Arli
 
       def params
         search_opts
+      end
+
+      private
+      def hr_short
+        puts '———————————————————————'
       end
     end
   end

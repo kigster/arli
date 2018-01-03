@@ -140,7 +140,7 @@ module Arli
           output_examples(command_hash[:examples]) if command_hash && command_hash[:examples]
           output_command_help if commands
           output_help
-
+          output_command_aliases(command_name) if command_name
           print_version_copyright
         end
       end
@@ -246,9 +246,12 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
             ' © 2017 Konstantin Gredeskoul, MIT License.'.dark unless Arli.config.quiet
       end
 
+      def indent
+        '    '
+      end
+
       def output_command_description(command_name)
         command_hash = factory.command_parsers[command_name]
-        indent       = '    '
 
         if command_hash
           if command_hash.description
@@ -264,6 +267,16 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
         end
 
         command_hash
+      end
+
+      private
+      def output_command_aliases(command_name)
+        command_aliases = factory.command_aliases(command_name) || []
+        unless command_aliases.empty?
+          header 'Aliases'
+          output indent + command_aliases.join(', ').bold.blue
+          output << ''
+        end
       end
     end
   end

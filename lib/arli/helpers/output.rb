@@ -150,13 +150,13 @@ module Arli
           out << "\n#{command.params.to_s.blue}\n"
         end
         out << command.additional_info if command.respond_to?(:additional_info)
-        out << "\nLibrary Path: #{Arli.default_library_path.green}\n"
-        out << "#{hr}\n"
+        out << "Library Path: #{Arli.default_library_path.green}\n"
+        out << "#{hr}"
         info out
       end
 
       def hr
-        ('-' * (ENV['COLUMNS'] || 80)).red.dark
+        ('—' * ((ENV['COLUMNS'] || 70).to_i - 1)).red.dark
       end
 
       # Some shortcuts

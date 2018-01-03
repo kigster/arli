@@ -35,7 +35,7 @@ module Arli
 
         def command_parsers
           @command_parsers ||= {
-              search:  Hashie::Mash.new(
+              search:   Hashie::Mash.new(
                   {
                       sentence:    'Search standard Arduino Library Database with over 4K entries ',
                       description: %Q[This command provides both the simple name-based search interface,
@@ -75,7 +75,7 @@ module Arli
                       }
                   }),
 
-              generate:  Hashie::Mash.new(
+              generate: Hashie::Mash.new(
                   {
                       sentence:    'Generates a new Arduino project with Arlifile',
 
@@ -107,24 +107,24 @@ module Arli
                       }
                   }),
 
-              bundle:  Hashie::Mash.new(
+              bundle:   Hashie::Mash.new(
                   {
-                      sentence: 'Installs all libraries specified in Arlifile',
+                      sentence:    'Installs all libraries specified in Arlifile',
                       description: %Q[This command reads #{'Arlifile'.bold.green} (from the current folder, by default),
                                     and then it installs all dependent libraries specified there, checking if
                                     each already exists, and if not — downloading them, and installing them into
                                     your Arduino Library folder. Both the folder with the Arlifile, as well as the
                                     destination library path folder can be changed with the command line flags.
                                 ],
-                      example: [
-                                    { desc: 'Install all libs defined in Arlifile:',
-                                      cmd:  'arli bundle ' },
+                      example:     [
+                                       { desc: 'Install all libs defined in Arlifile:',
+                                         cmd:  'arli bundle ' },
 
-                                    { desc: 'Custom Arlifile location, and destination path:',
-                                      cmd:  'arli bundle -a ./src -l ./libraries' }
-                                ],
+                                       { desc: 'Custom Arlifile location, and destination path:',
+                                         cmd:  'arli bundle -a ./src -l ./libraries' }
+                                   ],
 
-                      parser:   -> (command_name) {
+                      parser:      -> (command_name) {
                         make_parser(command_name) do |parser|
                           parser.banner = usage_line 'bundle'
                           parser.option_bundle
@@ -132,7 +132,7 @@ module Arli
                         end
                       } }),
 
-              install: Hashie::Mash.new(
+              install:  Hashie::Mash.new(
                   {
                       sentence:    'Installs a single library either by searching, or url or local ZIP',
                       description: %Q[This command installs a single library into your library path
@@ -160,17 +160,41 @@ module Arli
           }
         end
 
+        def aliases
+          {
+              s:   :search,
+              ser: :search,
+              i:   :install,
+              ins: :install,
+              g:   :generate,
+              gen: :generate,
+              b:   :bundle,
+              bun: :bundle
+          }
+        end
+
+        def command_aliases(cmd)
+          aliases.keys.select { |k| aliases[k] == cmd }
+        end
 
         def commands
           command_parsers.keys
         end
 
         def valid_command?(command)
-          commands.include?(command)
+          commands.include?(command) || aliases[command]
+        end
+
+        def command_from_arg(arg)
+          if commands.include?(arg)
+            arg
+          elsif aliases[arg]
+            aliases[arg]
+          end
         end
 
         def command_parser(cmd)
-          cmd_hash = command_parsers[cmd]
+          cmd_hash = command_parsers[cmd] || command_parsers[aliases[cmd]]
           cmd_hash ? cmd_hash[:parser].call(cmd) : nil
         end
 

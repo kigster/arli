@@ -40,7 +40,7 @@ module Arli
         return nil unless non_flag_argument?
         cmd = argv.shift.to_sym
         if factory.valid_command?(cmd)
-          cmd
+          factory.command_from_arg(cmd)
         else
           raise_invalid_arli_command!(cmd)
         end
