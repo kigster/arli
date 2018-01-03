@@ -23,7 +23,7 @@ Arli can:
 
 To get a sense of its feature, we invite you to watch the following screen cast:
 
-[![asciicast](https://asciinema.org/a/155261.png)](https://asciinema.org/a/155261)
+[![asciicast](https://asciinema.org/a/155289.png)](https://asciinema.org/a/155289)
 
 ### Who is Arli For?
 
