@@ -30,10 +30,14 @@ module Arli
         raise Arli::Errors::LibraryNotFound,
               "Library #{cfg.to_hash} was not found" unless library
 
-        self.arlifile = Arli::ArliFile.new(config: config, libraries: [ library ])
+        self.arlifile = Arli::ArliFile.new(config: config, libraries: [library])
         if config.trace
           info("found library using #{install_method}:\n#{library.inspect}")
         end
+      end
+
+      def additional_info
+        "\nInstalling: #{runtime.argv.join(' ').bold.green}\n"
       end
 
       def run
@@ -44,14 +48,14 @@ module Arli
       def identify_library(arg)
         results = if arg =~ %r[https?://]i
                     self.install_method = :url
-                    r = search(url: /^#{arg}$/i)
+                    r                   = search(url: /^#{arg}$/i)
                     if r.empty?
                       self.install_method = :website
-                      r = search(website: /^#{arg}$/i)
+                      r                   = search(website: /^#{arg}$/i)
                     end
                     if r.empty?
                       self.install_method = :custom
-                      r = [ Arduino::Library::Model.from_hash(url: arg, name: File.basename(arg)) ]
+                      r                   = [Arduino::Library::Model.from_hash(url: arg, name: File.basename(arg))]
                     end
                     r
                   elsif File.exist?(arg) || arg =~ /\.zip$/

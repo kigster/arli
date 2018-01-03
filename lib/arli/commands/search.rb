@@ -25,10 +25,14 @@ module Arli
 
       def initialize(*args)
         super(*args)
-        self.format = config.search.results.output_format
+        self.format   = config.search.results.output_format
         valid_methods = Arli::Library::MultiVersion.format_methods
         raise Arli::Errors::InvalidSearchSyntaxError,
               "invalid format #{format}" unless valid_methods.include?(format)
+      end
+
+      def additional_info
+        "\nSearching For: #{runtime.argv.join(' ').bold.green}\n"
       end
 
       def run
