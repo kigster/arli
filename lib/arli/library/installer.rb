@@ -34,7 +34,7 @@ module Arli
             run_action(action)
           end
         end
-        ___ "\n\n"
+        ___ "\n"
       end
 
       def run_action(action_name)

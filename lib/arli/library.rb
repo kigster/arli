@@ -5,6 +5,8 @@ require 'arli/errors'
 
 module Arli
   module Library
+    ADDITIONAL_KEYS = %i(depends headers_only)
+
     def library_model(lib)
       return lib if lib.is_a?(::Arduino::Library::Model)
       ::Arduino::Library::Model.from(lib).tap do |model|
@@ -20,7 +22,19 @@ module Arli
     end
 
     def make_lib(lib)
-      ::Arli::Library::SingleVersion.new(library_model(lib))
+      additional_keys = {}
+      ADDITIONAL_KEYS.each do |k|
+        if lib.is_a?(Hash) && lib[k]
+          additional_keys[k] = lib[k]
+          lib.delete(k)
+        end
+      end
+
+      ::Arli::Library::SingleVersion.new(library_model(lib)).tap do |svlib|
+        additional_keys.each_pair do |key, value|
+          svlib.send("#{key}=", value)
+        end
+      end
     end
   end
 end

@@ -66,6 +66,24 @@ module Arli
             config.libraries.path
           end
 
+          def libraries_with_dependencies
+            libraries.select(&:depends)
+          end
+
+          def library_by_name(name)
+            libraries.find { |l| l.name.downcase == name.downcase }
+          end
+
+          def dependencies(lib)
+            return nil unless lib.depends
+            lib.depends.map { |name| library_by_name(name) }
+          end
+
+          def cmake_dependencies(lib)
+            return nil unless lib.depends
+            "set(#{lib.canonical_dir}_DEPENDS_ON_LIBS #{dependencies(lib).map(&:canonical_dir).join(' ')})"
+          end
+
           def arli_library_path
             if library_path.start_with?('/')
               "#{library_path}"

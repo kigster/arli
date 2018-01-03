@@ -14,6 +14,7 @@ device:
       - name: SD
 dependencies:
   - name: "Adafruit LED Backpack Library"
+    depends: [ "Adafruit GFX Library" ]
   - name: "Adafruit GFX Library"
   - name: "Time"
   - name: "EEPROMEx"

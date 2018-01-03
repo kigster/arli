@@ -8,6 +8,7 @@ RSpec.describe Arli::Commands::Bundle, with_local_index: true do
     subject(:app) { Arli::CLI::App.new(argv) }
 
     before do
+      Arli::Helpers::Output.disable!
       FileUtils.rm_rf('tmp')
       app.start
     end

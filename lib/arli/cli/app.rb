@@ -55,6 +55,7 @@ module Arli
       ensure
         d = Arli.config.libraries.temp_dir
         FileUtils.rm_rf(d) if Dir.exist?(d) rescue nil
+        __pt
       end
 
       def parse_global_flags

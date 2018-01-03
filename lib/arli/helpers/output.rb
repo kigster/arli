@@ -143,20 +143,20 @@ module Arli
       end
 
       def header(command: nil)
-        out = "\n#{hr}\n"
-        out << "Arli (#{::Arli::VERSION.yellow})"
-        out << ", Command: #{command.name.to_s.magenta.bold}" if command
+        out = "#{hr}\n"
+        out << 'Arli '.bold.red + "(#{::Arli::VERSION.yellow})"
+        out << ", executing command #{command.name.to_s.blue.bold}" if command
         if command && command.params && Arli.config.verbose
-          out << "\n#{command.params.to_s.blue}\n"
+          out << "\n#{command.params.to_s.bold.magenta}\n"
         end
         out << command.additional_info if command.respond_to?(:additional_info)
-        out << "Library Path: #{Arli.default_library_path.green}\n"
+        out << "Library Path: #{Arli.default_library_path.bold.green}\n"
         out << "#{hr}"
         info out
       end
 
       def hr
-        ('—' * ((ENV['COLUMNS'] || 70).to_i - 1)).red.dark
+        ('—' * ((ENV['COLUMNS'] || 70).to_i - 1)).bold.black
       end
 
       # Some shortcuts

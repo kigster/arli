@@ -10,8 +10,11 @@
 # 
 #      arli generate MyTestProject --workspace ~/workspace
 #      cd ~/workspace/MyTestProject
-#      bin/setup
-#      bin/build src
+#      mkdir build; cd build
+#      cmake ..
+#      make                        <— builds your firmware
+#      make upload                 <— uploads your firmware to the device
+#      make MyTestProject-serial   <— starts a screen session with serial connection
 #
 # And you should see a binary image built for the default board, or the 
 # board you specified in the Arlifile.
@@ -36,6 +39,7 @@ set(ARLI_ARDUINO_HARDWARE_LIBS
 set(ARLI_ARDUINO_LIBS 
       SD)
 
+set(Adafruit_LEDBackpack_DEPENDS_ON_LIBS Adafruit_GFX)
 
 set(EEPROM_ONLY_HEADER yes)
 
@@ -43,10 +47,9 @@ set(EEPROM_ONLY_HEADER yes)
 include(Arli)
 
 arli_detect_serial_device("/dev/null")
+
 arli_detect_board("nano" "atmega328p")
 
-message(STATUS "device: [${BOARD_DEVICE}], board: [${BOARD_NAME}], cpu: [${BOARD_CPU}] <<<")
+message(STATUS "HARDWARE:\n   • BOARD_DEVICE=[${BOARD_DEVICE}]\n   • BOARD_NAME=[${BOARD_NAME}]\n   • BOARD_CPU=[${BOARD_CPU}]")
 
 arli_build_all_libraries()
-
-

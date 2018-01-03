@@ -18,6 +18,10 @@ module Arli
         self.lock_file = Arli::Lock::File.new(config: config, arlifile: arlifile)
       end
 
+      def additional_info
+        "\nArlifile Path: #{arlifile.arlifile_path.magenta}\nLock Format: #{config.arlifile.lock_format.to_s.yellow}\n"
+      end
+
       def params
         if arlifile&.libraries
           "libraries: \n • " + arlifile.libraries.map(&:name).join("\n • ")

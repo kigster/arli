@@ -34,4 +34,7 @@ RSpec.configure do |config|
   config.before type: :aruba do
     Arli::Helpers::Output.enable!
   end
+  config.after type: :aruba do
+    Arli::Helpers::Output.disable!
+  end
 end

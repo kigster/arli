@@ -12,14 +12,18 @@ module Arli
       attr_accessor :lib,
                     :lib_dir,
                     :canonical_dir,
-                    :config,
-                    :headers_only
+                    :config
+
+      # Additional attributes that can be set via Arlifile
+      attr_accessor :headers_only,
+                    :depends
 
       def initialize(lib, config: Arli.config)
         self.lib          = lib
         self.config       = config
         self.lib_dir      = lib.name.gsub(/ /, '_')
         self.headers_only = false
+        self.depends      = nil
       end
 
       def install
@@ -56,7 +60,7 @@ module Arli
 
       def inspect
         <<-EOF
-Library: #{lib.name} (#{lib.url}), only headers? #{headers_only ? 'YES': 'NO'}
+Library: #{lib.name} (#{lib.url}), only headers? #{headers_only ? 'YES' : 'NO'}
         EOF
       end
 
