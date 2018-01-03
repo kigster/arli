@@ -5,11 +5,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'arli/version'
 
 Arli::DESCRIPTION = <<-eof
-  This is an Arduino Library manager, compatible with the "arduino-cmake" project. 
-  Arli offers a powerful command-line tool to manage any number of dependent Github
-  projects, or official Arduino libraries. Arli was created to offer Arduino-based 
-  projects of moderate to high complexity an easy way to reference external libraries
-  and install them at build time, instead of committing them into the project repo.
+  This is an Arduino helper toolkit that builds on top of the arduino-cmake
+  project — a powerful alternative build system for Arduino. What Arli provides
+  is capability to search for libraries by any attributes and regular expressions,
+  install a whole set of libraries defined in a YAML file Arlifile, and finally,
+  it can generate a brand new Sketch Project based on arduino-cmake, that builds
+  out the box. Arli is a command line tool, so run "arli" after installing the gem
+  for more information.
 eof
 
 Gem::Specification.new do |spec|
