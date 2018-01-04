@@ -253,7 +253,6 @@ This command will create a brand new project under `~/arduino/sketches/MyClock`,
 ```bash
 cd ~/arduino/sketches/MyClock
 bin/setup 
-cd src
 rm -rf build && mkdir build && cd build
 cmake ..
 make
