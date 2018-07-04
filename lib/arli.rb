@@ -1,8 +1,7 @@
 require 'require_dir'
 
 module Arli
-  extend RequireDir
-  init __FILE__
+  RequireDir.enable_require_dir!(self, __FILE__)
 end
 
 require 'arduino/library'
