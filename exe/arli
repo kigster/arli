@@ -5,6 +5,7 @@ if %w(-C -Ch -hC --no-color).any? { |f| ARGV.include?(f) }
   Colored2.disable!
 end
 
+require 'arli'
 require 'arli/cli/runner'
 Arli::CLI::Runner.new(ARGV.dup).execute!
 

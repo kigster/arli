@@ -13,11 +13,11 @@ module Arli
       extend Forwardable
       def_delegators :@settings, :project_name, :project_name=, :workspace, :workspace=, :libs, :libs=, :template_repo
 
-      attr_accessor :settings, :dir
+      attr_accessor :settings, :dir, :seed, :have_existing
 
       def setup
         config.generate.project_name = config.runtime.argv.first
-
+        self.seed = Random.new.rand(1000000)
         self.settings = config.generate
 
         raise ::Arli::Errors::RequiredArgumentsMissing, 'Project name is required' unless project_name
@@ -28,14 +28,29 @@ module Arli
         FileUtils.mkdir_p(workspace) unless Dir.exist?(workspace)
       end
 
+      def temp_folder
+        "#{dir}.#{seed}"
+      end
+
+      def handle_preexisting_folder(dir)
+        self.have_existing = Dir.exist?(dir)
+        FileUtils.mv(dir, temp_folder) if have_existing
+      end
+
       def run
         Dir.chdir(workspace) do
           run_with_info(
               "Grabbing the template from\n • #{template_repo.bold.green}...",
-              "git clone -v #{template_repo} #{project_name} 2>&1"
+              "git clone -v #{template_repo} #{project_name} 2>&1",
           )
+
+          run_with_info(
+            'Copying existing files to the new repo',
+            "cp -rp #{temp_dir}/* #{project_name}/"
+          ) if have_existing
+
           Dir.chdir(project_name) do
-            FileUtils.rm_rf('.git')
+            FileUtils.rm_rf('.git') unless have_existing
             FileUtils.rm_rf('example')
             run_with_info(
                 "Configuring the new project #{project_name.bold.yellow}",
