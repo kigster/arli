@@ -112,6 +112,12 @@ dependencies:
 - name: "SimpleTimer"
   url: https://github.com/jfturcot/SimpleTimer.git
 - name: "Time"
+- name: BackSeatDriver
+  url: https://github.com/kigster/back-seat-driver
+  folder: libraries/BackSeatDriver
+- name: BackSeatDriver_DCMotorAdapter
+  url: https://github.com/kigster/back-seat-driver
+  folder: libraries/BackSeatDriver_DCMotorAdapter
 ```
 
 Let's review the contents:
@@ -163,6 +169,9 @@ If a library you are using is not in the public database just provide its `name`
 
 **Arli will use the `url` field if it's available** without trying to search for the library elsewhere.
 
+#### Installing a Sub-Folder of a Library
+
+As of version 1.3.0, Arli supports `folder` key in the Arlifile against each library. If provided, it is meant to be a relative sub-folder within the checked-out library directory structure, and only that folder will be installed as the library, and the rest removed. In the provided example, [BackSeatDriver](https://github.com/kigster/back-seat-driver/) is a collection of three libraries, and therefore to install one of them we must tell Arli a folder within that repository.j:wq
 
 ## Commands
 
