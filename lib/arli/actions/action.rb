@@ -13,9 +13,12 @@ module Arli
       extend Forwardable
       def_delegators :@library,
                      :exists?,
-                     :path, :temp_path,
-                     :dir, :temp_dir,
-                     :libraries_home
+                     :path,
+                     :temp_path,
+                     :dir,
+                     :temp_dir,
+                     :libraries_home,
+                     :folder
 
       class << self
         def inherited(base)

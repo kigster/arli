@@ -16,7 +16,8 @@ module Arli
 
       # Additional attributes that can be set via Arlifile
       attr_accessor :headers_only,
-                    :depends
+                    :depends,
+                    :folder # indicates a sub-folder of the library
 
       def initialize(lib, config: Arli.config)
         self.lib          = lib
@@ -24,6 +25,7 @@ module Arli
         self.lib_dir      = lib.name.gsub(/ /, '_')
         self.headers_only = false
         self.depends      = nil
+        self.folder       = nil
       end
 
       def install

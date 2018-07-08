@@ -36,6 +36,7 @@ module Arli
       end
 
       def self.included(base)
+        # This works for both classes and modules
         base.instance_eval do
           class << self
             include(::Arli::Helpers::Inherited::ClassMethods)
