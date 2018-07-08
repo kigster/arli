@@ -5,7 +5,7 @@ require 'arli/errors'
 
 module Arli
   module Library
-    ADDITIONAL_KEYS = %i(depends headers_only)
+    ADDITIONAL_KEYS = %i(depends headers_only folder)
 
     def library_model(lib)
       return lib if lib.is_a?(::Arduino::Library::Model)

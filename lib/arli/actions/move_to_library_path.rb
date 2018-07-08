@@ -15,7 +15,12 @@ module Arli
           if Dir.exist?(temp_path) && !Dir.exist?(path)
             FileUtils.mkdir_p(File.dirname(path))
             ___ "current: #{Dir.pwd.yellow}\ntemp_path: #{temp_path.yellow}\nlibrary_path: #{path.yellow}\n" if debug?
-            mv(temp_path, path)
+            if folder && Dir.exist?("#{temp_path}/#{folder}")
+              mv("#{temp_path}/#{folder}", path)
+              FileUtils.rm_rf(temp_path)
+            else
+              mv(temp_path, path)
+            end
           elsif Dir.exist?(path)
             raise ::Arli::Errors::InstallerError,
                   "Directory #{path} was not expected to still be there!"

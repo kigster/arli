@@ -12,6 +12,7 @@ module Arli
   module Commands
     class Install < Base
       require 'arduino/library/include'
+      include Arduino::Library::InstanceMethods
 
       attr_accessor :library,
                     :arlifile,
@@ -47,22 +48,24 @@ module Arli
       def identify_library(arg)
         results = if arg =~ %r[https?://]i
                     self.install_method = :url
-                    r                   = search(url: /^#{arg}$/i)
-                    if r.empty?
+                    result = search url: /^#{arg}$/i
+
+                    if result.empty?
                       self.install_method = :website
-                      r                   = search(website: /^#{arg}$/i)
+                      result = search(website: /^#{arg}$/i)
                     end
-                    if r.empty?
+
+                    if result.empty?
                       self.install_method = :custom
-                      r                   = [Arduino::Library::Model.from_hash(url: arg, name: File.basename(arg))]
+                      result = [Arduino::Library::Model.from_hash(url: arg, name: File.basename(arg))]
                     end
-                    r
+                    result
                   elsif File.exist?(arg) || arg =~ /\.zip$/
                     self.install_method = :archiveFileName
-                    search(archiveFileName: "#{File.basename(arg)}")
+                    search archiveFileName: "#{File.basename(arg)}"
                   else
                     self.install_method = :name
-                    search(name: /^#{arg}$/)
+                    search name: /^#{arg}$/
                   end
 
         validate_search(arg, results)
@@ -75,6 +78,11 @@ module Arli
 
       def post_install
         #
+      end
+
+      def search(**opts)
+        # noinspection RubyArgCount
+        super(opts)
       end
 
       private
