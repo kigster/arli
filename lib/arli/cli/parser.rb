@@ -104,13 +104,15 @@ module Arli
           config.generate.workspace = v
         end
 
-        # on('-L', '--libs "LIBS"',
-        #    'Comma separated list of library names, or name ',
-        #    'substrings, to be searched for and added to the ',
-        #    'initial Arlifile. Multiple matches are added anyway',
-        #    'while no matches are skipped' + "\n\n") do |v|
-        #   config.generate.libs = v.split(',')
-        # end
+        on('-L', '--libs LIB',
+           'Full or partial name of a public Arduino library, can be used more',
+           'than once. Libraries will be searched in the Arduino database, ',
+           'and added to the project Arlifile. Multiple matches or no match',
+           'will raise an error.' + "\n\n") do |v|
+          config.generate.libs ||= []
+          config.generate.libs << v.strip
+          config.generate.libs.uniq!
+        end
 
         option_if_exists('project')
       end

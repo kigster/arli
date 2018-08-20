@@ -5,20 +5,33 @@ require_relative 'base'
 require_relative '../arli_file'
 require_relative '../helpers/system_commands'
 require 'forwardable'
+require 'arduino/library'
 module Arli
   module Commands
     class Generate < Base
+
+      include ::Arduino::Library
       include ::Arli::Helpers::SystemCommands
 
       extend Forwardable
       def_delegators :@settings, :project_name, :project_name=, :workspace, :workspace=, :libs, :libs=, :template_repo
 
-      attr_accessor :settings, :dir
+      attr_accessor :settings, :dir, :libraries
 
       def setup
         config.generate.project_name = config.runtime.argv.first
 
         self.settings = config.generate
+        self.libraries = []
+
+        (settings.libs || []).each do |lib|
+          library = find_library({ name: lib }, version: :latest)
+          if library
+            self.libraries << library
+          else
+            raise ::Arli::Errors::LibraryNotFound, "Can not find library by name #{lib}"
+          end
+        end
 
         raise ::Arli::Errors::RequiredArgumentsMissing, 'Project name is required' unless project_name
         raise ::Arli::Errors::RequiredArgumentsMissing, 'Template Repo is missing' unless template_repo
@@ -42,8 +55,14 @@ module Arli
                 'git init .'
             )
             run_with_info('Customizing your README and other files...')
+
             rename_files!
+
             configure_template!
+            configure_arlifile!
+
+            configure_main!
+
             run_with_info(
                 'Running setup of the dependencies...',
                 'bin/setup'
@@ -74,136 +93,46 @@ module Arli
 
       private
 
+      def configure_arlifile!
+        arli_config = YAML.load(File.read('src/Arlifile'))
+        arli_config['dependencies'] = []
+
+        (libraries || []).each do |library|
+          arli_config['dependencies'] << { 'name' => library.name, 'version' => library.version }
+        end
+
+        File.open('src/Arlifile', 'w') do |f|
+          f.write(YAML.dump(arli_config))
+        end
+      end
+
+      def configure_main!
+        template = File.read(File.expand_path('../main.cpp.erb', __FILE__))
+        main = ERB.new(template).result(binding)
+        require 'erb'
+        File.open("src/#{project_name}.cpp", 'w') do |f|
+          f.write(main)
+        end
+      end
+
       def rename_files!
         FileUtils.mv('README.md', 'README-Arli-CMake.md')
-        Dir.chdir('src') do
-          FileUtils.mv('MyProject.cpp', "#{project_name}.cpp")
-          run_with_info('Updating CMakeLists.txt file...',
-                        "sed -i 's/MyProject/#{project_name}/g' CMakeLists.txt")
-        end
         run_with_info('Updating CMakeLists.txt file...',
-                      "sed -i 's/MyProject/#{project_name}/g' CMakeLists.txt")
+                      "sed -E -i '' 's/example/src/g' CMakeLists.txt")
+        run_with_info('Updating CMakeLists.txt files...',
+                      "find . -type f -name CMakeLists.txt -exec sed -E -i '' 's/MyProject/#{project_name}/g' {} \\; ")
+        Dir.chdir('src') do
+          FileUtils.rm_f('MyProject.cpp')
+        end
       end
 
       def configure_template!
+        template = File.read(File.expand_path('../readme.md.erb', __FILE__))
+        @project_name = config.generate.project_name
+        readme = ERB.new(template).result(binding)
+        require 'erb'
         File.open('README.md', 'w') do |f|
-          f.write <<-EOF
-          
-> **NOTE**: This project has been auto-generated using:
-> 
->  * [arli](https://github.com/kigster/arli) Arduino toolkit, and using the `generate` command. Thank you for using Arli!
->  * [arli-cmake](https://github.com/kigster/arli-cmake) is the template project that was used as a source for this one.
->  * [arduino-cmake](https://github.com/arduino-cmake/arduino-cmake) is the CMake-based build system for Arduino projects.
->
-> There is a discussion board for Arli/CMake-based projects. Please join if you have any questions or suggestions!
-> [![Gitter](https://img.shields.io/gitter/room/gitterHQ/gitter.svg)](https://gitter.im/arduino-cmake-arli/)
-
-
-# #{project_name}
-
-**TODO: Please update this README to reflect information about you project. :)** 
-
-## Prerequisites
-
- * On a Mac, you always need to run `xcode-select --install` before you can do any development. You must have `git` installed;
-
- * Requires [CMake](https://cmake.org/download/)
-
- * Requires [Arduino IDE](https://www.arduino.cc/en/Main/Software) or an SDK, either for [Mac](https://downloads.arduino.cc/arduino-1.8.5-macosx.zip) or [Linux](https://downloads.arduino.cc/arduino-1.8.5-linux.zip) installed;
-
- * Requires ruby, 2.3 or 2.4+ installed. On a Mac's Terminal, run `ruby --version`. If for some reason you don't have it installed, the `bin/setup` script will prompt you to install it.
-
-## Building #{project_name}
- 
-```bash
-$ cd ~/workspace/#{project_name}
-$ rm -rf build && mkdir -p build && cd build
-$ cmake ..
-$ make                          # this builds the image
-$ make upload                   # this uploads it to the device
-$ # this next command opens a serial port monitor inside a screen session
-$ make #{project_name}-serial   
-```
-
-### Customizing the Build
-
-You can use environment variables to set the board, CPU and the port. Simply prefix the following variables before you run `cmake ..`
-
-```bash
-$ rm -rf build
-$ mkdir -p build
-$ cd build
-$ BOARD_NAME=nano \\
-  BOARD_CPU=atmega328p \\
-  BOARD_DEVICE=/dev/tty.usbserial-DA00WXFY \\
-  cmake ..
-```
-
-### Adding External Libraries
-
-Your repo contains `Arlifile` inside the `src` folder. Please [read the documentation](https://github.com/kigster/arli#command-bundle) about the format of `Arlifile`.
-
-Go ahead and edit that file, and under `dependencies:` you want to list all of your libraries by their exact name, and an optional version. 
-
-The best way to do that is to **first search for the library** using the `arli search terms` command. Once you find the library you want, just copy it's name as is into `Arlifile`. If it contains spaces, put quotes around it.
-
-For example:
-
-```bash
-❯ arli search /adafruit.*bmp085/i
-
-Arli (1.0.2), Command: search
-Library Path: ~/Documents/Arduino/Libraries
-
-Adafruit BMP085 Library                         (1.0.0)    ( 1 total versions )
-Adafruit BMP085 Unified                         (1.0.0)    ( 1 total versions )
-———————————————————————
-  Total Versions : 2
-Unique Libraries : 2
-———————————————————————
-```
-
-If the library is not in the official database, just add it with a name and a url. Arli will use the url field to fetch it.
-
-To verify that your Arlifile can resolve all libraries, please run `arli bundle` inside the `src` folder. If Arli suceeds, you've got it right, and the `libraries` folder inside `src` should contain all referenced libraries.
-
-### Adding Source Files
-
-You will notice that inside `src/CMakeLists.txt` file, there is a line:
-
-```cmake
-set(PROJECT_SOURCES #{project_name}.cpp)
-```
-
-If you add any additional source files or headers, just add their names right after, separated by spaces or newlines. For example:
-
-```cmake
-set(PROJECT_SOURCES 
-  #{project_name}.cpp
-  #{project_name}.h
-  helpers/Loader.cpp
-  helpers/Loader.h
-  config/Configuration.h
-)
-```
-
-The should be all you need to do add custom logic and to rebuild and upload the project.
-
-## Where to get Support?
-
-Please feel free to file bug reports and submit pull requests on GitHub — [https://github.com/kigster/arli-cmake](https://github.com/kigster/arli-cmake) is the project URL, and this is the [issues](https://github.com/kigster/arli-cmake/issues) URL.
-
-## License
-
-The original project is distributed as open source, under the terms of the [MIT License](http://opensource.org/licenses/MIT). 
-
-However, feel free to change the license of your project, as long as you provide the credit to the original.
-
-Thanks!
-Good luck!
-
-
-          EOF
+          f.write(readme)
         end
       end
     end
