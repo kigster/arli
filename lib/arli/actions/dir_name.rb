@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'action'
 
 module Arli
@@ -10,7 +12,6 @@ module Arli
     # This action renames invalid library folders based on the
     # source files found inside.
     class DirName < Action
-
       description 'Auto-detects the canonical library folder name'
 
       attr_accessor :sources, :headers
@@ -26,9 +27,9 @@ module Arli
           set_canonical_dir!(dir)
         else
           candidate =
-              if_only_one(headers) ||
-                  if_only_one(sources) ||
-                  if_header_a_substring(headers)
+            if_only_one(headers) ||
+            if_only_one(sources) ||
+            if_header_a_substring(headers)
 
           set_canonical_dir!(candidate)
         end
@@ -82,7 +83,7 @@ module Arli
         end
       end
 
-      EXT_REGEX = /\.(cpp|h|c)$/
+      EXT_REGEX = /\.(cpp|h|c)$/.freeze
       EXT_CHOMP = ->(f) { f.gsub(EXT_REGEX, '') }
 
       def files_with_extension(pattern)

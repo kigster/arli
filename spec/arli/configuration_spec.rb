@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Arli::Configuration do
@@ -33,4 +35,3 @@ RSpec.describe Arli::Configuration do
     end
   end
 end
-

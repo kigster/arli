@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'fileutils'
 require 'open3'
@@ -39,9 +41,9 @@ module Arli
         FileUtils.mkdir_p(temp_path) unless Dir.exist?(temp_path)
       end
 
-      def run(*args)
+      def run(*_args)
         raise Arli::Errors::AbstractMethodCalled,
-          'This method must be implemented in subclasses'
+              'This method must be implemented in subclasses'
       end
 
       def params

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'forwardable'
 require 'arli'
 require 'arli/actions'
@@ -61,7 +63,7 @@ module Arli
       def actions(library)
         actions = []
         # First, how do we get the library?
-        actions << ((library.url =~ /\.zip$/i) ? :unzip_file : :git_repo)
+        actions << (library.url =~ /\.zip$/i ? :unzip_file : :git_repo)
         actions << :dir_name
         actions << :move_to_library_path
         actions.flatten

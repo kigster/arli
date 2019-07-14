@@ -5,7 +5,6 @@ require 'optionparser'
 module Arli
   module CLI
     class Parser < ::OptionParser
-
       attr_accessor :output_lines,
                     :command,
                     :config
@@ -42,7 +41,7 @@ module Arli
         end
       end
 
-      SUPPORTED_FORMATS = %w[cmake text json yaml]
+      SUPPORTED_FORMATS = %w[cmake text json yaml].freeze
 
       def option_arlifile_lock_format
         on('-f', '--format FMT',
@@ -83,7 +82,7 @@ module Arli
         formats = Arli::Library::MultiVersion.format_methods
 
         on('-f', '--format FMT',
-           "Optional format of the search results.",
+           'Optional format of the search results.',
            "The default is #{'short'.bold.yellow}. Available ",
            "formats: #{formats.join(', ').bold.yellow}\n\n") do |v|
           if formats.include?(v.downcase.to_sym)
@@ -121,8 +120,7 @@ module Arli
         on('-e', '--if-exists ACTION',
            "If a #{what} folder already exists, by default",
            'it will be overwritten or updated if possible.',
-           'Alternatively you can either ' + 'abort'.bold.blue + ' or ' + 'backup'.bold.blue
-        ) do |v|
+           'Alternatively you can either ' + 'abort'.bold.blue + ' or ' + 'backup'.bold.blue) do |v|
           if v == 'abort'
             config.if_exists.abort     = true
             config.if_exists.overwrite = false
@@ -147,15 +145,13 @@ module Arli
         end
       end
 
-
       def option_search_attributes
         on('-A', '--print-attrs', 'prints full list of available library',
            'attributes that can be used in search strings.', ' ') do
-
           ::Arli.config.help = true
           output ''
           header('Arduino Library Attributes:')
-          output "  • " + Arduino::Library::Types::LIBRARY_PROPERTIES.keys.join("\n  • ") + "\n\n"
+          output '  • ' + Arduino::Library::Types::LIBRARY_PROPERTIES.keys.join("\n  • ") + "\n\n"
         end
       end
 
@@ -180,7 +176,7 @@ module Arli
       end
 
       def output_help
-        output self.to_s
+        output to_s
       end
 
       def output_command_help
@@ -188,22 +184,21 @@ module Arli
       end
 
       def command_help
-
         header 'Available Commands'
         subtext = ''
         factory.command_parsers.each_pair do |command, config|
           subtext << %Q/#{sprintf('    %-12s', command.to_s).green} — #{sprintf('%s', config[:sentence]).blue}\n/
         end
-        subtext << <<-EOS
+        subtext << <<~HELP
 
-See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yellow} for more information on a specific command.
-        EOS
+          See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yellow} for more information on a specific command.
+        HELP
         subtext
       end
 
       def output(value = nil)
-        self.output_lines << value if value
-        self.output_lines
+        output_lines << value if value
+        output_lines
       end
 
       def print
@@ -221,7 +216,7 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
           config.no_color = true
         end
         on('-D', '--debug',
-           'Print debugging info.') do |v|
+           'Print debugging info.') do |_v|
           config.debug = true
         end
         on('-t', '--trace',
@@ -229,23 +224,25 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
           config.trace = v
         end
         on('-v', '--verbose',
-           'Print more information.') do |v|
+           'Print more information.') do |_v|
           config.verbose = true
         end
         on('-q', '--quiet',
-           'Print less information.') do |v|
+           'Print less information.') do |_v|
           config.quiet = true
         end
         on('-V', '--version',
-           'Print current version and exit') do |v|
+           'Print current version and exit') do |_v|
           print_version_copyright
           Arli.config.help = true
         end
       end
 
       def print_version_copyright
-        output << Arli::Configuration::ARLI_COMMAND.bold.yellow + ' (' + Arli::VERSION.bold.green + ')' +
-            ' © 2017 Konstantin Gredeskoul, MIT License.'.dark unless Arli.config.quiet
+        unless Arli.config.quiet
+          output << Arli::Configuration::ARLI_COMMAND.bold.yellow + ' (' + Arli::VERSION.bold.green + ')' +
+                    ' © 2017 Konstantin Gredeskoul, MIT License.'.dark
+        end
       end
 
       def indent
@@ -272,13 +269,14 @@ See #{Arli::Configuration::ARLI_COMMAND.blue + ' command '.green + '--help'.yell
       end
 
       private
+
       def output_command_aliases(command_name)
         command_aliases = factory.command_aliases(command_name) || []
-        unless command_aliases.empty?
-          header 'Aliases'
-          output indent + command_aliases.join(', ').bold.blue
-          output << ''
-        end
+        return if command_aliases.empty?
+
+        header 'Aliases'
+        output indent + command_aliases.join(', ').bold.blue
+        output << ''
       end
     end
   end

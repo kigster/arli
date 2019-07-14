@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require_relative 'action'
 require_relative '../helpers/system_commands'
 
 module Arli
   module Actions
     class MoveToLibraryPath < Action
-
       description 'Moves the downloaded library to the proper path, optionally creating a backup'
 
       include ::Arli::Helpers::SystemCommands

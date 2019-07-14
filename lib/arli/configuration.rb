@@ -1,14 +1,15 @@
+# frozen_string_literal: true
+
 require 'dry-configurable'
 require 'arduino/library'
 require 'yaml'
 
 module Arli
   class Configuration
-
-    DEFAULT_FILENAME       = 'Arlifile'.freeze
+    DEFAULT_FILENAME       = 'Arlifile'
     DEFAULT_LOCK_FILENAME  = (DEFAULT_FILENAME + '.lock').freeze
-    ACTIONS_WHEN_EXISTS    = %i(backup overwrite abort)
-    ARLI_COMMAND           = 'arli'.freeze
+    ACTIONS_WHEN_EXISTS    = %i[backup overwrite abort].freeze
+    ARLI_COMMAND           = 'arli'
     DEFAULT_RESULTS_LIMIT  = 0
     GENERATE_TEMPLATE_REPO = 'https://github.com/kigster/arli-cmake'
 
@@ -84,8 +85,5 @@ module Arli
     setting :install do
       setting :library
     end
-
   end
 end
-
-

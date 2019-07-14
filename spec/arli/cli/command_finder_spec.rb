@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Arli::CLI::CommandFinder do
-
   subject(:finder) { described_class.new(argv) }
   let(:config) { Arli.config }
 
@@ -16,7 +17,7 @@ RSpec.describe Arli::CLI::CommandFinder do
   end
 
   context 'bundle command' do
-    let(:argv) { %w[bundle -l /tmp -a spec/fixtures/file2 ] }
+    let(:argv) { %w[bundle -l /tmp -a spec/fixtures/file2] }
     its(:detect_command) { should eq :bundle }
 
     context 'command' do
@@ -41,7 +42,6 @@ RSpec.describe Arli::CLI::CommandFinder do
           it { is_expected.to be_kind_of(Arli::Commands::Generate) }
         end
       end
-
     end
   end
 end

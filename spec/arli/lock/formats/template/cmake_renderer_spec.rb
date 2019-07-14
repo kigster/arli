@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'yaml'
 
@@ -44,7 +46,7 @@ module Arli
           let(:file_path) { path + '/' + file }
           let(:contents) { ::File.read(file_path) }
           let(:expected_result) { ::File.read("#{path}/Arlifile-Expected") }
-          let(:arlifile_hash) { Hashie::Mash.new(Hashie::Extensions::SymbolizeKeys.symbolize_keys(YAML.load(contents))) }
+          let(:arlifile_hash) { Hashie::Mash.new(Hashie::Extensions::SymbolizeKeys.symbolize_keys(YAML.safe_load(contents))) }
           let(:arlifile) { ::Arli::Lock::Formats::Template.arlifile }
 
           context 'verify fixture' do
@@ -103,10 +105,8 @@ module Arli
 
                 it { is_expected.to eq(render_result) }
                 it { is_expected.to eq(expected_result) }
-
               end
             end
-
           end
         end
       end

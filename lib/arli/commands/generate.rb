@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'arli'
 require 'net/http'
@@ -9,7 +11,6 @@ require 'arduino/library'
 module Arli
   module Commands
     class Generate < Base
-
       include ::Arduino::Library
       include ::Arli::Helpers::SystemCommands
 
@@ -27,7 +28,7 @@ module Arli
         (settings.libs || []).each do |lib|
           library = find_library({ name: lib }, version: :latest)
           if library
-            self.libraries << library
+            libraries << library
           else
             raise ::Arli::Errors::LibraryNotFound, "Can not find library by name #{lib}"
           end
@@ -44,15 +45,15 @@ module Arli
       def run
         Dir.chdir(workspace) do
           run_with_info(
-              "Grabbing the template from\n • #{template_repo.bold.green}...",
-              "git clone -v #{template_repo} #{project_name} 2>&1"
+            "Grabbing the template from\n • #{template_repo.bold.green}...",
+            "git clone -v #{template_repo} #{project_name} 2>&1"
           )
           Dir.chdir(project_name) do
             FileUtils.rm_rf('.git')
             FileUtils.rm_rf('example')
             run_with_info(
-                "Configuring the new project #{project_name.bold.yellow}",
-                'git init .'
+              "Configuring the new project #{project_name.bold.yellow}",
+              'git init .'
             )
             run_with_info('Customizing your README and other files...')
 
@@ -64,10 +65,10 @@ module Arli
             configure_main!
 
             run_with_info(
-                'Running setup of the dependencies...',
-                'bin/setup'
+              'Running setup of the dependencies...',
+              'bin/setup'
             )
-            run_with_info("The project #{project_name.bold.yellow} is ready.\n" +
+            run_with_info("The project #{project_name.bold.yellow} is ready.\n" \
                               'Follow README.md for build instructions.')
           end
         end
@@ -80,6 +81,7 @@ module Arli
         err_indent = indent + ' X   '.red
         info("\n" + message.magenta)
         return unless command
+
         info(indent + command.bold.yellow)
         o, e, s = run_system_command(command)
         info(ok_indent + o.chomp.gsub(/\n/, "\n#{ok_indent}").blue) if o && o.chomp != ''
@@ -87,14 +89,14 @@ module Arli
       end
 
       def additional_info
-        "\nGenerating project #{project_name.bold.green} into #{workspace.bold.yellow}\n" +
-            "Template: #{template_repo.bold.red}\n"
+        "\nGenerating project #{project_name.bold.green} into #{workspace.bold.yellow}\n" \
+          "Template: #{template_repo.bold.red}\n"
       end
 
       private
 
       def configure_arlifile!
-        arli_config = YAML.load(File.read('src/Arlifile'))
+        arli_config = YAML.safe_load(File.read('src/Arlifile'))
         arli_config['dependencies'] = []
 
         (libraries || []).each do |library|
@@ -107,7 +109,7 @@ module Arli
       end
 
       def configure_main!
-        template = File.read(File.expand_path('../main.cpp.erb', __FILE__))
+        template = File.read(File.expand_path('main.cpp.erb', __dir__))
         main = ERB.new(template).result(binding)
         require 'erb'
         File.open("src/#{project_name}.cpp", 'w') do |f|
@@ -118,7 +120,7 @@ module Arli
       def rename_files!
         FileUtils.mv('README.md', 'README-Arli-CMake.md')
         run_with_info('Updating CMakeLists.txt file...',
-                      "sed -E -i '' 's/example/src/g' CMakeLists.txt")
+                      'sed -E -i \'\' \'s/example/src/g\' CMakeLists.txt')
         run_with_info('Updating CMakeLists.txt files...',
                       "find . -type f -name CMakeLists.txt -exec sed -E -i '' 's/MyProject/#{project_name}/g' {} \\; ")
         Dir.chdir('src') do
@@ -127,7 +129,7 @@ module Arli
       end
 
       def configure_template!
-        template = File.read(File.expand_path('../readme.md.erb', __FILE__))
+        template = File.read(File.expand_path('readme.md.erb', __dir__))
         @project_name = config.generate.project_name
         readme = ERB.new(template).result(binding)
         require 'erb'

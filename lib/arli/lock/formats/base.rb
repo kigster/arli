@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'arli/helpers/inherited'
 
 module Arli
@@ -15,15 +17,12 @@ module Arli
         end
 
         # Optional header
-        def header
-        end
+        def header; end
 
-        def format(library)
-        end
+        def format(library); end
 
         # Optional footer
-        def footer
-        end
+        def footer; end
 
         def extension
           self.class.extension

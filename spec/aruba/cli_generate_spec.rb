@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'aruba_helper'
 
-RSpec.describe 'command generate', :type => :aruba do
+RSpec.describe 'command generate', type: :aruba do
   let(:command) { "exe/arli #{args} -C " }
   let(:output) { last_command_started.stdout.chomp }
 
@@ -13,7 +15,7 @@ RSpec.describe 'command generate', :type => :aruba do
     before do
       FileUtils.rm_rf(src_dir)
       expect(Dir.exist?(project_path)).to be(false)
-      run_simple command
+      run_command_and_stop command
     end
 
     context 'creates a CMAKE project' do

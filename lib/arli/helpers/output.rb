@@ -16,7 +16,7 @@ module Arli
         end
 
         def enabled?
-          self.enabled
+          enabled
         end
 
         def disable!
@@ -26,7 +26,7 @@ module Arli
 
       # Include Module
 
-      self.enable!
+      enable!
       self.cursor = TTY::Cursor
 
       def cursor
@@ -54,25 +54,26 @@ module Arli
         else
           __pf 'Error: '.bold.red
         end
-        error e.message if (e && e.respond_to?(:message))
+        error e.message if e&.respond_to?(:message)
         if e && Arli.config.trace
           __pf "\n"
           __pf 'Top 10 stack trace'.bold.yellow + "\n"
           __pf e.backtrace.reverse[-10..-1].join("\n").red + "\n"
         elsif e
-          __pf "\nUse -t (--trace) for detailed exception\n" +
-                   "or -D (--debug) to print Arli config\n"
+          __pf "\nUse -t (--trace) for detailed exception\n" \
+               "or -D (--debug) to print Arli config\n"
         end
         raise(e)
       end
 
-      def raise_invalid_arli_command!(cmd, e = nil)
-        raise Arli::Errors::InvalidCommandError.new(cmd)
+      def raise_invalid_arli_command!(cmd, _e = nil)
+        raise Arli::Errors::InvalidCommandError, cmd
       end
 
       # Shortcuts disabled in tests
       def ___(msg = nil, newline = false)
         return unless Arli::Helpers::Output.enabled?
+
         __pf msg if msg
         __pt if newline
       end
@@ -88,7 +89,6 @@ module Arli
       def __pf(*args)
         printf(*args) if Arli::Helpers::Output.enabled?
       end
-
 
       def print_target_dir(d, verb = 'installed')
         print_action_success(d.green, "#{verb} #{d.green} ")
@@ -125,7 +125,7 @@ module Arli
 
       def action_fail(action, exception)
         print_action_failure(action.class.short_name,
-                             "#{action.class.short_name} failed with #{exception.message.red}\n" +
+                             "#{action.class.short_name} failed with #{exception.message.red}\n" \
                                  "Action Description: #{action.class.description}")
         raise(exception)
       end
@@ -146,12 +146,12 @@ module Arli
         out = "#{hr}\n"
         out << 'Arli '.bold.red + "(#{::Arli::VERSION.yellow})"
         out << ", executing command #{command.name.to_s.blue.bold}" if command
-        if command && command.params && Arli.config.verbose
+        if command&.params && Arli.config.verbose
           out << "\n#{command.params.to_s.bold.magenta}\n"
         end
         out << command.additional_info if command.respond_to?(:additional_info)
         out << "Library Path: #{Arli.default_library_path.bold.green}\n"
-        out << "#{hr}"
+        out << hr.to_s
         info out
       end
 

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module Arli
   module CLi
-
   end
 end
 

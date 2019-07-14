@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'aruba_helper'
 
-RSpec.describe 'command search', :type => :aruba do
-  let(:command) {"exe/arli #{args} -Cm 0"}
-  let(:output) {last_command_started.stdout.chomp}
+RSpec.describe 'command search', type: :aruba do
+  let(:command) { "exe/arli #{args} -Cm 0" }
+  let(:output) { last_command_started.stdout.chomp }
 
-  let(:root_dir) {Dir.pwd}
-  let(:args) {"search '#{lib_identifier}'"}
+  let(:root_dir) { Dir.pwd }
+  let(:args) { "search '#{lib_identifier}'" }
 
-  before {run_simple command}
+  before { run_command_and_stop command }
 
   context 'search by name' do
-    let(:lib_identifier) {'^Adafruit GFX Library'}
+    let(:lib_identifier) { '^Adafruit GFX Library' }
     it 'find multiple versions, but one lib' do
       expect(output).to match(/#{lib_identifier}/)
       expect(output).to match(/Libraries : 1/)
@@ -18,7 +20,7 @@ RSpec.describe 'command search', :type => :aruba do
   end
 
   context 'search by regex' do
-    let(:lib_identifier) {'name: /adafruit/i'}
+    let(:lib_identifier) { 'name: /adafruit/i' }
     before do
       include 'arduino/library/include'
       @results = search(name: /adafruit/i)

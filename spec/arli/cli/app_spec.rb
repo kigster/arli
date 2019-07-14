@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Arli::CLI::App do
@@ -7,7 +9,7 @@ RSpec.describe Arli::CLI::App do
     let(:argv) { %w[] }
     before { app.parse_global_flags }
     its(:argv) { should eq [] }
-    its(:command) { should be_nil}
+    its(:command) { should be_nil }
   end
 
   context 'with global flags' do
@@ -22,7 +24,7 @@ RSpec.describe Arli::CLI::App do
   end
 
   context 'help' do
-    let(:argv) { %w[ -h ] }
+    let(:argv) { %w[-h] }
 
     before do
       allow_any_instance_of(Arli::CLI::Parser).to receive(:print)
@@ -34,7 +36,7 @@ RSpec.describe Arli::CLI::App do
     end
 
     context 'command help' do
-      let(:argv) { %w[ search -h ] }
+      let(:argv) { %w[search -h] }
       it 'should have help set' do
         expect(Arli.config.help).to be_truthy
       end
@@ -43,7 +45,7 @@ RSpec.describe Arli::CLI::App do
 
   context 'bundle command' do
     let(:lib_dir) { './tmp' }
-    let(:argv) { %W[bundle -l #{lib_dir} -a spec/fixtures/file3 ] }
+    let(:argv) { %W[bundle -l #{lib_dir} -a spec/fixtures/file3] }
 
     subject(:app) { described_class.new(argv) }
 

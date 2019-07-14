@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 module Arli
   module Helpers
@@ -22,7 +24,7 @@ module Arli
       context 'superclass' do
         subject { TestBase }
         its(:blah) { should eq 'meh' }
-        its(:short_name) { should eq :test_base}
+        its(:short_name) { should eq :test_base }
       end
 
       context 'subclass' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'arli'
 require 'yaml'
 require 'forwardable'
@@ -19,9 +21,9 @@ module Arli
       def initialize(config: Arli.config, arlifile: nil)
         self.config         = config
         self.arlifile       = arlifile
-        self.format         = config.arlifile.lock_format
+        self.format         = config.arlifile&.lock_format
         self.formatter      = set_formatter(format)
-        self.lock_file_path = "#{config.arlifile.path}/#{config.arlifile.name}.#{formatter.extension}"
+        self.lock_file_path = "#{config.arlifile&.path}/#{config.arlifile&.name}.#{formatter.extension}"
         self.file           = ::File.open(lock_file_path, 'w')
       end
 
@@ -40,11 +42,14 @@ module Arli
       end
 
       def close
-        file.close rescue nil
+        file.close
+      rescue StandardError
+        nil
       end
 
       def append(line = nil)
         return unless line
+
         line.end_with?("\n") ? file.print(line) : file.puts(line)
       end
 
@@ -61,4 +66,3 @@ module Arli
     end
   end
 end
-

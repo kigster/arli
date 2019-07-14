@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'rspec/its'
 require 'simplecov'
 
-SimpleCov.start
+SimpleCov.start do
+  add_filter 'spec'
+end
 
 require 'arli'
 require 'pp'

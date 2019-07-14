@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'forwardable'
 require 'optparse'
 require 'tmpdir'
@@ -6,7 +8,6 @@ require_relative 'command_finder'
 require_relative 'parser_factory'
 require_relative '../commands'
 require 'arli/helpers/output'
-
 
 module Arli
   module CLI
@@ -54,12 +55,16 @@ module Arli
         report_exception(e)
       ensure
         d = Arli.config.libraries.temp_dir
-        FileUtils.rm_rf(d) if Dir.exist?(d) rescue nil
+        begin
+          FileUtils.rm_rf(d) if Dir.exist?(d)
+        rescue StandardError
+          nil
+        end
         __pt
       end
 
       def parse_global_flags
-        if argv.first && argv.first.start_with?('-')
+        if argv.first&.start_with?('-')
           parser = factory.global_parser
           factory.parse_argv(parser, argv)
         end

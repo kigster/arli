@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'json'
 require 'yaml'
 module Arli
@@ -8,7 +10,7 @@ module Arli
 
         def footer
           "# vi:syntax=yaml\n" +
-          YAML.dump(hash)
+            YAML.dump(hash)
         end
       end
     end

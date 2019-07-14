@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require_relative 'action'
 require_relative '../helpers/system_commands'
 
 module Arli
   module Actions
     class GitRepo < Action
-
       include ::Arli::Helpers::SystemCommands
 
       description 'Fetches or updates remote git repositories'
@@ -23,7 +24,6 @@ module Arli
       def git_clone_command
         "git clone -v #{library.url} #{library.dir} 2>&1"
       end
-
     end
   end
 end

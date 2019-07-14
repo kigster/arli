@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Arli
   module Errors
     class ArliError < StandardError; end
@@ -6,9 +8,9 @@ module Arli
 
     class InvalidSyntaxError  < ArliError; end
 
-    class InvalidSearchSyntaxError  < InvalidSyntaxError; end
+    class InvalidSearchSyntaxError < InvalidSyntaxError; end
 
-    class InvalidInstallSyntaxError  < InvalidSyntaxError; end
+    class InvalidInstallSyntaxError < InvalidSyntaxError; end
 
     class AbstractMethodCalled < ArliError; end
 

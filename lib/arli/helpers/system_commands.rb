@@ -3,7 +3,6 @@ require_relative 'output'
 module Arli
   module Helpers
     module SystemCommands
-
       include Output
 
       def handle_preexisting_folder(to)
@@ -33,17 +32,17 @@ module Arli
       def run_system_command(*args)
         cmd = args.join(' ')
         raise 'No command to run was given' unless cmd
+
         info("\n" + cmd.green) if Arli.debug?
         o, e, s = Open3.capture3(cmd)
-        info("\n" + o) if o if Arli.debug?
+        info("\n" + o) if Arli.debug? && o
         info("\n" + e.red) if e && Arli.debug?
-        return o, e, s
+        [o, e, s]
       rescue Exception => e
-        error "Error running [#{args.join(' ')}]\n" +
-                  "Current folder is [#{Dir.pwd.yellow}]", e
+        error "Error running [#{args.join(' ')}]\n" \
+              "Current folder is [#{Dir.pwd.yellow}]", e
         raise e
       end
-
     end
   end
 end

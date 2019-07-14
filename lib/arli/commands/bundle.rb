@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'arli'
 require 'net/http'
@@ -9,7 +11,6 @@ require_relative '../lock/file'
 module Arli
   module Commands
     class Bundle < Base
-
       attr_accessor :arlifile, :lock_file
 
       def setup

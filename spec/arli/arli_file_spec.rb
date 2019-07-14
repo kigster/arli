@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'yaml'
 
@@ -6,7 +8,7 @@ RSpec.describe Arli::ArliFile do
   let(:path) { 'spec/fixtures/file1' }
   let(:file_path) { path + '/' + file }
   let(:contents) { File.read(file_path) }
-  let(:arlifile_hash) { Hashie::Mash.new(YAML.load(contents)) }
+  let(:arlifile_hash) { Hashie::Mash.new(YAML.safe_load(contents)) }
 
   context 'verify reading from the YAML file' do
     subject { arlifile_hash }
@@ -14,9 +16,9 @@ RSpec.describe Arli::ArliFile do
       expect(arlifile_hash.dependencies.size).to eq 2
     end
 
-    its(:version) { should  eq '1.0.1' }
-    its(:libraries_path) { should eq './libraries'}
-    its(:lock_format) { should eq 'cmake'}
+    its(:version) { should eq '1.0.1' }
+    its(:libraries_path) { should eq './libraries' }
+    its(:lock_format) { should eq 'cmake' }
   end
 
   context 'ArliFile' do

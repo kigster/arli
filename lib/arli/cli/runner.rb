@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'arli'
 require 'arli/cli/app'
 
@@ -19,14 +21,14 @@ module Arli
           Arli::CLI::App.new(@argv).start
           print_debug_info
           0
-        rescue StandardError
-          1
-        rescue SystemExit => e
-          e.status
-        ensure
-          $stderr = STDERR
-          $stdin  = STDIN
-          $stdout = STDOUT
+                    rescue StandardError
+                      1
+                    rescue SystemExit => e
+                      e.status
+                    ensure
+                      $stderr = STDERR
+                      $stdin  = STDIN
+                      $stdout = STDOUT
         end
         @kernel.exit(exit_code)
       end

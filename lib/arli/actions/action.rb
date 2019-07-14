@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'arli/helpers/output'
 require 'arli/helpers/inherited'
 
@@ -41,11 +43,12 @@ module Arli
 
       def supported?
         return @supported if defined?(@supported)
-        if self.class.check_command && self.class.check_pattern
-          @supported = (`#{self.class.check_command} 2>/dev/null | grep "#{self.class.check_pattern}"`.chomp != '')
-        else
-          @supported = true
-        end
+
+        @supported = if self.class.check_command && self.class.check_pattern
+                       (`#{self.class.check_command} 2>/dev/null | grep "#{self.class.check_pattern}"`.chomp != '')
+                     else
+                       true
+                     end
       end
 
       def mv(from, to)
@@ -62,8 +65,6 @@ module Arli
         raise Arli::Errors::AbstractMethodCalled,
               'Abstract method #execute called on Base'
       end
-
-
     end
   end
 end

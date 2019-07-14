@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'arli'
 require 'yaml'
 require 'forwardable'
@@ -13,7 +15,7 @@ module Arli
     include Enumerable
 
     extend Forwardable
-    def_delegators :@dependencies, *(Array.new.methods - Object.methods)
+    def_delegators :@dependencies, *([].methods - Object.methods)
 
     include ::Arli::Library
 
@@ -36,9 +38,7 @@ module Arli
     alias libraries dependencies
 
     def install
-      each_in_temp_path do |lib|
-        lib.install
-      end
+      each_in_temp_path(&:install)
     end
 
     private
@@ -70,7 +70,7 @@ module Arli
 
     def read_dependencies(libraries)
       if libraries && !libraries.empty?
-        libraries.map {|lib| make_lib(lib)}
+        libraries.map { |lib| make_lib(lib) }
       else
         unless arlifile_path && File.exist?(arlifile_path)
           raise(Arli::Errors::ArliFileNotFound,
@@ -82,16 +82,16 @@ module Arli
 
     def parse_yaml_file
       self.arlifile_hash = Hashie::Mash.new(
-          Hashie::Extensions::SymbolizeKeys.symbolize_keys(
-              ::YAML.load(
-                  ::File.read(self.arlifile_path)
-              )
+        Hashie::Extensions::SymbolizeKeys.symbolize_keys(
+          ::YAML.safe_load(
+            ::File.read(arlifile_path)
           )
+        )
       )
 
       config.arlifile.hash = arlifile_hash
 
-      arlifile_hash.dependencies.map {|lib| make_lib(lib)}
+      arlifile_hash.dependencies.map { |lib| make_lib(lib) }
     end
   end
 end

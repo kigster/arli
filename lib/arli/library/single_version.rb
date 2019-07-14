@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'awesome_print'
 require 'arli/errors'
 
@@ -61,13 +63,13 @@ module Arli
       end
 
       def inspect
-        <<-EOF
-Library: #{lib.name} (#{lib.url}), only headers? #{headers_only ? 'YES' : 'NO'}
+        <<~EOF
+          Library: #{lib.name} (#{lib.url}), only headers? #{headers_only ? 'YES' : 'NO'}
         EOF
       end
 
       def method_missing(method, *args, &block)
-        if lib && lib.respond_to?(method)
+        if lib&.respond_to?(method)
           lib.send(method, *args, &block)
         else
           super(method, *args, &block)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'hashie/mash'
 require 'net/http'
 require 'json'
@@ -23,12 +25,16 @@ module Arli
 
       def setup
         self.install_argument = runtime.argv.first
-        raise InvalidInstallSyntaxError,
-              'Missing installation argument: a name, a file or a URL.' unless install_argument
+        unless install_argument
+          raise InvalidInstallSyntaxError,
+                'Missing installation argument: a name, a file or a URL.'
+        end
 
         self.library = identify_library(install_argument)
-        raise Arli::Errors::LibraryNotFound,
-              "Library #{cfg.to_hash} was not found" unless library
+        unless library
+          raise Arli::Errors::LibraryNotFound,
+                "Library #{cfg.to_hash} was not found"
+        end
 
         self.arlifile = Arli::ArliFile.new(config: config, libraries: [library])
         if config.trace
@@ -62,23 +68,21 @@ module Arli
                     result
                   elsif File.exist?(arg) || arg =~ /\.zip$/
                     self.install_method = :archiveFileName
-                    search archiveFileName: "#{File.basename(arg)}"
+                    search archiveFileName: File.basename(arg).to_s
                   else
                     self.install_method = :name
                     search name: /^#{arg}$/
                   end
 
         validate_search(arg, results)
-        results.sort.last if results && !results.empty?
+        results.max if results && !results.empty?
       end
 
       def params
         nil
       end
 
-      def post_install
-        #
-      end
+      def post_install; end
 
       def search(**opts)
         # noinspection RubyArgCount
@@ -88,11 +92,15 @@ module Arli
       private
 
       def validate_search(arg, results)
-        raise Arli::Errors::LibraryNotFound,
-              "Can't find library by argument #{arg.bold.yellow}, searching by #{install_method}" if results.nil? || results.empty?
+        if results.nil? || results.empty?
+          raise Arli::Errors::LibraryNotFound,
+                "Can't find library by argument #{arg.bold.yellow}, searching by #{install_method}"
+        end
         dupes = results.map(&:name).uniq.size
-        raise Arli::Errors::TooManyMatchesError,
-              "More than one match found for #{arg.bold.yellow} — #{dupes} libraries matched" if dupes > 1
+        if dupes > 1
+          raise Arli::Errors::TooManyMatchesError,
+                "More than one match found for #{arg.bold.yellow} — #{dupes} libraries matched"
+        end
       end
 
       def cfg

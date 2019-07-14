@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'require_dir'
 
 module Arli
@@ -21,23 +23,23 @@ module Arli
     attr_accessor :config
 
     def configure(&_block)
-      yield(self.config)
+      yield(config)
     end
 
     def debug?
-      self.config.debug
+      config.debug
     end
 
     def library_path
-      self.config.libraries.path
+      config.libraries.path
     end
 
     def default_library_path
-      tilda_path(self.config.libraries.path)
+      tilda_path(config.libraries.path)
     end
 
     def tilda_path(absolute_path)
-      absolute_path.gsub(%r(#{ENV['HOME']}), '~')
+      absolute_path.gsub(/#{ENV['HOME']}/, '~')
     end
   end
 end

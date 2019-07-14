@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'erb'
 require 'forwardable'
 
@@ -6,7 +8,6 @@ module Arli
     module Formats
       module Template
         class CMakeRenderer
-
           extend Forwardable
 
           def_delegators :@arlifile, :config, :arlifile_hash, :libraries
@@ -35,19 +36,19 @@ module Arli
           end
 
           def board
-            device && device.board ? device.board : 'uno'
+            device&.board ? device.board : 'uno'
           end
 
           def cpu
-            device && device.cpu ? device.cpu : 'atmega328p'
+            device&.cpu ? device.cpu : 'atmega328p'
           end
 
           def hardware_libraries
-            device && device.libraries ? device.libraries.hardware || [] : []
+            device&.libraries ? device.libraries.hardware || [] : []
           end
 
           def arduino_libraries
-            device && device.libraries ? device.libraries.arduino || [] : []
+            device&.libraries ? device.libraries.arduino || [] : []
           end
 
           def device_libraries
@@ -55,11 +56,11 @@ module Arli
           end
 
           def custom_libraries_headers_only
-            libraries.select { |l| l.headers_only } || []
+            libraries.select(&:headers_only) || []
           end
 
           def device_libraries_headers_only
-            device_libraries.select { |l| l.headers_only } || []
+            device_libraries.select(&:headers_only) || []
           end
 
           def library_path
@@ -76,22 +77,24 @@ module Arli
 
           def dependencies(lib)
             return nil unless lib.depends
+
             lib.depends.map { |name| library_by_name(name) }
           end
 
           def cmake_dependencies(lib)
             return nil unless lib.depends
+
             "set(#{lib.canonical_dir}_DEPENDS_ON_LIBS #{dependencies(lib).map(&:canonical_dir).join(' ')})"
           end
 
           def arli_library_path
             if library_path.start_with?('/')
-              "#{library_path}"
+              library_path.to_s
             elsif library_path.start_with?('~')
               "$ENV{HOME}#{library_path[1..-1]}"
             elsif library_path.start_with?('./')
               "${CMAKE_CURRENT_SOURCE_DIR}/#{library_path[2..-1]}"
-            elsif library_path && library_path.size > 0
+            elsif library_path && !library_path.empty?
               library_path
             else
               '${CMAKE_CURRENT_SOURCE_DIR}/libraries'

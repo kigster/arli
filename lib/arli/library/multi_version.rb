@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'forwardable'
 require 'arli'
 require 'arli/actions'
@@ -17,18 +19,18 @@ module Arli
       include ::Arli::Helpers::Output
 
       def ==(other)
-        other.instance_of?(self.class) && self.name == other.name
+        other.instance_of?(self.class) && name == other.name
       end
 
-      alias_method :eql?, :==
-      alias_method :lib, :latest_version_library
-      alias_method :lib=, :latest_version_library=
+      alias eql? ==
+      alias lib latest_version_library
+      alias lib= latest_version_library=
 
       def initialize(a_lib = nil, versions = [])
         Colored2.disable! if Arli.config.no_color
         self.latest_version_library = a_lib if a_lib
         self.versions               = versions || []
-        self.versions << a_lib.version if (a_lib && a_lib.respond_to?(:version) && self.versions.empty?)
+        self.versions << a_lib.version if a_lib&.respond_to?(:version) && self.versions.empty?
       end
 
       def add_version(library: nil)
@@ -36,9 +38,9 @@ module Arli
           if lib.nil? || library.version_to_i > lib.version_to_i
             self.latest_version_library = library
           end
-          self.versions << library.version
+          versions << library.version
         elsif version
-          self.versions << library.version
+          versions << library.version
         end
         normalize_version_array!
       end
@@ -64,14 +66,13 @@ module Arli
         lib_versions = versions.clone
         latest       = lib_versions.pop
         append do
-              "\n"
-              "Name:        #{lib.name.bold.yellow}\n" +
-              "Versions:    #{latest.bold.yellow}, #{lib_versions.reverse.join(', ').green}\n" +
-              (lib.author ? "Author(s):   #{lib.author.red}\n" : '') +
-              (lib.website ? "Website:     #{lib.website.cyan}\n" : '') +
-              "Sentence:    #{(lib.sentence).blue}\n" +
-          ((lib.paragraph && (lib.paragraph != lib.sentence)) ?
-               "Description: #{reformat_wrapped(lib.paragraph).magenta}\n" : "\n")
+          "\nName:        #{lib.name.bold.yellow}\n" \
+            "Versions:    #{latest.bold.yellow}, #{lib_versions.reverse.join(', ').green}\n" +
+            (lib.author ? "Author(s):   #{lib.author.red}\n" : '') +
+            (lib.website ? "Website:     #{lib.website.cyan}\n" : '') +
+            "Sentence:    #{lib.sentence.blue}\n" +
+            (lib.paragraph && (lib.paragraph != lib.sentence) ?
+                 "Description: #{reformat_wrapped(lib.paragraph).magenta}\n" : "\n")
         end
       end
 
@@ -87,7 +88,7 @@ module Arli
 
       def to_s_json
         append do
-          JSON.pretty_generate(lib.to_hash) + ","
+          JSON.pretty_generate(lib.to_hash) + ','
         end
       end
 
@@ -116,7 +117,7 @@ module Arli
       end
 
       def append_name
-        append { "#{lib.name.magenta}" }
+        append { lib.name.magenta.to_s }
       end
 
       def append_author
@@ -129,7 +130,7 @@ module Arli
       end
 
       def append_total_versions
-        append { "(#{sprintf("%2d", versions.size)} total versions )".green}
+        append { "(#{format('%2d', versions.size)} total versions )".green }
       end
 
       def append_truncated_version_list(limit)
@@ -140,7 +141,7 @@ module Arli
         self.versions = versions.flatten.compact.uniq.sort
       end
 
-      def reformat_wrapped(s, width=70)
+      def reformat_wrapped(s, width = 70)
         s.gsub(/\s+/, ' ').gsub(/(.{1,#{width}})( |\Z)/, "\\1\n             ")
       end
 

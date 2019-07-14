@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 module Arli
   module Actions
     class << self
       attr_accessor :actions
 
       def action(name)
-        self.actions[name]
+        actions[name]
       end
 
       def action_name(klass)
-        self.actions.invert[klass]
+        actions.invert[klass]
       end
     end
   end

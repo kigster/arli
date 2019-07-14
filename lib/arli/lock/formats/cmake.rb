@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'base'
 require_relative 'template/cmake_renderer'
 
@@ -15,7 +17,7 @@ module Arli
         end
 
         def format(library)
-          self.libraries << library
+          libraries << library
           nil
         end
 

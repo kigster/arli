@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'action'
 
 module Arli
@@ -17,7 +19,11 @@ module Arli
         fuck
         raise(e)
       ensure
-        delete_zip! rescue nil
+        begin
+          delete_zip!
+        rescue StandardError
+          nil
+        end
       end
 
       private

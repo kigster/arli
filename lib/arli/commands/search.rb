@@ -7,11 +7,9 @@ require 'arli/errors'
 require 'arli/library/multi_version'
 require 'arduino/library'
 
-
 module Arli
   module Commands
     class Search < Base
-
       require 'arduino/library/include'
 
       attr_accessor :search_string,
@@ -27,8 +25,10 @@ module Arli
         super(*args)
         self.format   = config.search.results.output_format
         valid_methods = Arli::Library::MultiVersion.format_methods
-        raise Arli::Errors::InvalidSearchSyntaxError,
-              "invalid format #{format}" unless valid_methods.include?(format)
+        unless valid_methods.include?(format)
+          raise Arli::Errors::InvalidSearchSyntaxError,
+                "invalid format #{format}"
+        end
       end
 
       def additional_info
@@ -46,7 +46,7 @@ module Arli
           puts multi_version.send("to_s_#{format}".to_sym)
         end
         print_total_with_help
-      rescue Exception => e
+      rescue StandardError => e
         error e
         puts e.backtrace.join("\n") if ENV['DEBUG']
       end
@@ -70,12 +70,11 @@ module Arli
           params_code = "{ #{search_string} }"
           puts "Evaluating: [#{params_code.blue}]\nSearch Method: [#{search_method.to_s.green}]" if config.trace
           search_opts = eval(params_code)
-
-        rescue => e
+        rescue StandardError => e
           handle_and_raise_error(e)
         end
 
-        unless search_opts.is_a?(::Hash) && search_opts.size > 0
+        unless search_opts.is_a?(::Hash) && !search_opts.empty?
           raise Arli::Errors::InvalidSearchSyntaxError,
                 "Search string '#{search_string}' did not eval to Hash.\n"
         end
@@ -116,12 +115,12 @@ module Arli
       def handle_and_raise_error(e)
         message = e.message
         if message =~ /undefined method.*Arduino::Library::Model/
-          message = 'Invalid attributed search. Possible values are:' +
-              "\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
+          message = 'Invalid attributed search. Possible values are:' \
+                    "\n#{Arduino::Library::Types::LIBRARY_PROPERTIES.keys}"
         end
         raise Arli::Errors::InvalidSearchSyntaxError,
               "Search string '#{search_string}' is invalid.\n" +
-                  message.red
+              message.red
       end
 
       def print_total_with_help
@@ -139,6 +138,7 @@ module Arli
       end
 
       private
+
       def hr_short
         puts '———————————————————————'
       end
