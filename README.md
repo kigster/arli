@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/kigster/arli.svg?branch=master)](https://travis-ci.org/kigster/arli)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/maintainability)](https://codeclimate.com/github/kigster/arli/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0812671b4bec27ba89b9/test_coverage)](https://codeclimate.com/github/kigster/arli/test_coverage)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkigster%2Farli.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkigster%2Farli?ref=badge_shield)
 
 Please visit Gitter to support and a discussion of this project.
 
@@ -411,3 +412,6 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/kigste
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkigster%2Farli.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkigster%2Farli?ref=badge_large)
